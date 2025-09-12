@@ -12,7 +12,7 @@ import {
   CompanySocialMediaForm,
   CompanyEmployeeForm
 } from '../models/company-register.models';
-import { BaseClass } from '../../shared/models/BaseType';
+import { BaseClass, BaseTypeClass } from '../../shared/models/BaseType';
 import { AddressTypeService } from '../services/AddressTypeService';
 import { EmailTypeService } from '../services/EmailTypeService';
 import { PhoneTypeService } from '../services/PhoneTypeService';
@@ -321,54 +321,71 @@ export class CompanyRegisterComponent implements OnInit {
 
     this.isLoading.set(true);
 
-    const currentForm = this.form();
-    const command: RegisterCompanyCommand = {
-      name: currentForm.name.trim(),
-      taxId: currentForm.taxId.trim(),
-      addresses: currentForm.addresses.map(addr => ({
-        addressType: addr.addressType,
-        address: addr.address.trim(),
-        isPrimary: addr.isPrimary
-      })),
-      emails: currentForm.emails.map(email => ({
-        emailType: email.emailType,
-        email: email.email.trim(),
-        isPrimary: email.isPrimary
-      })),
-      phones: currentForm.phones.map(phone => ({
-        phoneType: phone.phoneType,
-        phone: phone.phone.trim(),
-        isPrimary: phone.isPrimary
-      })),
-      socialMedias: currentForm.socialMedias.map(social => ({
-        socialMediaType: social.socialMediaType,
-        url: social.url.trim(),
-        isPrimary: social.isPrimary
-      })),
-      employees: currentForm.employees.map(employee => ({
-        fullName: employee.fullName.trim(),
-        email: employee.email.trim(),
-        phone: employee.phone?.trim(),
-        position: employee.position?.trim(),
-        hireDate: employee.hireDate
-      }))
-    };
+    try {
+      const currentForm = this.form();
+      
+      // Función helper para encontrar ID por nombre
+      const findTypeId = (typeName: string, options: BaseTypeClass[]): string => {
+        const type = options.find(opt => opt.name === typeName);
+        if (!type) {
+          throw new Error(`Tipo no encontrado: ${typeName}`);
+        }
+        return type.id;
+      };
 
-    this.companyService.registerCompany(command).subscribe({
-      next: (result) => {
-        this.isLoading.set(false);
-        this.successMessage.set('Empresa registrada exitosamente. Será redirigido al login.');
-        
-        // Redirigir al login después de 3 segundos
-        setTimeout(() => {
-          this.router.navigate(['/login']);
-        }, 3000);
-      },
-      error: (error) => {
-        this.isLoading.set(false);
-        this.errorMessage.set('Error al registrar la empresa. Intente nuevamente.');
-      }
-    });
+      const command: RegisterCompanyCommand = {
+        name: currentForm.name.trim(),
+        taxId: currentForm.taxId.trim(),
+        addresses: currentForm.addresses.map(addr => ({
+          addressTypeId: findTypeId(addr.addressType, currentForm.addressTypeOptions),
+          address: addr.address.trim(),
+          isPrimary: addr.isPrimary
+        })),
+        emails: currentForm.emails.map(email => ({
+          emailTypeId: findTypeId(email.emailType, currentForm.emailTypeOptions),
+          email: email.email.trim(),
+          isPrimary: email.isPrimary
+        })),
+        phones: currentForm.phones.map(phone => ({
+          phoneTypeId: findTypeId(phone.phoneType, currentForm.phoneTypeOptions),
+          phone: phone.phone.trim(),
+          isPrimary: phone.isPrimary
+        })),
+        socialMedias: currentForm.socialMedias.map(social => ({
+          socialMediaTypeId: findTypeId(social.socialMediaType, currentForm.socialMediaTypeOptions),
+          url: social.url.trim(),
+          isPrimary: social.isPrimary
+        })),
+        employees: currentForm.employees.map(employee => ({
+          fullName: employee.fullName.trim(),
+          email: employee.email.trim(),
+          phone: employee.phone?.trim(),
+          position: employee.position?.trim(),
+          hireDate: employee.hireDate
+        }))
+      };
+
+      this.companyService.registerCompany(command).subscribe({
+        next: (result) => {
+          this.isLoading.set(false);
+          this.successMessage.set('Empresa registrada exitosamente. Será redirigido al login.');
+          
+          // Redirigir al login después de 3 segundos
+          setTimeout(() => {
+            this.router.navigate(['/login']);
+          }, 3000);
+        },
+        error: (error) => {
+          this.isLoading.set(false);
+          console.error('Error al registrar empresa:', error);
+          this.errorMessage.set('Error al registrar la empresa. Intente nuevamente.');
+        }
+      });
+    } catch (mappingError) {
+      this.isLoading.set(false);
+      console.error('Error al mapear tipos:', mappingError);
+      this.errorMessage.set('Error al procesar los datos del formulario. Verifique que todos los tipos estén seleccionados correctamente.');
+    }
   }
 
   private clearMessages() {

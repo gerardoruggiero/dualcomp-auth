@@ -27,6 +27,9 @@ builder.Services.AddScoped<IPasswordValidator, PasswordValidator>();
 builder.Services.AddScoped<IPasswordGenerator, PasswordGenerator>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
+// Register Company Contact Service
+builder.Services.AddScoped<Dualcomp.Auth.Application.Companies.CompanyContactService>();
+
 // Auto-register all application handlers (Commands and Queries)
 builder.Services.AddApplicationHandlers();
 

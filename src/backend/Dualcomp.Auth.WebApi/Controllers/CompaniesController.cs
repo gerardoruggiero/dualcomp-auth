@@ -68,10 +68,10 @@ namespace Dualcomp.Auth.WebApi.Controllers
 					id,
 					request.Name,
 					TaxId.Create(request.TaxId),
-					request.Addresses.Select(a => new UpdateCompanyAddressDto(a.Id, a.AddressType, a.Address, a.IsPrimary)).ToList(),
-					request.Emails.Select(e => new UpdateCompanyEmailDto(e.Id, e.EmailType, e.Email, e.IsPrimary)).ToList(),
-					request.Phones.Select(p => new UpdateCompanyPhoneDto(p.Id, p.PhoneType, p.Phone, p.IsPrimary)).ToList(),
-					request.SocialMedias.Select(sm => new UpdateCompanySocialMediaDto(sm.Id, sm.SocialMediaType, sm.Url, sm.IsPrimary)).ToList(),
+					request.Addresses.Select(a => new UpdateCompanyAddressDto(a.Id, Guid.Parse(a.AddressTypeId), a.Address, a.IsPrimary)).ToList(),
+					request.Emails.Select(e => new UpdateCompanyEmailDto(e.Id, Guid.Parse(e.EmailTypeId), e.Email, e.IsPrimary)).ToList(),
+					request.Phones.Select(p => new UpdateCompanyPhoneDto(p.Id, Guid.Parse(p.PhoneTypeId), p.Phone, p.IsPrimary)).ToList(),
+					request.SocialMedias.Select(sm => new UpdateCompanySocialMediaDto(sm.Id, Guid.Parse(sm.SocialMediaTypeId), sm.Url, sm.IsPrimary)).ToList(),
 					request.Employees.Select(e => new UpdateCompanyEmployeeDto(e.Id, e.FullName, e.Email, e.Phone, e.Position, e.HireDate)).ToList());
 
 				var result = await _updateCompanyHandler.Handle(command, cancellationToken);
@@ -145,28 +145,28 @@ namespace Dualcomp.Auth.WebApi.Controllers
 
 	public record UpdateCompanyAddressRequest(
 		Guid? Id,
-		string AddressType,
+		string AddressTypeId,
 		string Address,
 		bool IsPrimary
 	);
 
 	public record UpdateCompanyEmailRequest(
 		Guid? Id,
-		string EmailType,
+		string EmailTypeId,
 		string Email,
 		bool IsPrimary
 	);
 
 	public record UpdateCompanyPhoneRequest(
 		Guid? Id,
-		string PhoneType,
+		string PhoneTypeId,
 		string Phone,
 		bool IsPrimary
 	);
 
 	public record UpdateCompanySocialMediaRequest(
 		Guid? Id,
-		string SocialMediaType,
+		string SocialMediaTypeId,
 		string Url,
 		bool IsPrimary
 	);

@@ -2,25 +2,25 @@ import { BaseClass, BaseTypeClass } from '../../shared/models/BaseType';
 
 // DTOs para el registro de empresa (basados en el backend)
 export interface RegisterCompanyAddressDto {
-  addressType: string;
+  addressTypeId: string;
   address: string;
   isPrimary: boolean;
 }
 
 export interface RegisterCompanyEmailDto {
-  emailType: string;
+  emailTypeId: string;
   email: string;
   isPrimary: boolean;
 }
 
 export interface RegisterCompanyPhoneDto {
-  phoneType: string;
+  phoneTypeId: string;
   phone: string;
   isPrimary: boolean;
 }
 
 export interface RegisterCompanySocialMediaDto {
-  socialMediaType: string;
+  socialMediaTypeId: string;
   url: string;
   isPrimary: boolean;
 }

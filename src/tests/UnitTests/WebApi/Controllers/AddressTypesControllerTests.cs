@@ -15,10 +15,10 @@ public class AddressTypesControllerTests
 		var mockHandler = new Mock<IQueryHandler<GetAddressTypesQuery, GetAddressTypesResult>>();
 		var expectedResult = new GetAddressTypesResult(new List<AddressTypeItem>
 		{
-			new AddressTypeItem("Principal"),
-			new AddressTypeItem("Sucursal"),
-			new AddressTypeItem("Facturación"),
-			new AddressTypeItem("Envío")
+			new AddressTypeItem(Guid.NewGuid().ToString(), "Principal"),
+			new AddressTypeItem(Guid.NewGuid().ToString(), "Sucursal"),
+			new AddressTypeItem(Guid.NewGuid().ToString(), "Facturación"),
+			new AddressTypeItem(Guid.NewGuid().ToString(), "Envío")
 		});
 		
 		mockHandler.Setup(h => h.Handle(It.IsAny<GetAddressTypesQuery>(), It.IsAny<CancellationToken>()))
@@ -27,7 +27,7 @@ public class AddressTypesControllerTests
 		var controller = new AddressTypesController(mockHandler.Object);
 
 		// Act
-		var result = await controller.GetAddressTypes(CancellationToken.None);
+		var result = await controller.GetTypes(CancellationToken.None);
 
 		// Assert
 		Assert.IsType<OkObjectResult>(result);
@@ -46,7 +46,7 @@ public class AddressTypesControllerTests
 		var controller = new AddressTypesController(mockHandler.Object);
 
 		// Act
-		var result = await controller.GetAddressTypes(CancellationToken.None);
+		var result = await controller.GetTypes(CancellationToken.None);
 
 		// Assert
 		Assert.IsType<BadRequestObjectResult>(result);

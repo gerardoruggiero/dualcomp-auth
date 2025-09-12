@@ -1,5 +1,6 @@
 using Dualcomp.Auth.Application.PhoneTypes.GetPhoneTypes;
 using Dualcomp.Auth.Domain.Companies;
+using Dualcomp.Auth.Domain.Companies.Repositories;
 using Moq;
 
 namespace Dualcomp.Auth.UnitTests.Application.PhoneTypes;
@@ -30,10 +31,10 @@ public class GetPhoneTypesQueryHandlerTests
 		// Assert
 		Assert.NotNull(result);
 		Assert.Equal(4, result.PhoneTypes.Count());
-		Assert.Contains(result.PhoneTypes, t => t.Value == "Principal");
-		Assert.Contains(result.PhoneTypes, t => t.Value == "Móvil");
-		Assert.Contains(result.PhoneTypes, t => t.Value == "Fax");
-		Assert.Contains(result.PhoneTypes, t => t.Value == "WhatsApp");
+		Assert.Contains(result.PhoneTypes, t => t.Value == "Principal" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.PhoneTypes, t => t.Value == "Móvil" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.PhoneTypes, t => t.Value == "Fax" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.PhoneTypes, t => t.Value == "WhatsApp" && !string.IsNullOrEmpty(t.Id));
 	}
 
 	[Fact]

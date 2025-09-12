@@ -1,21 +1,19 @@
 using Dualcomp.Auth.Application.Abstractions.Messaging;
+using Dualcomp.Auth.Application.Abstractions.Queries;
 using Dualcomp.Auth.Domain.Companies;
+using Dualcomp.Auth.Domain.Companies.Repositories;
+using DualComp.Infraestructure.Data.Persistence;
 
 namespace Dualcomp.Auth.Application.SocialMediaTypes.GetSocialMediaTypes
 {
-	public class GetSocialMediaTypesQueryHandler : IQueryHandler<GetSocialMediaTypesQuery, GetSocialMediaTypesResult>
+	public class GetSocialMediaTypesQueryHandler : GetTypesQueryHandler<SocialMediaTypeEntity, ISocialMediaTypeRepository, GetSocialMediaTypesQuery, GetSocialMediaTypesResult>
 	{
-		private readonly ISocialMediaTypeRepository _socialMediaTypeRepository;
-
-        public GetSocialMediaTypesQueryHandler(ISocialMediaTypeRepository socialMediaTypeRepository) => _socialMediaTypeRepository = socialMediaTypeRepository ?? throw new ArgumentNullException(nameof(socialMediaTypeRepository));
-
-        public async Task<GetSocialMediaTypesResult> Handle(GetSocialMediaTypesQuery request, CancellationToken cancellationToken)
-		{
-			var socialMediaTypes = await _socialMediaTypeRepository.GetAllAsync(cancellationToken);
-
-			var socialMediaTypeItems = socialMediaTypes.Select(smt => new SocialMediaTypeItem(smt.Name)).ToList();
-
-			return new GetSocialMediaTypesResult(socialMediaTypeItems);
-		}
+        public GetSocialMediaTypesQueryHandler(ISocialMediaTypeRepository socialMediaTypeRepository) 
+            : base(
+                socialMediaTypeRepository,
+                (repo, ct) => repo.GetAllAsync(ct),
+                entities => new GetSocialMediaTypesResult(entities.Select(e => new SocialMediaTypeItem(e.Id.ToString(), e.Name))))
+        {
+        }
 	}
 }

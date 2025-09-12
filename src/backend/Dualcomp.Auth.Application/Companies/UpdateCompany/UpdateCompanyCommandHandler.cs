@@ -1,5 +1,6 @@
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Dualcomp.Auth.Domain.Companies;
+using Dualcomp.Auth.Domain.Companies.Repositories;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using DualComp.Infraestructure.Data.Persistence;
 
@@ -8,25 +9,16 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
     public class UpdateCompanyCommandHandler : ICommandHandler<UpdateCompanyCommand, UpdateCompanyResult>
     {
         private readonly ICompanyRepository _companyRepository;
-        private readonly IAddressTypeRepository _addressTypeRepository;
-        private readonly IEmailTypeRepository _emailTypeRepository;
-        private readonly IPhoneTypeRepository _phoneTypeRepository;
-        private readonly ISocialMediaTypeRepository _socialMediaTypeRepository;
+        private readonly CompanyContactService _contactService;
         private readonly IUnitOfWork _unitOfWork;
 
         public UpdateCompanyCommandHandler(
             ICompanyRepository companyRepository,
-            IAddressTypeRepository addressTypeRepository,
-            IEmailTypeRepository emailTypeRepository,
-            IPhoneTypeRepository phoneTypeRepository,
-            ISocialMediaTypeRepository socialMediaTypeRepository,
+            CompanyContactService contactService,
             IUnitOfWork unitOfWork)
         {
             _companyRepository = companyRepository ?? throw new ArgumentNullException(nameof(companyRepository));
-            _addressTypeRepository = addressTypeRepository ?? throw new ArgumentNullException(nameof(addressTypeRepository));
-            _emailTypeRepository = emailTypeRepository ?? throw new ArgumentNullException(nameof(emailTypeRepository));
-            _phoneTypeRepository = phoneTypeRepository ?? throw new ArgumentNullException(nameof(phoneTypeRepository));
-            _socialMediaTypeRepository = socialMediaTypeRepository ?? throw new ArgumentNullException(nameof(socialMediaTypeRepository));
+            _contactService = contactService ?? throw new ArgumentNullException(nameof(contactService));
             _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         }
 
@@ -39,19 +31,18 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
                 throw new InvalidOperationException("Empresa no encontrada");
             }
 
-            // Verificar si el TaxId ya existe en otra empresa
-            var existingCompany = await _companyRepository.GetByTaxIdAsync(request.TaxId, cancellationToken);
-            if (existingCompany != null && existingCompany.Id != request.CompanyId)
+            // Verificar si el TaxId ya existe en otra empresa (validación eficiente)
+            var taxIdExistsForOtherCompany = await _companyRepository.ExistsByTaxIdForOtherCompanyAsync(request.TaxId.Value, request.CompanyId, cancellationToken);
+            if (taxIdExistsForOtherCompany)
             {
                 throw new InvalidOperationException("Ya existe una empresa con este RUT");
             }
 
             // Validaciones de negocio - al menos un elemento de cada tipo
-            if (!request.Addresses?.Any() == true) throw new ArgumentException("At least one address is required", nameof(request.Addresses));
-            if (!request.Emails?.Any() == true) throw new ArgumentException("At least one email is required", nameof(request.Emails));
-            if (!request.Phones?.Any() == true) throw new ArgumentException("At least one phone is required", nameof(request.Phones));
-            if (!request.SocialMedias?.Any() == true) throw new ArgumentException("At least one social media is required", nameof(request.SocialMedias));
             if (!request.Employees?.Any() == true) throw new ArgumentException("At least one employee is required", nameof(request.Employees));
+            
+            // Validar contactos requeridos usando el servicio
+            _contactService.ValidateRequiredContacts(request.Addresses, request.Emails, request.Phones, request.SocialMedias);
 
             // Actualizar información básica de la empresa
             company.UpdateInfo(request.Name, request.TaxId);
@@ -61,7 +52,6 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
             var existingEmails = company.Emails.ToList();
             var existingPhones = company.Phones.ToList();
             var existingSocialMedias = company.SocialMedias.ToList();
-            var existingEmployees = company.Employees.ToList();
 
             foreach (var address in existingAddresses)
             {
@@ -80,68 +70,34 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
                 company.RemoveSocialMedia(socialMedia);
             }
 
-            // Obtener todos los tipos de contacto
-            var addressTypes = await _addressTypeRepository.GetAllAsync(cancellationToken);
-            var emailTypes = await _emailTypeRepository.GetAllAsync(cancellationToken);
-            var phoneTypes = await _phoneTypeRepository.GetAllAsync(cancellationToken);
-            var socialMediaTypes = await _socialMediaTypeRepository.GetAllAsync(cancellationToken);
+            // Procesar todos los contactos usando el servicio
+            var contactTypeNames = await _contactService.ProcessAllContactsAsync(
+                company, 
+                request.Addresses, 
+                request.Emails, 
+                request.Phones, 
+                request.SocialMedias, 
+                cancellationToken);
 
-            // Crear diccionarios para mapear IDs a nombres
-            var addressTypeNames = addressTypes.ToDictionary(at => at.Id, at => at.Name);
-            var emailTypeNames = emailTypes.ToDictionary(et => et.Id, et => et.Name);
-            var phoneTypeNames = phoneTypes.ToDictionary(pt => pt.Id, pt => pt.Name);
-            var socialMediaTypeNames = socialMediaTypes.ToDictionary(smt => smt.Id, smt => smt.Name);
-
-            // Agregar nuevas direcciones
-            foreach (var addressDto in request.Addresses)
-            {
-                var addressTypeEntity = addressTypes.FirstOrDefault(at => at.Name == addressDto.AddressType);
-                if (addressTypeEntity == null)
-                    throw new ArgumentException($"Address type '{addressDto.AddressType}' not found");
-                
-                var address = CompanyAddress.Create(company.Id, addressTypeEntity.Id, addressDto.Address, addressDto.IsPrimary);
-                company.AddAddress(address);
-            }
-
-            // Agregar nuevos emails
-            foreach (var emailDto in request.Emails)
-            {
-                var emailTypeEntity = emailTypes.FirstOrDefault(et => et.Name == emailDto.EmailType);
-                if (emailTypeEntity == null)
-                    throw new ArgumentException($"Email type '{emailDto.EmailType}' not found");
-                
-                var email = Email.Create(emailDto.Email);
-                var companyEmail = CompanyEmail.Create(company.Id, emailTypeEntity.Id, email, emailDto.IsPrimary);
-                company.AddEmail(companyEmail);
-            }
-
-            // Agregar nuevos teléfonos
-            foreach (var phoneDto in request.Phones)
-            {
-                var phoneTypeEntity = phoneTypes.FirstOrDefault(pt => pt.Name == phoneDto.PhoneType);
-                if (phoneTypeEntity == null)
-                    throw new ArgumentException($"Phone type '{phoneDto.PhoneType}' not found");
-                
-                var phone = CompanyPhone.Create(company.Id, phoneTypeEntity.Id, phoneDto.Phone, phoneDto.IsPrimary);
-                company.AddPhone(phone);
-            }
-
-            // Agregar nuevas redes sociales
-            foreach (var socialMediaDto in request.SocialMedias)
-            {
-                var socialMediaTypeEntity = socialMediaTypes.FirstOrDefault(smt => smt.Name == socialMediaDto.SocialMediaType);
-                if (socialMediaTypeEntity == null)
-                    throw new ArgumentException($"Social media type '{socialMediaDto.SocialMediaType}' not found");
-                
-                var socialMedia = CompanySocialMedia.Create(company.Id, socialMediaTypeEntity.Id, socialMediaDto.Url, socialMediaDto.IsPrimary);
-                company.AddSocialMedia(socialMedia);
-            }
-
-            // Agregar nuevos empleados
+            // Procesar empleados (existentes y nuevos)
             foreach (var employeeDto in request.Employees)
             {
-                var employee = Employee.Create(employeeDto.FullName, employeeDto.Email, employeeDto.Phone, company.Id, employeeDto.Position, employeeDto.HireDate);
-                company.AddEmployee(employee);
+                if (employeeDto.Id.HasValue)
+                {
+                    // Empleado existente - actualizar información
+                    var existingEmployee = company.Employees.FirstOrDefault(e => e.Id == employeeDto.Id.Value);
+                    if (existingEmployee != null)
+                    {
+                        existingEmployee.UpdateProfile(employeeDto.FullName, employeeDto.Email, employeeDto.Phone, employeeDto.Position);
+                    }
+                }
+                else
+                {
+                    // Empleado nuevo - crear usuario automáticamente
+                    var user = await _contactService.CreateUserForEmployee(employeeDto.FullName, employeeDto.Email, company.Id, cancellationToken);
+                    var employee = Employee.Create(employeeDto.FullName, employeeDto.Email, employeeDto.Phone, company.Id, employeeDto.Position, employeeDto.HireDate, user.Id);
+                    company.AddEmployee(employee);
+                }
             }
 
             // Validar que la empresa esté completa
@@ -157,11 +113,11 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
                 company.Id,
                 company.Name,
                 company.TaxId.Value,
-                company.Addresses.Select(a => new CompanyAddressResult(addressTypeNames[a.AddressTypeId], a.Address, a.IsPrimary)).ToList(),
-                company.Emails.Select(e => new CompanyEmailResult(emailTypeNames[e.EmailTypeId], e.Email.Value, e.IsPrimary)).ToList(),
-                company.Phones.Select(p => new CompanyPhoneResult(phoneTypeNames[p.PhoneTypeId], p.Phone, p.IsPrimary)).ToList(),
-                company.SocialMedias.Select(sm => new CompanySocialMediaResult(socialMediaTypeNames[sm.SocialMediaTypeId], sm.Url, sm.IsPrimary)).ToList(),
-                company.Employees.Select(e => new CompanyEmployeeResult(e.FullName, e.Email, e.Phone, e.Position, e.HireDate)).ToList());
+                _contactService.BuildAddressResults(company, contactTypeNames.AddressTypeNames),
+                _contactService.BuildEmailResults(company, contactTypeNames.EmailTypeNames),
+                _contactService.BuildPhoneResults(company, contactTypeNames.PhoneTypeNames),
+                _contactService.BuildSocialMediaResults(company, contactTypeNames.SocialMediaTypeNames),
+                _contactService.BuildEmployeeResults(company));
         }
     }
 }

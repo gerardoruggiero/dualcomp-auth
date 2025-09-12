@@ -1,7 +1,7 @@
 using Dualcomp.Auth.Domain.Users.ValueObjects;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
 
-namespace Dualcomp.Auth.Domain.Users
+namespace Dualcomp.Auth.Domain.Users.Repositories
 {
     public interface IUserRepository
     {

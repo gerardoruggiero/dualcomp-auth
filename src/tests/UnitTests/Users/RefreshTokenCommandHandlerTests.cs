@@ -7,6 +7,7 @@ using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using DualComp.Infraestructure.Security;
 using DualComp.Infraestructure.Domain.Domain.Common.Results;
 using DualComp.Infraestructure.Data.Persistence;
+using Dualcomp.Auth.Domain.Users.Repositories;
 
 namespace Dualcomp.Auth.UnitTests.Users
 {

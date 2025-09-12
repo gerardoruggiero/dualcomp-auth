@@ -1,5 +1,6 @@
 using Dualcomp.Auth.Application.SocialMediaTypes.GetSocialMediaTypes;
 using Dualcomp.Auth.Domain.Companies;
+using Dualcomp.Auth.Domain.Companies.Repositories;
 using Moq;
 
 namespace Dualcomp.Auth.UnitTests.Application.SocialMediaTypes;
@@ -31,11 +32,11 @@ public class GetSocialMediaTypesQueryHandlerTests
 		// Assert
 		Assert.NotNull(result);
 		Assert.Equal(5, result.SocialMediaTypes.Count());
-		Assert.Contains(result.SocialMediaTypes, t => t.Value == "Facebook");
-		Assert.Contains(result.SocialMediaTypes, t => t.Value == "Instagram");
-		Assert.Contains(result.SocialMediaTypes, t => t.Value == "LinkedIn");
-		Assert.Contains(result.SocialMediaTypes, t => t.Value == "Twitter");
-		Assert.Contains(result.SocialMediaTypes, t => t.Value == "YouTube");
+		Assert.Contains(result.SocialMediaTypes, t => t.Value == "Facebook" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.SocialMediaTypes, t => t.Value == "Instagram" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.SocialMediaTypes, t => t.Value == "LinkedIn" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.SocialMediaTypes, t => t.Value == "Twitter" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.SocialMediaTypes, t => t.Value == "YouTube" && !string.IsNullOrEmpty(t.Id));
 	}
 
 	[Fact]

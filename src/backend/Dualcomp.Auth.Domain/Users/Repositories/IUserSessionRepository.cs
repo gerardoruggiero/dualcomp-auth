@@ -1,4 +1,4 @@
-namespace Dualcomp.Auth.Domain.Users
+namespace Dualcomp.Auth.Domain.Users.Repositories
 {
     public interface IUserSessionRepository
     {

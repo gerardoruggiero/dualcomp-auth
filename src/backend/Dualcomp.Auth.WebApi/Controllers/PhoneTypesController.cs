@@ -6,26 +6,11 @@ namespace Dualcomp.Auth.WebApi.Controllers
 {
 	[ApiController]
 	[Route("api/[controller]")]
-	public class PhoneTypesController : ControllerBase
+	public class PhoneTypesController : BaseTypesController<GetPhoneTypesQuery, GetPhoneTypesResult>
 	{
-		private readonly IQueryHandler<GetPhoneTypesQuery, GetPhoneTypesResult> _getPhoneTypesHandler;
-
-        public PhoneTypesController(IQueryHandler<GetPhoneTypesQuery, GetPhoneTypesResult> getPhoneTypesHandler) => _getPhoneTypesHandler = getPhoneTypesHandler ?? throw new ArgumentNullException(nameof(getPhoneTypesHandler));
-
-        [HttpGet]
-		public async Task<IActionResult> GetPhoneTypes(CancellationToken cancellationToken)
-		{
-			try
-			{
-				var query = new GetPhoneTypesQuery();
-				var result = await _getPhoneTypesHandler.Handle(query, cancellationToken);
-
-				return Ok(result);
-			}
-			catch (Exception)
-			{
-				return BadRequest(new { message = "Error interno del servidor" });
-			}
-		}
+        public PhoneTypesController(IQueryHandler<GetPhoneTypesQuery, GetPhoneTypesResult> getPhoneTypesHandler) 
+            : base(getPhoneTypesHandler)
+        {
+        }
 	}
 }

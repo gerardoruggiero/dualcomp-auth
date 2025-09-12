@@ -16,28 +16,28 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
 
     public record UpdateCompanyAddressDto(
         Guid? Id,
-        string AddressType,
+        Guid AddressTypeId,
         string Address,
         bool IsPrimary
     );
 
     public record UpdateCompanyEmailDto(
         Guid? Id,
-        string EmailType,
+        Guid EmailTypeId,
         string Email,
         bool IsPrimary
     );
 
     public record UpdateCompanyPhoneDto(
         Guid? Id,
-        string PhoneType,
+        Guid PhoneTypeId,
         string Phone,
         bool IsPrimary
     );
 
     public record UpdateCompanySocialMediaDto(
         Guid? Id,
-        string SocialMediaType,
+        Guid SocialMediaTypeId,
         string Url,
         bool IsPrimary
     );

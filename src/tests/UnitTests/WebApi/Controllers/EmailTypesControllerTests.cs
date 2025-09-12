@@ -15,10 +15,10 @@ public class EmailTypesControllerTests
 		var mockHandler = new Mock<IQueryHandler<GetEmailTypesQuery, GetEmailTypesResult>>();
 		var expectedResult = new GetEmailTypesResult(new List<EmailTypeItem>
 		{
-			new EmailTypeItem("Principal"),
-			new EmailTypeItem("Facturación"),
-			new EmailTypeItem("Soporte"),
-			new EmailTypeItem("Comercial")
+			new EmailTypeItem(Guid.NewGuid().ToString(), "Principal"),
+			new EmailTypeItem(Guid.NewGuid().ToString(), "Facturación"),
+			new EmailTypeItem(Guid.NewGuid().ToString(), "Soporte"),
+			new EmailTypeItem(Guid.NewGuid().ToString(), "Comercial")
 		});
 		
 		mockHandler.Setup(h => h.Handle(It.IsAny<GetEmailTypesQuery>(), It.IsAny<CancellationToken>()))
@@ -27,7 +27,7 @@ public class EmailTypesControllerTests
 		var controller = new EmailTypesController(mockHandler.Object);
 
 		// Act
-		var result = await controller.GetEmailTypes(CancellationToken.None);
+		var result = await controller.GetTypes(CancellationToken.None);
 
 		// Assert
 		Assert.IsType<OkObjectResult>(result);
@@ -46,7 +46,7 @@ public class EmailTypesControllerTests
 		var controller = new EmailTypesController(mockHandler.Object);
 
 		// Act
-		var result = await controller.GetEmailTypes(CancellationToken.None);
+		var result = await controller.GetTypes(CancellationToken.None);
 
 		// Assert
 		Assert.IsType<BadRequestObjectResult>(result);

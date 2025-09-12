@@ -1,5 +1,6 @@
 using Dualcomp.Auth.Application.AddressTypes.GetAddressTypes;
 using Dualcomp.Auth.Domain.Companies;
+using Dualcomp.Auth.Domain.Companies.Repositories;
 using Moq;
 
 namespace Dualcomp.Auth.UnitTests.Application.AddressTypes;
@@ -30,10 +31,10 @@ public class GetAddressTypesQueryHandlerTests
 		// Assert
 		Assert.NotNull(result);
 		Assert.Equal(4, result.AddressTypes.Count());
-		Assert.Contains(result.AddressTypes, t => t.Value == "Principal");
-		Assert.Contains(result.AddressTypes, t => t.Value == "Sucursal");
-		Assert.Contains(result.AddressTypes, t => t.Value == "Facturación");
-		Assert.Contains(result.AddressTypes, t => t.Value == "Envío");
+		Assert.Contains(result.AddressTypes, t => t.Value == "Principal" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.AddressTypes, t => t.Value == "Sucursal" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.AddressTypes, t => t.Value == "Facturación" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.AddressTypes, t => t.Value == "Envío" && !string.IsNullOrEmpty(t.Id));
 	}
 
 	[Fact]

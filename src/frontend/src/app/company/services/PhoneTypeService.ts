@@ -5,7 +5,7 @@ import { BaseTypeClass } from '../../shared/models/BaseType';
 import { environment } from '../../environments/environment';
 
 interface PhoneTypeResponse {
-  phoneTypes: Array<{ value: string }>;
+  phoneTypes: Array<{ id: string; value: string }>;
 }
 
 @Injectable({
@@ -19,8 +19,8 @@ export class PhoneTypeService {
     return this.http.get<PhoneTypeResponse>(this.apiUrl).pipe(
       map(response => {
         console.log('PhoneTypes response:', response);
-        return response.phoneTypes.map((item, index) => ({
-          id: item.value, // Usar el nombre del tipo como ID
+        return response.phoneTypes.map(item => ({
+          id: item.id, // Usar el ID real del backend
           name: item.value
         }));
       })

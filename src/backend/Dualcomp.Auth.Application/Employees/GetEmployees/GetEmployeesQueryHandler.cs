@@ -1,5 +1,5 @@
 using Dualcomp.Auth.Application.Abstractions.Messaging;
-using Dualcomp.Auth.Domain.Companies;
+using Dualcomp.Auth.Domain.Companies.Repositories;
 using DualComp.Infraestructure.Domain.Domain.Common.Results;
 
 namespace Dualcomp.Auth.Application.Employees.GetEmployees

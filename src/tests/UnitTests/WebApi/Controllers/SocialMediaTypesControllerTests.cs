@@ -15,11 +15,11 @@ public class SocialMediaTypesControllerTests
 		var mockHandler = new Mock<IQueryHandler<GetSocialMediaTypesQuery, GetSocialMediaTypesResult>>();
 		var expectedResult = new GetSocialMediaTypesResult(new List<SocialMediaTypeItem>
 		{
-			new SocialMediaTypeItem("Facebook"),
-			new SocialMediaTypeItem("Instagram"),
-			new SocialMediaTypeItem("LinkedIn"),
-			new SocialMediaTypeItem("Twitter"),
-			new SocialMediaTypeItem("YouTube")
+			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "Facebook"),
+			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "Instagram"),
+			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "LinkedIn"),
+			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "Twitter"),
+			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "YouTube")
 		});
 		
 		mockHandler.Setup(h => h.Handle(It.IsAny<GetSocialMediaTypesQuery>(), It.IsAny<CancellationToken>()))
@@ -28,7 +28,7 @@ public class SocialMediaTypesControllerTests
 		var controller = new SocialMediaTypesController(mockHandler.Object);
 
 		// Act
-		var result = await controller.GetSocialMediaTypes(CancellationToken.None);
+		var result = await controller.GetTypes(CancellationToken.None);
 
 		// Assert
 		Assert.IsType<OkObjectResult>(result);
@@ -47,7 +47,7 @@ public class SocialMediaTypesControllerTests
 		var controller = new SocialMediaTypesController(mockHandler.Object);
 
 		// Act
-		var result = await controller.GetSocialMediaTypes(CancellationToken.None);
+		var result = await controller.GetTypes(CancellationToken.None);
 
 		// Assert
 		Assert.IsType<BadRequestObjectResult>(result);

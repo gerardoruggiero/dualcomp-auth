@@ -15,28 +15,28 @@ namespace Dualcomp.Auth.Application.Companies.RegisterCompany
 
 	public class RegisterCompanyAddressDto
 	{
-		public string AddressType { get; init; } = string.Empty;
+		public Guid AddressTypeId { get; init; }
 		public string Address { get; init; } = string.Empty;
 		public bool IsPrimary { get; init; } = false;
 	}
 
 	public class RegisterCompanyEmailDto
 	{
-		public string EmailType { get; init; } = string.Empty;
+		public Guid EmailTypeId { get; init; }
 		public string Email { get; init; } = string.Empty;
 		public bool IsPrimary { get; init; } = false;
 	}
 
 	public class RegisterCompanyPhoneDto
 	{
-		public string PhoneType { get; init; } = string.Empty;
+		public Guid PhoneTypeId { get; init; }
 		public string Phone { get; init; } = string.Empty;
 		public bool IsPrimary { get; init; } = false;
 	}
 
 	public class RegisterCompanySocialMediaDto
 	{
-		public string SocialMediaType { get; init; } = string.Empty;
+		public Guid SocialMediaTypeId { get; init; }
 		public string Url { get; init; } = string.Empty;
 		public bool IsPrimary { get; init; } = false;
 	}

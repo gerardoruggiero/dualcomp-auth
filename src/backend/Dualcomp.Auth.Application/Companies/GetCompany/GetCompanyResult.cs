@@ -1,6 +1,6 @@
 namespace Dualcomp.Auth.Application.Companies.GetCompany
 {
-    public record GetCompanyResult(
+    public class GetCompanyResult(
         Guid Id,
         string Name,
         string TaxId,

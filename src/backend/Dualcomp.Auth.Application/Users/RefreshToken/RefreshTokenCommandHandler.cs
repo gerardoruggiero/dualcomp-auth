@@ -1,8 +1,8 @@
 using Dualcomp.Auth.Application.Abstractions.Messaging;
-using Dualcomp.Auth.Domain.Users;
 using DualComp.Infraestructure.Security;
 using DualComp.Infraestructure.Domain.Domain.Common.Results;
 using DualComp.Infraestructure.Data.Persistence;
+using Dualcomp.Auth.Domain.Users.Repositories;
 
 namespace Dualcomp.Auth.Application.Users.RefreshToken
 {

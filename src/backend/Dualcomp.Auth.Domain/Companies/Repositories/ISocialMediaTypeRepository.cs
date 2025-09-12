@@ -1,6 +1,6 @@
 using DualComp.Infraestructure.Data.Persistence;
 
-namespace Dualcomp.Auth.Domain.Companies
+namespace Dualcomp.Auth.Domain.Companies.Repositories
 {
 	public interface ISocialMediaTypeRepository : IRepository<SocialMediaTypeEntity>
 	{

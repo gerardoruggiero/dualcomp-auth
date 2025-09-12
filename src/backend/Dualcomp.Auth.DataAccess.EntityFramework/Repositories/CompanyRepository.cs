@@ -1,4 +1,5 @@
 using Dualcomp.Auth.Domain.Companies;
+using Dualcomp.Auth.Domain.Companies.Repositories;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
@@ -15,6 +16,13 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Repositories
 			return _dbContext.Set<Company>()
 				.AsNoTracking()
 				.AnyAsync(c => c.TaxId.Value == normalizedTaxId, cancellationToken);
+		}
+
+		public Task<bool> ExistsByTaxIdForOtherCompanyAsync(string normalizedTaxId, Guid excludeCompanyId, CancellationToken cancellationToken = default)
+		{
+			return _dbContext.Set<Company>()
+				.AsNoTracking()
+				.AnyAsync(c => c.TaxId.Value == normalizedTaxId && c.Id != excludeCompanyId, cancellationToken);
 		}
 
 		public async Task<Company?> GetByTaxIdAsync(TaxId taxId, CancellationToken cancellationToken = default)

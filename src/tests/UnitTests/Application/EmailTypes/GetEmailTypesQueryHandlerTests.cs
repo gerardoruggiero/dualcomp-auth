@@ -1,5 +1,6 @@
 using Dualcomp.Auth.Application.EmailTypes.GetEmailTypes;
 using Dualcomp.Auth.Domain.Companies;
+using Dualcomp.Auth.Domain.Companies.Repositories;
 using Moq;
 
 namespace Dualcomp.Auth.UnitTests.Application.EmailTypes;
@@ -30,10 +31,10 @@ public class GetEmailTypesQueryHandlerTests
 		// Assert
 		Assert.NotNull(result);
 		Assert.Equal(4, result.EmailTypes.Count());
-		Assert.Contains(result.EmailTypes, t => t.Value == "Principal");
-		Assert.Contains(result.EmailTypes, t => t.Value == "Facturación");
-		Assert.Contains(result.EmailTypes, t => t.Value == "Soporte");
-		Assert.Contains(result.EmailTypes, t => t.Value == "Comercial");
+		Assert.Contains(result.EmailTypes, t => t.Value == "Principal" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.EmailTypes, t => t.Value == "Facturación" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.EmailTypes, t => t.Value == "Soporte" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.EmailTypes, t => t.Value == "Comercial" && !string.IsNullOrEmpty(t.Id));
 	}
 
 	[Fact]

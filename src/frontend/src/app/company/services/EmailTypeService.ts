@@ -5,7 +5,7 @@ import { BaseTypeClass } from '../../shared/models/BaseType';
 import { environment } from '../../environments/environment';
 
 interface EmailTypeResponse {
-  emailTypes: Array<{ value: string }>;
+  emailTypes: Array<{ id: string; value: string }>;
 }
 
 @Injectable({
@@ -19,8 +19,8 @@ export class EmailTypeService {
     return this.http.get<EmailTypeResponse>(this.apiUrl).pipe(
       map(response => {
         console.log('EmailTypes response:', response);
-        return response.emailTypes.map((item, index) => ({
-          id: item.value, // Usar el nombre del tipo como ID
+        return response.emailTypes.map(item => ({
+          id: item.id, // Usar el ID real del backend
           name: item.value
         }));
       })

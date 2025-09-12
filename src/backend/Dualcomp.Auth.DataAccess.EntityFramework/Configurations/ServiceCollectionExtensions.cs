@@ -1,6 +1,6 @@
 using Dualcomp.Auth.DataAccess.EntityFramework.Repositories;
-using Dualcomp.Auth.Domain.Companies;
-using Dualcomp.Auth.Domain.Users;
+using Dualcomp.Auth.Domain.Companies.Repositories;
+using Dualcomp.Auth.Domain.Users.Repositories;
 using DualComp.Infraestructure.Caching;
 using DualComp.Infraestructure.Data.Persistence;
 using Microsoft.EntityFrameworkCore;

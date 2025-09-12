@@ -1,7 +1,9 @@
 using Dualcomp.Auth.Application.Companies.RegisterCompany;
 using Dualcomp.Auth.Domain.Companies;
+using Dualcomp.Auth.Domain.Companies.Repositories;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using Dualcomp.Auth.Domain.Users;
+using Dualcomp.Auth.Domain.Users.Repositories;
 using Dualcomp.Auth.Domain.Users.ValueObjects;
 using DualComp.Infraestructure.Data.Persistence;
 using DualComp.Infraestructure.Security;
@@ -11,7 +13,7 @@ namespace Dualcomp.Auth.UnitTests.Companies;
 
 public class RegisterCompanyCommandHandlerUserCreationTests
 {
-	private static (RegisterCompanyCommandHandler handler, Mock<ICompanyRepository> mockCompanyRepo, Mock<IUserRepository> mockUserRepo, Mock<IPasswordHasher> mockPasswordHasher, Mock<IPasswordGenerator> mockPasswordGenerator, Mock<IUnitOfWork> mockUow) CreateSut()
+	private static (RegisterCompanyCommandHandler handler, Mock<ICompanyRepository> mockCompanyRepo, Mock<IUserRepository> mockUserRepo, Mock<IPasswordHasher> mockPasswordHasher, Mock<IPasswordGenerator> mockPasswordGenerator, Mock<IUnitOfWork> mockUow, AddressTypeEntity principalAddressType, EmailTypeEntity principalEmailType, PhoneTypeEntity principalPhoneType, SocialMediaTypeEntity facebookSocialMediaType) CreateSut()
 	{
 		var mockCompanyRepo = new Mock<ICompanyRepository>();
 		var mockAddressTypeRepo = new Mock<IAddressTypeRepository>();
@@ -23,39 +25,51 @@ public class RegisterCompanyCommandHandlerUserCreationTests
 		var mockPasswordGenerator = new Mock<IPasswordGenerator>();
 		var mockUow = new Mock<IUnitOfWork>();
 
-		// Setup default type entities
-		mockAddressTypeRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-			.ReturnsAsync(new List<AddressTypeEntity> { AddressTypeEntity.Create("Principal") });
-		mockEmailTypeRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-			.ReturnsAsync(new List<EmailTypeEntity> { EmailTypeEntity.Create("Principal") });
-		mockPhoneTypeRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-			.ReturnsAsync(new List<PhoneTypeEntity> { PhoneTypeEntity.Create("Principal") });
-		mockSocialMediaTypeRepo.Setup(r => r.GetAllAsync(It.IsAny<CancellationToken>()))
-			.ReturnsAsync(new List<SocialMediaTypeEntity> { SocialMediaTypeEntity.Create("Facebook") });
+		// Setup default type entities with GetByIdAsync
+		var principalAddressType = AddressTypeEntity.Create("Principal");
+		var principalEmailType = EmailTypeEntity.Create("Principal");
+		var principalPhoneType = PhoneTypeEntity.Create("Principal");
+		var facebookSocialMediaType = SocialMediaTypeEntity.Create("Facebook");
+		
+		mockAddressTypeRepo.Setup(r => r.GetByIdAsync(principalAddressType.Id, It.IsAny<CancellationToken>()))
+			.ReturnsAsync(principalAddressType);
+		mockEmailTypeRepo.Setup(r => r.GetByIdAsync(principalEmailType.Id, It.IsAny<CancellationToken>()))
+			.ReturnsAsync(principalEmailType);
+		mockPhoneTypeRepo.Setup(r => r.GetByIdAsync(principalPhoneType.Id, It.IsAny<CancellationToken>()))
+			.ReturnsAsync(principalPhoneType);
+		mockSocialMediaTypeRepo.Setup(r => r.GetByIdAsync(facebookSocialMediaType.Id, It.IsAny<CancellationToken>()))
+			.ReturnsAsync(facebookSocialMediaType);
 
 		// Setup default password generator behavior
 		mockPasswordGenerator.Setup(g => g.GenerateTemporaryPassword())
 			.Returns("TempPassword123!");
 
-		var handler = new RegisterCompanyCommandHandler(
-			mockCompanyRepo.Object,
+		// Create CompanyContactService with mocked repositories
+		var contactService = new Dualcomp.Auth.Application.Companies.CompanyContactService(
 			mockAddressTypeRepo.Object,
 			mockEmailTypeRepo.Object,
 			mockPhoneTypeRepo.Object,
 			mockSocialMediaTypeRepo.Object,
 			mockUserRepo.Object,
 			mockPasswordHasher.Object,
+			mockPasswordGenerator.Object);
+
+		var handler = new RegisterCompanyCommandHandler(
+			mockCompanyRepo.Object,
+			contactService,
+			mockUserRepo.Object,
+			mockPasswordHasher.Object,
 			mockPasswordGenerator.Object,
 			mockUow.Object);
 
-		return (handler, mockCompanyRepo, mockUserRepo, mockPasswordHasher, mockPasswordGenerator, mockUow);
+		return (handler, mockCompanyRepo, mockUserRepo, mockPasswordHasher, mockPasswordGenerator, mockUow, principalAddressType, principalEmailType, principalPhoneType, facebookSocialMediaType);
 	}
 
 	[Fact]
 	public async Task Handle_Should_Create_User_Automatically_For_Each_Employee()
 	{
 		// Arrange
-		var (handler, mockCompanyRepo, mockUserRepo, mockPasswordHasher, mockPasswordGenerator, mockUow) = CreateSut();
+		var (handler, mockCompanyRepo, mockUserRepo, mockPasswordHasher, mockPasswordGenerator, mockUow, principalAddressType, principalEmailType, principalPhoneType, facebookSocialMediaType) = CreateSut();
 		
 		// Setup mocks
 		mockCompanyRepo.Setup(r => r.ExistsByTaxIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -71,19 +85,19 @@ public class RegisterCompanyCommandHandlerUserCreationTests
 			TaxId = "A-123456",
 			Addresses = new List<RegisterCompanyAddressDto>
 			{
-				new RegisterCompanyAddressDto { AddressType = "Principal", Address = "123 Main St", IsPrimary = true }
+				new RegisterCompanyAddressDto { AddressTypeId = principalAddressType.Id, Address = "123 Main St", IsPrimary = true }
 			},
 			Emails = new List<RegisterCompanyEmailDto>
 			{
-				new RegisterCompanyEmailDto { EmailType = "Principal", Email = "info@test.com", IsPrimary = true }
+				new RegisterCompanyEmailDto { EmailTypeId = principalEmailType.Id, Email = "info@test.com", IsPrimary = true }
 			},
 			Phones = new List<RegisterCompanyPhoneDto>
 			{
-				new RegisterCompanyPhoneDto { PhoneType = "Principal", Phone = "+1234567890", IsPrimary = true }
+				new RegisterCompanyPhoneDto { PhoneTypeId = principalPhoneType.Id, Phone = "+1234567890", IsPrimary = true }
 			},
 			SocialMedias = new List<RegisterCompanySocialMediaDto>
 			{
-				new RegisterCompanySocialMediaDto { SocialMediaType = "Facebook", Url = "https://facebook.com/test", IsPrimary = true }
+				new RegisterCompanySocialMediaDto { SocialMediaTypeId = facebookSocialMediaType.Id, Url = "https://facebook.com/test", IsPrimary = true }
 			},
 			Employees = new List<RegisterCompanyEmployeeDto>
 			{
@@ -118,7 +132,7 @@ public class RegisterCompanyCommandHandlerUserCreationTests
 	public async Task Handle_Should_Throw_When_User_Already_Exists()
 	{
 		// Arrange
-		var (handler, mockCompanyRepo, mockUserRepo, mockPasswordHasher, mockPasswordGenerator, mockUow) = CreateSut();
+		var (handler, mockCompanyRepo, mockUserRepo, mockPasswordHasher, mockPasswordGenerator, mockUow, principalAddressType, principalEmailType, principalPhoneType, facebookSocialMediaType) = CreateSut();
 		
 		// Setup mocks
 		mockCompanyRepo.Setup(r => r.ExistsByTaxIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -134,19 +148,19 @@ public class RegisterCompanyCommandHandlerUserCreationTests
 			TaxId = "A-123456",
 			Addresses = new List<RegisterCompanyAddressDto>
 			{
-				new RegisterCompanyAddressDto { AddressType = "Principal", Address = "123 Main St", IsPrimary = true }
+				new RegisterCompanyAddressDto { AddressTypeId = principalAddressType.Id, Address = "123 Main St", IsPrimary = true }
 			},
 			Emails = new List<RegisterCompanyEmailDto>
 			{
-				new RegisterCompanyEmailDto { EmailType = "Principal", Email = "info@test.com", IsPrimary = true }
+				new RegisterCompanyEmailDto { EmailTypeId = principalEmailType.Id, Email = "info@test.com", IsPrimary = true }
 			},
 			Phones = new List<RegisterCompanyPhoneDto>
 			{
-				new RegisterCompanyPhoneDto { PhoneType = "Principal", Phone = "+1234567890", IsPrimary = true }
+				new RegisterCompanyPhoneDto { PhoneTypeId = principalPhoneType.Id, Phone = "+1234567890", IsPrimary = true }
 			},
 			SocialMedias = new List<RegisterCompanySocialMediaDto>
 			{
-				new RegisterCompanySocialMediaDto { SocialMediaType = "Facebook", Url = "https://facebook.com/test", IsPrimary = true }
+				new RegisterCompanySocialMediaDto { SocialMediaTypeId = facebookSocialMediaType.Id, Url = "https://facebook.com/test", IsPrimary = true }
 			},
 			Employees = new List<RegisterCompanyEmployeeDto>
 			{
@@ -167,7 +181,7 @@ public class RegisterCompanyCommandHandlerUserCreationTests
 	public async Task Handle_Should_Parse_FullName_Correctly()
 	{
 		// Arrange
-		var (handler, mockCompanyRepo, mockUserRepo, mockPasswordHasher, mockPasswordGenerator, mockUow) = CreateSut();
+		var (handler, mockCompanyRepo, mockUserRepo, mockPasswordHasher, mockPasswordGenerator, mockUow, principalAddressType, principalEmailType, principalPhoneType, facebookSocialMediaType) = CreateSut();
 		
 		// Setup mocks
 		mockCompanyRepo.Setup(r => r.ExistsByTaxIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -183,19 +197,19 @@ public class RegisterCompanyCommandHandlerUserCreationTests
 			TaxId = "A-123456",
 			Addresses = new List<RegisterCompanyAddressDto>
 			{
-				new RegisterCompanyAddressDto { AddressType = "Principal", Address = "123 Main St", IsPrimary = true }
+				new RegisterCompanyAddressDto { AddressTypeId = principalAddressType.Id, Address = "123 Main St", IsPrimary = true }
 			},
 			Emails = new List<RegisterCompanyEmailDto>
 			{
-				new RegisterCompanyEmailDto { EmailType = "Principal", Email = "info@test.com", IsPrimary = true }
+				new RegisterCompanyEmailDto { EmailTypeId = principalEmailType.Id, Email = "info@test.com", IsPrimary = true }
 			},
 			Phones = new List<RegisterCompanyPhoneDto>
 			{
-				new RegisterCompanyPhoneDto { PhoneType = "Principal", Phone = "+1234567890", IsPrimary = true }
+				new RegisterCompanyPhoneDto { PhoneTypeId = principalPhoneType.Id, Phone = "+1234567890", IsPrimary = true }
 			},
 			SocialMedias = new List<RegisterCompanySocialMediaDto>
 			{
-				new RegisterCompanySocialMediaDto { SocialMediaType = "Facebook", Url = "https://facebook.com/test", IsPrimary = true }
+				new RegisterCompanySocialMediaDto { SocialMediaTypeId = facebookSocialMediaType.Id, Url = "https://facebook.com/test", IsPrimary = true }
 			},
 			Employees = new List<RegisterCompanyEmployeeDto>
 			{
@@ -225,7 +239,7 @@ public class RegisterCompanyCommandHandlerUserCreationTests
 	public async Task Handle_Should_Use_Default_LastName_For_Single_Name()
 	{
 		// Arrange
-		var (handler, mockCompanyRepo, mockUserRepo, mockPasswordHasher, mockPasswordGenerator, mockUow) = CreateSut();
+		var (handler, mockCompanyRepo, mockUserRepo, mockPasswordHasher, mockPasswordGenerator, mockUow, principalAddressType, principalEmailType, principalPhoneType, facebookSocialMediaType) = CreateSut();
 		
 		// Setup mocks
 		mockCompanyRepo.Setup(r => r.ExistsByTaxIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
@@ -241,19 +255,19 @@ public class RegisterCompanyCommandHandlerUserCreationTests
 			TaxId = "A-123456",
 			Addresses = new List<RegisterCompanyAddressDto>
 			{
-				new RegisterCompanyAddressDto { AddressType = "Principal", Address = "123 Main St", IsPrimary = true }
+				new RegisterCompanyAddressDto { AddressTypeId = principalAddressType.Id, Address = "123 Main St", IsPrimary = true }
 			},
 			Emails = new List<RegisterCompanyEmailDto>
 			{
-				new RegisterCompanyEmailDto { EmailType = "Principal", Email = "info@test.com", IsPrimary = true }
+				new RegisterCompanyEmailDto { EmailTypeId = principalEmailType.Id, Email = "info@test.com", IsPrimary = true }
 			},
 			Phones = new List<RegisterCompanyPhoneDto>
 			{
-				new RegisterCompanyPhoneDto { PhoneType = "Principal", Phone = "+1234567890", IsPrimary = true }
+				new RegisterCompanyPhoneDto { PhoneTypeId = principalPhoneType.Id, Phone = "+1234567890", IsPrimary = true }
 			},
 			SocialMedias = new List<RegisterCompanySocialMediaDto>
 			{
-				new RegisterCompanySocialMediaDto { SocialMediaType = "Facebook", Url = "https://facebook.com/test", IsPrimary = true }
+				new RegisterCompanySocialMediaDto { SocialMediaTypeId = facebookSocialMediaType.Id, Url = "https://facebook.com/test", IsPrimary = true }
 			},
 			Employees = new List<RegisterCompanyEmployeeDto>
 			{

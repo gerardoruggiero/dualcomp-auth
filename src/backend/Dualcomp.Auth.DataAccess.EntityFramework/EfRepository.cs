@@ -26,6 +26,11 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework
 			return await Set.AsNoTracking().ToListAsync(cancellationToken);
 		}
 
+		public virtual async Task<IEnumerable<TAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
+		{
+			return await Set.AsNoTracking().ToListAsync(cancellationToken);
+		}
+
 		public virtual async Task<IReadOnlyList<TAggregate>> ListAsync(Expression<Func<TAggregate, bool>> predicate, CancellationToken cancellationToken = default)
 		{
 			return await Set.AsNoTracking().Where(predicate).ToListAsync(cancellationToken);

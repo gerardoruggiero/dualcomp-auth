@@ -15,10 +15,10 @@ public class PhoneTypesControllerTests
 		var mockHandler = new Mock<IQueryHandler<GetPhoneTypesQuery, GetPhoneTypesResult>>();
 		var expectedResult = new GetPhoneTypesResult(new List<PhoneTypeItem>
 		{
-			new PhoneTypeItem("Principal"),
-			new PhoneTypeItem("Móvil"),
-			new PhoneTypeItem("Fax"),
-			new PhoneTypeItem("WhatsApp")
+			new PhoneTypeItem(Guid.NewGuid().ToString(), "Principal"),
+			new PhoneTypeItem(Guid.NewGuid().ToString(), "Móvil"),
+			new PhoneTypeItem(Guid.NewGuid().ToString(), "Fax"),
+			new PhoneTypeItem(Guid.NewGuid().ToString(), "WhatsApp")
 		});
 		
 		mockHandler.Setup(h => h.Handle(It.IsAny<GetPhoneTypesQuery>(), It.IsAny<CancellationToken>()))
@@ -27,7 +27,7 @@ public class PhoneTypesControllerTests
 		var controller = new PhoneTypesController(mockHandler.Object);
 
 		// Act
-		var result = await controller.GetPhoneTypes(CancellationToken.None);
+		var result = await controller.GetTypes(CancellationToken.None);
 
 		// Assert
 		Assert.IsType<OkObjectResult>(result);
@@ -46,7 +46,7 @@ public class PhoneTypesControllerTests
 		var controller = new PhoneTypesController(mockHandler.Object);
 
 		// Act
-		var result = await controller.GetPhoneTypes(CancellationToken.None);
+		var result = await controller.GetTypes(CancellationToken.None);
 
 		// Assert
 		Assert.IsType<BadRequestObjectResult>(result);
