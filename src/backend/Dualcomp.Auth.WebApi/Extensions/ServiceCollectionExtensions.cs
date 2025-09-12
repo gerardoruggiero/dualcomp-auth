@@ -11,10 +11,11 @@ namespace Dualcomp.Auth.WebApi.Extensions
             var assembly = Assembly.GetExecutingAssembly();
             var applicationAssembly = typeof(ICommandHandler<,>).Assembly;
 
-            // Auto-register command handlers
+            // Auto-register command handlers (exclude generic types)
             var commandHandlerTypes = applicationAssembly.GetTypes()
-                .Where(t => t.GetInterfaces()
-                    .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<,>)))
+                .Where(t => !t.IsGenericTypeDefinition && // Exclude generic type definitions
+                           t.GetInterfaces()
+                            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<,>)))
                 .ToList();
 
             foreach (var handlerType in commandHandlerTypes)
@@ -25,10 +26,11 @@ namespace Dualcomp.Auth.WebApi.Extensions
                 services.AddScoped(interfaceType, handlerType);
             }
 
-            // Auto-register query handlers
+            // Auto-register query handlers (exclude generic types)
             var queryHandlerTypes = applicationAssembly.GetTypes()
-                .Where(t => t.GetInterfaces()
-                    .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>)))
+                .Where(t => !t.IsGenericTypeDefinition && // Exclude generic type definitions
+                           t.GetInterfaces()
+                            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>)))
                 .ToList();
 
             foreach (var handlerType in queryHandlerTypes)

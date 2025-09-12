@@ -119,7 +119,7 @@ export class CompanyRegisterComponent implements OnInit {
     const currentForm = this.form();
     console.log('Adding address with options:', currentForm.addressTypeOptions);
     const newAddress: CompanyAddressForm = {
-      addressType: '',
+      addressType: '', // ID del tipo de dirección
       address: '',
       isPrimary: currentForm.addresses.length === 0,
       addressTypeOptions: currentForm.addressTypeOptions
@@ -134,7 +134,7 @@ export class CompanyRegisterComponent implements OnInit {
   addEmail() {
     const currentForm = this.form();
     const newEmail: CompanyEmailForm = {
-      emailType: '',
+      emailType: '', // ID del tipo de email
       email: '',
       isPrimary: currentForm.emails.length === 0,
       emailTypeOptions: currentForm.emailTypeOptions
@@ -149,7 +149,7 @@ export class CompanyRegisterComponent implements OnInit {
   addPhone() {
     const currentForm = this.form();
     const newPhone: CompanyPhoneForm = {
-      phoneType: '',
+      phoneType: '', // ID del tipo de teléfono
       phone: '',
       isPrimary: currentForm.phones.length === 0,
       phoneTypeOptions: currentForm.phoneTypeOptions
@@ -164,7 +164,7 @@ export class CompanyRegisterComponent implements OnInit {
   addSocialMedia() {
     const currentForm = this.form();
     const newSocialMedia: CompanySocialMediaForm = {
-      socialMediaType: '',
+      socialMediaType: '', // ID del tipo de red social
       url: '',
       isPrimary: currentForm.socialMedias.length === 0,
       socialMediaTypeOptions: currentForm.socialMediaTypeOptions
@@ -324,35 +324,26 @@ export class CompanyRegisterComponent implements OnInit {
     try {
       const currentForm = this.form();
       
-      // Función helper para encontrar ID por nombre
-      const findTypeId = (typeName: string, options: BaseTypeClass[]): string => {
-        const type = options.find(opt => opt.name === typeName);
-        if (!type) {
-          throw new Error(`Tipo no encontrado: ${typeName}`);
-        }
-        return type.id;
-      };
-
       const command: RegisterCompanyCommand = {
         name: currentForm.name.trim(),
         taxId: currentForm.taxId.trim(),
         addresses: currentForm.addresses.map(addr => ({
-          addressTypeId: findTypeId(addr.addressType, currentForm.addressTypeOptions),
+          addressTypeId: addr.addressType, // Ya es el ID directamente
           address: addr.address.trim(),
           isPrimary: addr.isPrimary
         })),
         emails: currentForm.emails.map(email => ({
-          emailTypeId: findTypeId(email.emailType, currentForm.emailTypeOptions),
+          emailTypeId: email.emailType, // Ya es el ID directamente
           email: email.email.trim(),
           isPrimary: email.isPrimary
         })),
         phones: currentForm.phones.map(phone => ({
-          phoneTypeId: findTypeId(phone.phoneType, currentForm.phoneTypeOptions),
+          phoneTypeId: phone.phoneType, // Ya es el ID directamente
           phone: phone.phone.trim(),
           isPrimary: phone.isPrimary
         })),
         socialMedias: currentForm.socialMedias.map(social => ({
-          socialMediaTypeId: findTypeId(social.socialMediaType, currentForm.socialMediaTypeOptions),
+          socialMediaTypeId: social.socialMediaType, // Ya es el ID directamente
           url: social.url.trim(),
           isPrimary: social.isPrimary
         })),

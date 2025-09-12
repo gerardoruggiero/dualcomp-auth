@@ -1,6 +1,7 @@
 using Dualcomp.Auth.DataAccess.EntityFramework;
 using Dualcomp.Auth.DataAccess.EntityFramework.Repositories;
 using Dualcomp.Auth.Domain.Companies;
+using Dualcomp.Auth.UnitTests.DataAccess.TestHelpers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.InMemory;
 
@@ -18,7 +19,8 @@ public class AddressTypeRepositoryTests : IDisposable
 			.Options;
 
 		_context = new BaseDbContext(options);
-		_repository = new AddressTypeRepository(_context);
+		var factoryMock = new DbContextFactoryMock(_context);
+		_repository = new AddressTypeRepository(factoryMock, _context);
 	}
 
 	[Fact]

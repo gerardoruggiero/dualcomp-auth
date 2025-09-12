@@ -9,7 +9,8 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Repositories
 	{
 		private readonly BaseDbContext _dbContext;
 
-        public CompanyRepository(BaseDbContext dbContext) : base(dbContext) => _dbContext = dbContext;
+        public CompanyRepository(IDbContextFactory<BaseDbContext> dbContextFactory, BaseDbContext dbContext) 
+			: base(dbContextFactory, dbContext) => _dbContext = dbContext;
 
         public Task<bool> ExistsByTaxIdAsync(string normalizedTaxId, CancellationToken cancellationToken = default)
 		{
@@ -47,7 +48,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Repositories
 				.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
 		}
 
-		public async Task<IEnumerable<Company>> GetAllAsync(CancellationToken cancellationToken = default)
+		public override async Task<IEnumerable<Company>> GetAllAsync(CancellationToken cancellationToken = default)
 		{
 			return await _dbContext.Companies
 				.Include(c => c.Employees)
@@ -58,7 +59,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Repositories
 				.ToListAsync(cancellationToken);
 		}
 
-		public async Task<IEnumerable<Company>> ListAsync(CancellationToken cancellationToken = default)
+		public override async Task<IReadOnlyList<Company>> ListAsync(CancellationToken cancellationToken = default)
 		{
 			return await _dbContext.Companies
 				.Include(c => c.Employees)

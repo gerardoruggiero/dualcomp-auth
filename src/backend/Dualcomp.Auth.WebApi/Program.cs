@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddControllers();
-builder.Services.AddBaseInfraestructure();
+builder.Services.AddBaseInfraestructure(builder.Configuration);
 
 // Configure JWT Authentication
 builder.Services.AddJwtAuthentication(builder.Configuration);

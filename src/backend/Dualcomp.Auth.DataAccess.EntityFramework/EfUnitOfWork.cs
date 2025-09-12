@@ -1,4 +1,5 @@
 using DualComp.Infraestructure.Data.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dualcomp.Auth.DataAccess.EntityFramework
 {

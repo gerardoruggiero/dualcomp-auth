@@ -7,53 +7,67 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework
 	public class EfRepository<TAggregate> : IRepository<TAggregate>
 		where TAggregate : class
 	{
+		protected readonly IDbContextFactory<BaseDbContext> DbContextFactory;
 		protected readonly BaseDbContext DbContext;
-		protected readonly DbSet<TAggregate> Set;
 
-	public EfRepository(BaseDbContext dbContext)
-	{
-		DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
-		Set = dbContext.Set<TAggregate>();
-	}
+		public EfRepository(IDbContextFactory<BaseDbContext> dbContextFactory, BaseDbContext dbContext)
+		{
+			DbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
+			DbContext = dbContext ?? throw new ArgumentNullException(nameof(dbContext));
+		}
+
+		protected virtual async Task<BaseDbContext> CreateContextAsync(CancellationToken cancellationToken = default)
+		{
+			return await DbContextFactory.CreateDbContextAsync(cancellationToken);
+		}
+
+		protected virtual BaseDbContext CreateContext()
+		{
+			return DbContextFactory.CreateDbContext();
+		}
 
 		public virtual async Task<TAggregate?> GetByIdAsync(object id, CancellationToken cancellationToken = default)
 		{
-			return await Set.FindAsync([id], cancellationToken);
+			using var context = CreateContext();
+			return await context.Set<TAggregate>().FindAsync([id], cancellationToken);
 		}
 
 		public virtual async Task<IReadOnlyList<TAggregate>> ListAsync(CancellationToken cancellationToken = default)
 		{
-			return await Set.AsNoTracking().ToListAsync(cancellationToken);
+			using var context = CreateContext();
+			return await context.Set<TAggregate>().AsNoTracking().ToListAsync(cancellationToken);
 		}
 
 		public virtual async Task<IEnumerable<TAggregate>> GetAllAsync(CancellationToken cancellationToken = default)
 		{
-			return await Set.AsNoTracking().ToListAsync(cancellationToken);
+			using var context = CreateContext();
+			return await context.Set<TAggregate>().AsNoTracking().ToListAsync(cancellationToken);
 		}
 
 		public virtual async Task<IReadOnlyList<TAggregate>> ListAsync(Expression<Func<TAggregate, bool>> predicate, CancellationToken cancellationToken = default)
 		{
-			return await Set.AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
+			using var context = CreateContext();
+			return await context.Set<TAggregate>().AsNoTracking().Where(predicate).ToListAsync(cancellationToken);
 		}
 
 		public virtual async Task AddAsync(TAggregate entity, CancellationToken cancellationToken = default)
 		{
-			await Set.AddAsync(entity, cancellationToken);
+			await DbContext.Set<TAggregate>().AddAsync(entity, cancellationToken);
 		}
 
 		public virtual async Task AddRangeAsync(IEnumerable<TAggregate> entities, CancellationToken cancellationToken = default)
 		{
-			await Set.AddRangeAsync(entities, cancellationToken);
+			await DbContext.Set<TAggregate>().AddRangeAsync(entities, cancellationToken);
 		}
 
 		public virtual void Update(TAggregate entity)
 		{
-			Set.Update(entity);
+			DbContext.Set<TAggregate>().Update(entity);
 		}
 
 		public virtual void Remove(TAggregate entity)
 		{
-			Set.Remove(entity);
+			DbContext.Set<TAggregate>().Remove(entity);
 		}
 	}
 }

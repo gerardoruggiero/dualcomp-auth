@@ -1,6 +1,7 @@
 using Dualcomp.Auth.DataAccess.EntityFramework;
 using Dualcomp.Auth.DataAccess.EntityFramework.Repositories;
 using Dualcomp.Auth.Domain.Companies;
+using Dualcomp.Auth.UnitTests.DataAccess.TestHelpers;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dualcomp.Auth.UnitTests.DataAccess.Repositories;
@@ -17,7 +18,8 @@ public class PhoneTypeRepositoryTests : IDisposable
 			.Options;
 
 		_context = new BaseDbContext(options);
-		_repository = new PhoneTypeRepository(_context);
+		var factoryMock = new DbContextFactoryMock(_context);
+		_repository = new PhoneTypeRepository(factoryMock, _context);
 	}
 
 	[Fact]
