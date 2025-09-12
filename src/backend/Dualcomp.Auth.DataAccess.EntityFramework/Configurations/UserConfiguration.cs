@@ -41,10 +41,21 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
             builder.Property(u => u.IsActive)
                 .IsRequired();
 
+            builder.Property(u => u.IsEmailValidated)
+                .IsRequired();
+
+            builder.Property(u => u.MustChangePassword)
+                .IsRequired();
+
+            builder.Property(u => u.TemporaryPassword)
+                .HasMaxLength(255);
+
             builder.Property(u => u.CreatedAt)
                 .IsRequired();
 
             builder.Property(u => u.LastLoginAt);
+
+            builder.Property(u => u.EmailValidatedAt);
 
             builder.Property(u => u.CompanyId);
 

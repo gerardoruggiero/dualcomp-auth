@@ -11,8 +11,12 @@ namespace Dualcomp.Auth.Domain.Users
         public Email Email { get; private set; } = null!;
         public HashedPassword Password { get; private set; } = null!;
         public bool IsActive { get; private set; }
+        public bool IsEmailValidated { get; private set; }
+        public bool MustChangePassword { get; private set; }
+        public string? TemporaryPassword { get; private set; }
         public DateTime CreatedAt { get; private set; }
         public DateTime? LastLoginAt { get; private set; }
+        public DateTime? EmailValidatedAt { get; private set; }
         public Guid? CompanyId { get; private set; }
         public bool IsCompanyAdmin { get; private set; }
 
@@ -26,6 +30,9 @@ namespace Dualcomp.Auth.Domain.Users
             Email = email ?? throw new ArgumentNullException(nameof(email));
             Password = password ?? throw new ArgumentNullException(nameof(password));
             IsActive = true;
+            IsEmailValidated = false;
+            MustChangePassword = false;
+            TemporaryPassword = null;
             CreatedAt = DateTime.UtcNow;
             CompanyId = companyId;
             IsCompanyAdmin = isCompanyAdmin;
@@ -62,5 +69,55 @@ namespace Dualcomp.Auth.Domain.Users
         }
 
         public string GetFullName() => $"{FirstName} {LastName}".Trim();
+
+        public void ValidateEmail()
+        {
+            if (IsEmailValidated)
+                throw new InvalidOperationException("Email has already been validated");
+
+            IsEmailValidated = true;
+            EmailValidatedAt = DateTime.UtcNow;
+            
+            // Si el usuario no está activo, activarlo al validar el email
+            if (!IsActive)
+            {
+                IsActive = true;
+            }
+        }
+
+        public void SetMustChangePassword(bool mustChange = true)
+        {
+            MustChangePassword = mustChange;
+        }
+
+        public void SetTemporaryPassword(string temporaryPassword)
+        {
+            TemporaryPassword = string.IsNullOrWhiteSpace(temporaryPassword) 
+                ? throw new ArgumentException("Temporary password is required", nameof(temporaryPassword)) 
+                : temporaryPassword;
+            MustChangePassword = true;
+        }
+
+        public void ClearTemporaryPassword()
+        {
+            TemporaryPassword = null;
+            MustChangePassword = false;
+        }
+
+        public bool CanLogin()
+        {
+            return IsActive && IsEmailValidated;
+        }
+
+        public bool RequiresPasswordChange()
+        {
+            return MustChangePassword;
+        }
+
+        public bool HasValidTemporaryPassword(string providedTemporaryPassword)
+        {
+            return !string.IsNullOrWhiteSpace(TemporaryPassword) && 
+                   TemporaryPassword.Equals(providedTemporaryPassword, StringComparison.Ordinal);
+        }
     }
 }

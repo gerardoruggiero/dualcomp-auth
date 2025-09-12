@@ -43,10 +43,34 @@ namespace Dualcomp.Auth.Application.Users.Login
                 throw new UnauthorizedAccessException("Credenciales inválidas");
             }
 
+            // Verificar si el email está validado
+            if (!user.IsEmailValidated)
+            {
+                throw new UnauthorizedAccessException("Debes validar tu email antes de iniciar sesión. Revisa tu bandeja de entrada.");
+            }
+
             // Verificar contraseña
             if (!_passwordHasher.VerifyPassword(request.Password, user.Password.Value))
             {
                 throw new UnauthorizedAccessException("Credenciales inválidas");
+            }
+
+            // Verificar si requiere cambio obligatorio de contraseña
+            if (user.RequiresPasswordChange())
+            {
+                // Si requiere cambio de contraseña, no generar tokens completos
+                // Solo retornar información básica para redirigir al cambio
+                return new LoginResult(
+                    string.Empty, // No access token
+                    string.Empty, // No refresh token
+                    DateTime.MinValue, // No expiration
+                    user.Id,
+                    user.Email.Value,
+                    user.GetFullName(),
+                    user.CompanyId,
+                    user.IsCompanyAdmin,
+                    RequiresPasswordChange: true,
+                    IsEmailValidated: user.IsEmailValidated);
             }
 
             // Invalidar sesiones previas del usuario
@@ -94,7 +118,9 @@ namespace Dualcomp.Auth.Application.Users.Login
                 user.Email.Value,
                 user.GetFullName(),
                 user.CompanyId,
-                user.IsCompanyAdmin);
+                user.IsCompanyAdmin,
+                RequiresPasswordChange: false,
+                IsEmailValidated: user.IsEmailValidated);
         }
     }
 }

@@ -3,6 +3,7 @@ using Dualcomp.Auth.Application.Users.Login;
 using Dualcomp.Auth.Application.Users.Logout;
 using Dualcomp.Auth.Application.Users.ChangePassword;
 using Dualcomp.Auth.Application.Users.RefreshToken;
+using Dualcomp.Auth.Application.Users.ForcePasswordChange;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using DualComp.Infraestructure.Domain.Domain.Common.Results;
@@ -18,17 +19,20 @@ namespace Dualcomp.Auth.WebApi.Controllers
         private readonly ICommandHandler<LogoutCommand, LogoutResult> _logoutHandler;
         private readonly ICommandHandler<ChangePasswordCommand, ChangePasswordResult> _changePasswordHandler;
         private readonly ICommandHandler<RefreshTokenCommand, RefreshTokenResult> _refreshTokenHandler;
+        private readonly ICommandHandler<ForcePasswordChangeCommand, ForcePasswordChangeResult> _forcePasswordChangeHandler;
 
         public AuthController(
             ICommandHandler<LoginCommand, LoginResult> loginHandler,
             ICommandHandler<LogoutCommand, LogoutResult> logoutHandler,
             ICommandHandler<ChangePasswordCommand, ChangePasswordResult> changePasswordHandler,
-            ICommandHandler<RefreshTokenCommand, RefreshTokenResult> refreshTokenHandler)
+            ICommandHandler<RefreshTokenCommand, RefreshTokenResult> refreshTokenHandler,
+            ICommandHandler<ForcePasswordChangeCommand, ForcePasswordChangeResult> forcePasswordChangeHandler)
         {
             _loginHandler = loginHandler ?? throw new ArgumentNullException(nameof(loginHandler));
             _logoutHandler = logoutHandler ?? throw new ArgumentNullException(nameof(logoutHandler));
             _changePasswordHandler = changePasswordHandler ?? throw new ArgumentNullException(nameof(changePasswordHandler));
             _refreshTokenHandler = refreshTokenHandler ?? throw new ArgumentNullException(nameof(refreshTokenHandler));
+            _forcePasswordChangeHandler = forcePasswordChangeHandler ?? throw new ArgumentNullException(nameof(forcePasswordChangeHandler));
         }
 
         [HttpPost("login")]
@@ -46,6 +50,24 @@ namespace Dualcomp.Auth.WebApi.Controllers
                     HttpContext.Connection.RemoteIpAddress?.ToString());
 
                 var result = await _loginHandler.Handle(command, HttpContext.RequestAborted);
+
+                // Si requiere cambio de contraseña, retornar información especial
+                if (result.RequiresPasswordChange)
+                {
+                    return Ok(new
+                    {
+                        requiresPasswordChange = true,
+                        message = "Debes cambiar tu contraseña temporal antes de continuar",
+                        user = new
+                        {
+                            id = result.UserId,
+                            email = result.Email,
+                            fullName = result.FullName,
+                            companyId = result.CompanyId,
+                            isCompanyAdmin = result.IsCompanyAdmin
+                        }
+                    });
+                }
 
                 return Ok(new
                 {
@@ -174,6 +196,40 @@ namespace Dualcomp.Auth.WebApi.Controllers
             }
         }
 
+        [HttpPost("force-password-change")]
+        public async Task<IActionResult> ForcePasswordChange([FromBody] ForcePasswordChangeRequest request)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            try
+            {
+                var command = new ForcePasswordChangeCommand(
+                    request.UserId,
+                    request.TemporaryPassword,
+                    request.NewPassword);
+
+                var result = await _forcePasswordChangeHandler.Handle(command, HttpContext.RequestAborted);
+
+                if (result.IsSuccess)
+                {
+                    return Ok(new
+                    {
+                        message = result.Message,
+                        accessToken = result.AccessToken,
+                        refreshToken = result.RefreshToken,
+                        expiresAt = result.ExpiresAt
+                    });
+                }
+
+                return BadRequest(new { message = result.Message });
+            }
+            catch (Exception)
+            {
+                return BadRequest(new { message = "Error interno del servidor" });
+            }
+        }
+
         private string? ExtractTokenFromHeader()
         {
             var authHeader = Request.Headers["Authorization"].FirstOrDefault();
@@ -194,4 +250,5 @@ namespace Dualcomp.Auth.WebApi.Controllers
     public record LoginRequest(string Email, string Password);
     public record ChangePasswordRequest(string CurrentPassword, string NewPassword);
     public record RefreshTokenRequest(string RefreshToken);
+    public record ForcePasswordChangeRequest(Guid UserId, string TemporaryPassword, string NewPassword);
 }

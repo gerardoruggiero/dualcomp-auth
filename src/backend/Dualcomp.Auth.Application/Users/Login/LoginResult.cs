@@ -8,6 +8,8 @@ namespace Dualcomp.Auth.Application.Users.Login
         string Email,
         string FullName,
         Guid? CompanyId,
-        bool IsCompanyAdmin
+        bool IsCompanyAdmin,
+        bool RequiresPasswordChange = false,
+        bool IsEmailValidated = true
     );
 }

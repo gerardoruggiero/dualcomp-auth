@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\backend\Dualcomp.Auth.Domain\Dualcomp.Auth.Domain.csproj" />
     <ProjectReference Include="..\..\backend\Dualcomp.Auth.WebApi\Dualcomp.Auth.WebApi.csproj" />
     <ProjectReference Include="..\..\backend\DualComp.Infraestructure\DualComp.Infraestructure.csproj" />
+    <ProjectReference Include="..\..\backend\DualComp.Infraestructure.Mail\DualComp.Infraestructure.Mail.csproj" />
   </ItemGroup>
 
   <ItemGroup>
