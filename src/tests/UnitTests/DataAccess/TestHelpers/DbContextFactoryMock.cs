@@ -23,3 +23,4 @@ namespace Dualcomp.Auth.UnitTests.DataAccess.TestHelpers
         }
     }
 }
+
