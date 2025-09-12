@@ -1,0 +1,97 @@
+<body class="hold-transition login-page">
+  <div class="login-box">
+    <div class="login-logo">
+      <a href="#"><b>Dual</b>Comp</a>
+    </div>
+    <!-- /.login-logo -->
+    <div class="card">
+      <div class="card-body login-card-body">
+        <p class="login-box-msg">Inicio de sesión a DualComp</p>
+
+        <!-- Mensaje de error -->
+         @if(errorMessage() != '')
+         {
+          <div class="row">
+            <div class="col-12">
+              <div class="alert alert-danger alert-dismissible show" role="alert">
+                {{ errorMessage() }}
+              </div>
+            </div>
+          </div>
+         }
+
+        <!-- Formulario -->
+        <form>
+          <div class="input-group mb-3">
+            <input
+              type="email"
+              class="form-control"
+              required
+              placeholder="Email"
+              [value]="email()"
+              (change)="email.set(txtEmail.value)"
+              #txtEmail
+            />
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-envelope"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="input-group mb-3">
+            <input
+              type="password"
+              class="form-control"
+              required
+              placeholder="Password"
+              [value]="password()"
+              (change)="password.set(txtPassword.value)"
+              #txtPassword
+            />
+            <div class="input-group-append">
+              <div class="input-group-text">
+                <span class="fas fa-lock"></span>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12">
+              <button
+                type="button"
+                (click)="onSubmit()"
+                class="btn btn-primary btn-block"
+                [disabled]="!email() || !password() || isLoading()"
+              >
+                @if(isLoading()) {
+                  <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                  Iniciando sesión...
+                } @else {
+                  Ingresar
+                }
+              </button>
+            </div>
+          </div>
+        </form>
+
+        <!-- Enlaces secundarios -->
+         <br />
+        <div class="row">
+          <div class="col-6 text-center">
+            <p class="mb-1">
+              <a href="forgot-password.html">Olvidé mi clave</a>
+            </p>
+          </div>
+          <div class="col-6 text-center">
+            <p class="mb-0">
+              <a routerLink="/company/register" class="text-center">Quiero registrarme!</a>
+            </p>
+          </div>          
+        </div>
+      </div>
+      <!-- /.login-card-body -->
+    </div>
+  </div>
+  <!-- /.login-box -->
+</body>

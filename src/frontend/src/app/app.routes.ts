@@ -1,0 +1,50 @@
+import { Routes } from '@angular/router';
+import { LoginComponent } from './auth/pages/login/login.component';
+import { EmptyLayoutComponent } from '../pages/empty-layout/empty-layout.component';
+import { MainLayoutComponent as MainLayoutComponent } from '../pages/main-layout/main-layout.component';
+import { MainPageComponent } from '../pages/main-page/main-page.component';
+import { LeadComponent } from './crm/lead/lead.component';
+import { authGuard } from './auth/services/AuthGuard';
+import { PhoneTypeComponent } from './crm/phone-type/phone-type.component';
+import { EmailTypeComponent } from './crm/email-type/email-type.component';
+import { AddressTypeComponent } from './crm/address-type/address-type.component';
+import { SocialMediaComponent } from './crm/social-media/social-media.component';
+import { CompanyRegisterLayoutComponent } from '../pages/company-register-layout/company-register-layout.component';
+import { CompanyRegisterComponent } from './company/register/company-register.component';
+
+export const routes: Routes = [
+  // Siempre redirigir a login inicialmente
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+  {
+    path: '',
+    component: EmptyLayoutComponent, // layout liviano para login
+    children: [
+      { path: 'login', component: LoginComponent }
+    ]
+  },
+  {
+    path: '',
+    component: CompanyRegisterLayoutComponent, // layout independiente para registro de empresa
+    children: [
+      { path: 'company/register', component: CompanyRegisterComponent }
+    ]
+  },
+  {
+    path: '',
+    component: MainLayoutComponent, // layout completo para app logueada
+    children: [
+      { path: 'dashboard', component: MainPageComponent, canActivate: [authGuard] },
+      // Mantener rutas de CRM pero con guards (pueden fallar por ahora)
+      { path: 'leads', component: LeadComponent, canActivate: [authGuard] },
+      { path: 'phonetype', component: PhoneTypeComponent, canActivate: [authGuard] },
+      { path: 'emailtype', component: EmailTypeComponent, canActivate: [authGuard]},
+      { path: 'addresstype', component: AddressTypeComponent, canActivate: [authGuard]},
+      { path: 'socialmedia', component: SocialMediaComponent, canActivate: [authGuard]}
+    ]
+  },
+  {
+    path: '**',
+    redirectTo: 'login',
+    pathMatch: 'full'
+  }
+];

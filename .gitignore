@@ -1,0 +1,47 @@
+# ---- Node / Angular ----
+src/frontend/node_modules/
+src/frontend/dist/
+src/frontend/.angular/
+src/frontend/.env
+src/frontend/.env.*.local
+src/frontend/npm-debug.log*
+src/frontend/yarn-debug.log*
+src/frontend/yarn-error.log*
+
+# ---- .NET / Visual Studio ----
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+bin/
+obj/
+out/
+artifacts/
+
+# Visual Studio cache/options
+.vs/
+*.dbmdl
+*.jfm
+
+# NuGet
+*.nupkg
+*.snupkg
+packages/
+.nuget/
+
+# Logs
+*.log
+
+# ---- Tests ----
+src/tests/UnitTests/TestResults/
+src/tests/UnitTests/.vs/
+src/tests/UnitTests/bin/
+src/tests/UnitTests/obj/
+
+# ---- OS / IDE ----
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
