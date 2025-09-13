@@ -9,3 +9,4 @@ namespace DualComp.Infraestructure.Mail.Interfaces
         Task<bool> TestConnectionAsync(SmtpConfiguration smtpConfig, CancellationToken cancellationToken = default);
     }
 }
+

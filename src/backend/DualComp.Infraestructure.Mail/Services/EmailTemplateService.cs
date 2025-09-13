@@ -248,5 +248,74 @@ namespace DualComp.Infraestructure.Mail.Services
                 IsHtml = true
             };
         }
+
+        public EmailMessage CreateWelcomeEmailTemplate(string userEmail, string userName, string companyName, string validationToken, string baseUrl)
+        {
+            var validationUrl = $"{baseUrl.TrimEnd('/')}/validate-email?token={validationToken}";
+            
+            var htmlBody = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <title>Bienvenido a DualComp CRM</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background-color: #2c3e50; color: white; padding: 20px; text-align: center; }}
+        .content {{ padding: 30px; background-color: #f8f9fa; }}
+        .button {{ display: inline-block; background-color: #3498db; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; margin: 20px 0; }}
+        .footer {{ text-align: center; padding: 20px; color: #666; font-size: 12px; }}
+        .welcome {{ background-color: #d4edda; border: 1px solid #c3e6cb; padding: 15px; border-radius: 5px; margin: 20px 0; }}
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>DualComp CRM</h1>
+        </div>
+        <div class='content'>
+            <h2>¡Bienvenido a {companyName}!</h2>
+            <p>Hola {userName},</p>
+            <div class='welcome'>
+                <p><strong>🎉 ¡Bienvenido al equipo!</strong></p>
+                <p>Tu cuenta ha sido creada exitosamente en DualComp CRM para la empresa <strong>{companyName}</strong>.</p>
+            </div>
+            <p>Para comenzar a usar el sistema, necesitas validar tu dirección de email:</p>
+            <p style='text-align: center;'>
+                <a href='{validationUrl}' class='button'>Validar Mi Email</a>
+            </p>
+            <p>Si el botón no funciona, puedes copiar y pegar este enlace en tu navegador:</p>
+            <p style='word-break: break-all; background-color: #e9ecef; padding: 10px; border-radius: 3px;'>
+                {validationUrl}
+            </p>
+            <p><strong>Próximos pasos:</strong></p>
+            <ul>
+                <li>Valida tu email haciendo clic en el enlace de arriba</li>
+                <li>Inicia sesión con las credenciales que te proporcionó tu administrador</li>
+                <li>Cambia tu contraseña temporal en el primer inicio de sesión</li>
+                <li>Explora las funcionalidades del CRM</li>
+            </ul>
+            <p><strong>Importante:</strong> Este enlace de validación expirará en 24 horas por motivos de seguridad.</p>
+        </div>
+        <div class='footer'>
+            <p>Este email fue enviado automáticamente. Por favor, no respondas a este mensaje.</p>
+            <p>&copy; 2025 DualComp CRM. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>";
+
+            return new EmailMessage
+            {
+                To = userEmail,
+                ToName = userName,
+                Subject = $"Bienvenido a {companyName} - DualComp CRM",
+                Body = htmlBody,
+                IsHtml = true
+            };
+        }
     }
 }
+

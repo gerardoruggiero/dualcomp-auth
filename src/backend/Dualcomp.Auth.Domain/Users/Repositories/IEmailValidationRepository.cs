@@ -16,3 +16,4 @@ namespace Dualcomp.Auth.Domain.Users.Repositories
         Task<int> CountActiveTokensByUserIdAsync(Guid userId, CancellationToken cancellationToken = default);
     }
 }
+

@@ -3,7 +3,7 @@ using Dualcomp.Auth.Domain.Companies;
 
 namespace Dualcomp.Auth.Application.Services
 {
-    public class CompanySettingsService
+    public class CompanySettingsService : ICompanySettingsService
     {
         private readonly ICompanySettingsRepository _companySettingsRepository;
 
@@ -113,3 +113,4 @@ namespace Dualcomp.Auth.Application.Services
         }
     }
 }
+

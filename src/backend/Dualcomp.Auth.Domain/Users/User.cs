@@ -119,5 +119,10 @@ namespace Dualcomp.Auth.Domain.Users
             return !string.IsNullOrWhiteSpace(TemporaryPassword) && 
                    TemporaryPassword.Equals(providedTemporaryPassword, StringComparison.Ordinal);
         }
+
+        public void SetCompanyAdmin(bool isAdmin = true)
+        {
+            IsCompanyAdmin = isAdmin;
+        }
     }
 }

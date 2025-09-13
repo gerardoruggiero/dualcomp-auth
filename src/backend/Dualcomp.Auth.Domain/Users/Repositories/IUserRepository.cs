@@ -13,5 +13,9 @@ namespace Dualcomp.Auth.Domain.Users.Repositories
         Task AddAsync(User user, CancellationToken cancellationToken = default);
         Task UpdateAsync(User user, CancellationToken cancellationToken = default);
         Task DeleteAsync(User user, CancellationToken cancellationToken = default);
+        
+        // Métodos para gestión de usuarios con paginación
+        Task<IEnumerable<User>> GetUsersAsync(Guid? companyId, int page, int pageSize, string? searchTerm, CancellationToken cancellationToken = default);
+        Task<int> GetUsersCountAsync(Guid? companyId, string? searchTerm, CancellationToken cancellationToken = default);
     }
 }

@@ -12,3 +12,4 @@ namespace DualComp.Infraestructure.Mail.Models
         public int Timeout { get; set; } = 30000; // 30 segundos
     }
 }
+

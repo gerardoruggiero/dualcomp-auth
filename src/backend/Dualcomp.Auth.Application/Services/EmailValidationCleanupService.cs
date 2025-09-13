@@ -92,3 +92,4 @@ namespace Dualcomp.Auth.Application.Services
         public DateTime ExecutedAt { get; set; }
     }
 }
+

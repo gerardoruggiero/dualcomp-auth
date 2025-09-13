@@ -28,3 +28,4 @@ namespace Dualcomp.Auth.Application.Users.SetTemporaryPassword
         }
     }
 }
+

@@ -60,5 +60,57 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Repositories
             _context.Users.Remove(user);
             return Task.CompletedTask;
         }
+
+        public async Task<IEnumerable<User>> GetUsersAsync(Guid? companyId, int page, int pageSize, string? searchTerm, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Users.AsQueryable();
+
+            // Filtrar por empresa si se especifica
+            if (companyId.HasValue)
+            {
+                query = query.Where(u => u.CompanyId == companyId.Value);
+            }
+
+            // Filtrar por término de búsqueda si se especifica
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var searchLower = searchTerm.ToLower();
+                query = query.Where(u => 
+                    u.FirstName.ToLower().Contains(searchLower) ||
+                    u.LastName.ToLower().Contains(searchLower) ||
+                    u.Email.Value.ToLower().Contains(searchLower));
+            }
+
+            // Aplicar paginación
+            return await query
+                .OrderBy(u => u.FirstName)
+                .ThenBy(u => u.LastName)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync(cancellationToken);
+        }
+
+        public async Task<int> GetUsersCountAsync(Guid? companyId, string? searchTerm, CancellationToken cancellationToken = default)
+        {
+            var query = _context.Users.AsQueryable();
+
+            // Filtrar por empresa si se especifica
+            if (companyId.HasValue)
+            {
+                query = query.Where(u => u.CompanyId == companyId.Value);
+            }
+
+            // Filtrar por término de búsqueda si se especifica
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                var searchLower = searchTerm.ToLower();
+                query = query.Where(u => 
+                    u.FirstName.ToLower().Contains(searchLower) ||
+                    u.LastName.ToLower().Contains(searchLower) ||
+                    u.Email.Value.ToLower().Contains(searchLower));
+            }
+
+            return await query.CountAsync(cancellationToken);
+        }
     }
 }

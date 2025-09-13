@@ -29,3 +29,4 @@ namespace DualComp.Infraestructure.Mail.Models
         }
     }
 }
+

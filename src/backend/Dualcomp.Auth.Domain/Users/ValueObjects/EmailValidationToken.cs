@@ -51,3 +51,4 @@ namespace Dualcomp.Auth.Domain.Users.ValueObjects
         public static implicit operator string(EmailValidationToken token) => token.Value;
     }
 }
+

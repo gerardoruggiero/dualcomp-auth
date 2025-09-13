@@ -81,3 +81,4 @@ namespace Dualcomp.Auth.Domain.Companies.ValueObjects
         }
     }
 }
+

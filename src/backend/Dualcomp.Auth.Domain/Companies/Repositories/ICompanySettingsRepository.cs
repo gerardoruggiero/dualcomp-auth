@@ -13,3 +13,4 @@ namespace Dualcomp.Auth.Domain.Companies.Repositories
         Task DeactivateByCompanyIdAsync(Guid companyId, CancellationToken cancellationToken = default);
     }
 }
+

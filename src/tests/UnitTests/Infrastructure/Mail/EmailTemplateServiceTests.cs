@@ -209,3 +209,4 @@ namespace Dualcomp.Auth.UnitTests.Infrastructure.Mail
         }
     }
 }
+

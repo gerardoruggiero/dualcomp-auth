@@ -113,3 +113,4 @@ namespace Dualcomp.Auth.WebApi.Controllers
     public record ValidateEmailRequest(string Token);
     public record SendValidationEmailRequest(Guid UserId);
 }
+

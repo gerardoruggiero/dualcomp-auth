@@ -47,3 +47,4 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
         }
     }
 }
+

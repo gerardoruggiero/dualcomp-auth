@@ -72,3 +72,4 @@ namespace Dualcomp.Auth.Domain.Companies
         public bool IsPending => Status == "Pending";
     }
 }
+

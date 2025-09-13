@@ -8,5 +8,7 @@ namespace DualComp.Infraestructure.Mail.Interfaces
         EmailMessage CreatePasswordResetTemplate(string userEmail, string userName, string resetToken, string baseUrl);
         EmailMessage CreateCompanyRegistrationTemplate(string userEmail, string userName, string companyName, string baseUrl);
         EmailMessage CreateUserCreatedTemplate(string userEmail, string userName, string temporaryPassword, string baseUrl);
+        EmailMessage CreateWelcomeEmailTemplate(string userEmail, string userName, string companyName, string validationToken, string baseUrl);
     }
 }
+

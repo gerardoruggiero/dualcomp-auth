@@ -50,3 +50,4 @@ namespace DualComp.Infraestructure.Mail.Extensions
         }
     }
 }
+

@@ -10,7 +10,7 @@ using DualComp.Infraestructure.Security;
 
 namespace Dualcomp.Auth.Application.Companies
 {
-    public class CompanyContactService
+    public class CompanyContactService : ICompanyContactService
     {
         private readonly IAddressTypeRepository _addressTypeRepository;
         private readonly IEmailTypeRepository _emailTypeRepository;

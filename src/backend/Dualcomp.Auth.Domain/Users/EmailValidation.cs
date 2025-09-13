@@ -61,3 +61,4 @@ namespace Dualcomp.Auth.Domain.Users
         }
     }
 }
+

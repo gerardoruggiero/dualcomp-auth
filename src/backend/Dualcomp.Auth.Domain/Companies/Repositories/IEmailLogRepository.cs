@@ -18,3 +18,4 @@ namespace Dualcomp.Auth.Domain.Companies.Repositories
         Task DeleteOldLogsAsync(int daysOld, CancellationToken cancellationToken = default);
     }
 }
+

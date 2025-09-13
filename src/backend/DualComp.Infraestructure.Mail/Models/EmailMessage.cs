@@ -21,3 +21,4 @@ namespace DualComp.Infraestructure.Mail.Models
         public string ContentType { get; set; } = "application/octet-stream";
     }
 }
+

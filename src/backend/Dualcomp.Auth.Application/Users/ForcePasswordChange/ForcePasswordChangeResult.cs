@@ -30,3 +30,4 @@ namespace Dualcomp.Auth.Application.Users.ForcePasswordChange
         }
     }
 }
+
