@@ -1,18 +1,18 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { SocialMediaType } from '../../shared/models/SocialMediaType';
+import { AddressType } from '../shared/models/AddressType';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
+import { environment } from '../environments/environment';
 
 @Component({
-  selector: 'app-social-media',
+  selector: 'app-address-type',
   imports: [],
-  templateUrl: 'social-media.component.html',
+  templateUrl: 'address-type.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class SocialMediaComponent { 
-      private apiUrl = `${environment.apiBaseUrl}/SocialMediaType/get-all`;
-  items = signal<SocialMediaType[]>([])
+export class AddressTypeComponent {
+    private apiUrl = `${environment.apiBaseUrl}/AddressType/get-all`;
+  items = signal<AddressType[]>([])
 
   private http = inject(HttpClient); 
 
@@ -24,7 +24,7 @@ export class SocialMediaComponent {
     })
   }
 
-  getAll(): Observable<SocialMediaType[]> {
-    return this.http.get<SocialMediaType[]>(this.apiUrl);
+  getAll(): Observable<AddressType[]> {
+    return this.http.get<AddressType[]>(this.apiUrl);
   }
-}
+ }

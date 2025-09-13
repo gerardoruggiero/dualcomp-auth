@@ -1,18 +1,18 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
+import { SocialMediaType } from '../shared/models/SocialMediaType';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { PhoneType } from '../../shared/models/PhoneType';
-import { environment } from '../../environments/environment';
+import { environment } from '../environments/environment';
 
 @Component({
-  selector: 'app-phone-type',
+  selector: 'app-social-media',
   imports: [],
-  templateUrl: './phone-type.component.html',
+  templateUrl: 'social-media.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class PhoneTypeComponent { 
-  private apiUrl = `${environment.apiBaseUrl}/PhoneType/get-all`;
-  items = signal<PhoneType[]>([])
+export class SocialMediaComponent { 
+      private apiUrl = `${environment.apiBaseUrl}/SocialMediaType/get-all`;
+  items = signal<SocialMediaType[]>([])
 
   private http = inject(HttpClient); 
 
@@ -24,7 +24,7 @@ export class PhoneTypeComponent {
     })
   }
 
-  getAll(): Observable<PhoneType[]> {
-    return this.http.get<PhoneType[]>(this.apiUrl);
+  getAll(): Observable<SocialMediaType[]> {
+    return this.http.get<SocialMediaType[]>(this.apiUrl);
   }
 }

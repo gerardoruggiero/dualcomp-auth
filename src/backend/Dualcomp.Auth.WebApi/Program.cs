@@ -2,6 +2,7 @@ using Dualcomp.Auth.DataAccess.EntityFramework.Configurations;
 using DualComp.Infraestructure.Web.ExceptionHandling;
 using DualComp.Infraestructure.Web.Authentication;
 using DualComp.Infraestructure.Security;
+using DualComp.Infraestructure.Mail.Extensions;
 using Dualcomp.Auth.WebApi.Extensions;
 using Microsoft.Extensions.Configuration;
 
@@ -10,6 +11,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllers();
 builder.Services.AddBaseInfraestructure(builder.Configuration);
+
+// Add Mail Services
+builder.Services.AddMailServices(builder.Configuration);
 
 // Configure JWT Authentication
 builder.Services.AddJwtAuthentication(builder.Configuration);
@@ -28,7 +32,10 @@ builder.Services.AddScoped<IPasswordGenerator, PasswordGenerator>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
 // Register Company Contact Service
-builder.Services.AddScoped<Dualcomp.Auth.Application.Companies.CompanyContactService>();
+builder.Services.AddScoped<Dualcomp.Auth.Application.Companies.ICompanyContactService, Dualcomp.Auth.Application.Companies.CompanyContactService>();
+
+// Register Company Settings Service
+builder.Services.AddScoped<Dualcomp.Auth.Application.Services.ICompanySettingsService, Dualcomp.Auth.Application.Services.CompanySettingsService>();
 
 // Auto-register all application handlers (Commands and Queries)
 builder.Services.AddApplicationHandlers();

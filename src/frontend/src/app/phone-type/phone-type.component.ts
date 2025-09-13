@@ -1,18 +1,18 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
-import { AddressType } from '../../shared/models/AddressType';
 import { Observable } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
-import { environment } from '../../environments/environment';
+import { PhoneType } from '../shared/models/PhoneType';
+import { environment } from '../environments/environment';
 
 @Component({
-  selector: 'app-address-type',
+  selector: 'app-phone-type',
   imports: [],
-  templateUrl: 'address-type.component.html',
+  templateUrl: './phone-type.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class AddressTypeComponent {
-    private apiUrl = `${environment.apiBaseUrl}/AddressType/get-all`;
-  items = signal<AddressType[]>([])
+export class PhoneTypeComponent { 
+  private apiUrl = `${environment.apiBaseUrl}/PhoneType/get-all`;
+  items = signal<PhoneType[]>([])
 
   private http = inject(HttpClient); 
 
@@ -24,7 +24,7 @@ export class AddressTypeComponent {
     })
   }
 
-  getAll(): Observable<AddressType[]> {
-    return this.http.get<AddressType[]>(this.apiUrl);
+  getAll(): Observable<PhoneType[]> {
+    return this.http.get<PhoneType[]>(this.apiUrl);
   }
- }
+}

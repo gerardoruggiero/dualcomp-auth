@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { Observable } from 'rxjs';
-import { EmailType } from '../../shared/models/EmailType';
-import { environment } from '../../environments/environment';
+import { EmailType } from '../shared/models/EmailType';
+import { environment } from '../environments/environment';
 
 @Component({
   selector: 'app-email-type',

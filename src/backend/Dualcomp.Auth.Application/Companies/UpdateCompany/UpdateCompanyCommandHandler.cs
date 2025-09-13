@@ -1,4 +1,5 @@
 using Dualcomp.Auth.Application.Abstractions.Messaging;
+using Dualcomp.Auth.Application.Companies;
 using Dualcomp.Auth.Domain.Companies;
 using Dualcomp.Auth.Domain.Companies.Repositories;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
@@ -9,12 +10,12 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
     public class UpdateCompanyCommandHandler : ICommandHandler<UpdateCompanyCommand, UpdateCompanyResult>
     {
         private readonly ICompanyRepository _companyRepository;
-        private readonly CompanyContactService _contactService;
+        private readonly ICompanyContactService _contactService;
         private readonly IUnitOfWork _unitOfWork;
 
         public UpdateCompanyCommandHandler(
             ICompanyRepository companyRepository,
-            CompanyContactService contactService,
+            ICompanyContactService contactService,
             IUnitOfWork unitOfWork)
         {
             _companyRepository = companyRepository ?? throw new ArgumentNullException(nameof(companyRepository));
