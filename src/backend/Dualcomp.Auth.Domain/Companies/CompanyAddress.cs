@@ -29,6 +29,13 @@ namespace Dualcomp.Auth.Domain.Companies
 			Address = string.IsNullOrWhiteSpace(address) ? throw new ArgumentException("Address is required", nameof(address)) : address.Trim();
 		}
 
+		public void UpdateInfo(Guid addressTypeId, string address, bool isPrimary)
+		{
+			AddressTypeId = addressTypeId == Guid.Empty ? throw new ArgumentException("AddressTypeId cannot be empty", nameof(addressTypeId)) : addressTypeId;
+			Address = string.IsNullOrWhiteSpace(address) ? throw new ArgumentException("Address is required", nameof(address)) : address.Trim();
+			IsPrimary = isPrimary;
+		}
+
 		public void SetAsPrimary()
 		{
 			IsPrimary = true;

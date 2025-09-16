@@ -22,12 +22,16 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
     '/addresstypes',
     '/emailtypes', 
     '/phonetypes',
-    '/socialmediatypes',
-    '/companies' // El registro de empresa no requiere autenticación
+    '/socialmediatypes'
   ];
 
   // Verificar si la URL es pública
-  const isPublicUrl = publicUrls.some(url => req.url.includes(url));
+  let isPublicUrl = publicUrls.some(url => req.url.includes(url));
+  
+  // Solo el POST a /companies (registro) es público, PUT y GET requieren autenticación
+  if (req.url.includes('/companies') && req.method === 'POST') {
+    isPublicUrl = true;
+  }
 
   // Agregar token solo si no es una URL pública
   const cloned = (token && !isPublicUrl)

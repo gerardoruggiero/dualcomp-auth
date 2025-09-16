@@ -1,0 +1,50 @@
+// Estilos para transiciones suaves en la tabla de datos
+
+.table-responsive {
+  transition: opacity 0.15s ease-in-out;
+  
+  &.transitioning {
+    opacity: 0.7;
+  }
+}
+
+// Suavizar la aparición de filas
+tbody tr {
+  transition: all 0.2s ease-in-out;
+}
+
+// Animación para el spinner de búsqueda
+.fa-spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Suavizar cambios en la paginación
+.pagination {
+  transition: opacity 0.15s ease-in-out;
+}
+
+// Mejorar la apariencia del botón de limpiar
+.btn-outline-secondary {
+  transition: all 0.2s ease-in-out;
+  
+  &:hover {
+    background-color: #6c757d;
+    border-color: #6c757d;
+    color: white;
+  }
+}
+
+// Suavizar la transición del input de búsqueda
+.form-control {
+  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  
+  &:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+  }
+}

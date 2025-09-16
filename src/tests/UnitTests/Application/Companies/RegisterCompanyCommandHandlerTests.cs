@@ -132,6 +132,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                 .Returns((Company company, Dictionary<Guid, string> typeNames) => 
                 {
                     return company.Addresses.Select(a => new CompanyAddressResult(
+                        a.Id.ToString(), // Id
                         "Principal", // TypeName
                         a.Address, 
                         a.IsPrimary
@@ -141,6 +142,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                 .Returns((Company company, Dictionary<Guid, string> typeNames) => 
                 {
                     return company.Emails.Select(e => new CompanyEmailResult(
+                        e.Id.ToString(), // Id
                         "Principal", // TypeName
                         e.Email.Value, 
                         e.IsPrimary
@@ -150,6 +152,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                 .Returns((Company company, Dictionary<Guid, string> typeNames) => 
                 {
                     return company.Phones.Select(p => new CompanyPhoneResult(
+                        p.Id.ToString(), // Id
                         "Principal", // TypeName
                         p.Phone, 
                         p.IsPrimary
@@ -159,6 +162,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                 .Returns((Company company, Dictionary<Guid, string> typeNames) => 
                 {
                     return company.SocialMedias.Select(sm => new CompanySocialMediaResult(
+                        sm.Id.ToString(), // Id
                         "Facebook", // TypeName
                         sm.Url, 
                         sm.IsPrimary
@@ -168,6 +172,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                 .Returns((Company company) => 
                 {
                     return company.Employees.Select(e => new CompanyEmployeeResult(
+                        e.Id.ToString(), // Id
                         e.FullName, 
                         e.Email, 
                         e.Phone, 

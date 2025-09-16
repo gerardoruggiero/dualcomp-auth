@@ -65,8 +65,22 @@ namespace Dualcomp.Auth.Application.Companies
                 // Agregar al diccionario para el resultado
                 addressTypeNames[addressTypeEntity.Id] = addressTypeEntity.Name;
 
-                var address = CompanyAddress.Create(company.Id, addressTypeEntity.Id, (string)addressDto.Address, (bool)addressDto.IsPrimary);
-                company.AddAddress(address);
+                // Verificar si es una dirección existente o nueva
+                if (addressDto.Id != null && (Guid)addressDto.Id != Guid.Empty)
+                {
+                    // Dirección existente - buscar y actualizar
+                    var existingAddress = company.Addresses.FirstOrDefault(a => a.Id == (Guid)addressDto.Id);
+                    if (existingAddress != null)
+                    {
+                        existingAddress.UpdateInfo(addressTypeEntity.Id, (string)addressDto.Address, (bool)addressDto.IsPrimary);
+                    }
+                }
+                else
+                {
+                    // Dirección nueva - crear
+                    var address = CompanyAddress.Create(company.Id, addressTypeEntity.Id, (string)addressDto.Address, (bool)addressDto.IsPrimary);
+                    company.AddAddress(address);
+                }
             }
 
             return addressTypeNames;
@@ -88,9 +102,24 @@ namespace Dualcomp.Auth.Application.Companies
                 // Agregar al diccionario para el resultado
                 emailTypeNames[emailTypeEntity.Id] = emailTypeEntity.Name;
 
-                var email = Email.Create((string)emailDto.Email);
-                var companyEmail = CompanyEmail.Create(company.Id, emailTypeEntity.Id, email, (bool)emailDto.IsPrimary);
-                company.AddEmail(companyEmail);
+                // Verificar si es un email existente o nuevo
+                if (emailDto.Id != null && (Guid)emailDto.Id != Guid.Empty)
+                {
+                    // Email existente - buscar y actualizar
+                    var existingEmail = company.Emails.FirstOrDefault(e => e.Id == (Guid)emailDto.Id);
+                    if (existingEmail != null)
+                    {
+                        var email = Email.Create((string)emailDto.Email);
+                        existingEmail.UpdateInfo(emailTypeEntity.Id, email, (bool)emailDto.IsPrimary);
+                    }
+                }
+                else
+                {
+                    // Email nuevo - crear
+                    var email = Email.Create((string)emailDto.Email);
+                    var companyEmail = CompanyEmail.Create(company.Id, emailTypeEntity.Id, email, (bool)emailDto.IsPrimary);
+                    company.AddEmail(companyEmail);
+                }
             }
 
             return emailTypeNames;
@@ -112,8 +141,22 @@ namespace Dualcomp.Auth.Application.Companies
                 // Agregar al diccionario para el resultado
                 phoneTypeNames[phoneTypeEntity.Id] = phoneTypeEntity.Name;
 
-                var phone = CompanyPhone.Create(company.Id, phoneTypeEntity.Id, (string)phoneDto.Phone, (bool)phoneDto.IsPrimary);
-                company.AddPhone(phone);
+                // Verificar si es un teléfono existente o nuevo
+                if (phoneDto.Id != null && (Guid)phoneDto.Id != Guid.Empty)
+                {
+                    // Teléfono existente - buscar y actualizar
+                    var existingPhone = company.Phones.FirstOrDefault(p => p.Id == (Guid)phoneDto.Id);
+                    if (existingPhone != null)
+                    {
+                        existingPhone.UpdateInfo(phoneTypeEntity.Id, (string)phoneDto.Phone, (bool)phoneDto.IsPrimary);
+                    }
+                }
+                else
+                {
+                    // Teléfono nuevo - crear
+                    var phone = CompanyPhone.Create(company.Id, phoneTypeEntity.Id, (string)phoneDto.Phone, (bool)phoneDto.IsPrimary);
+                    company.AddPhone(phone);
+                }
             }
 
             return phoneTypeNames;
@@ -135,8 +178,22 @@ namespace Dualcomp.Auth.Application.Companies
                 // Agregar al diccionario para el resultado
                 socialMediaTypeNames[socialMediaTypeEntity.Id] = socialMediaTypeEntity.Name;
 
-                var socialMedia = CompanySocialMedia.Create(company.Id, socialMediaTypeEntity.Id, (string)socialMediaDto.Url, (bool)socialMediaDto.IsPrimary);
-                company.AddSocialMedia(socialMedia);
+                // Verificar si es una red social existente o nueva
+                if (socialMediaDto.Id != null && (Guid)socialMediaDto.Id != Guid.Empty)
+                {
+                    // Red social existente - buscar y actualizar
+                    var existingSocialMedia = company.SocialMedias.FirstOrDefault(sm => sm.Id == (Guid)socialMediaDto.Id);
+                    if (existingSocialMedia != null)
+                    {
+                        existingSocialMedia.UpdateInfo(socialMediaTypeEntity.Id, (string)socialMediaDto.Url, (bool)socialMediaDto.IsPrimary);
+                    }
+                }
+                else
+                {
+                    // Red social nueva - crear
+                    var socialMedia = CompanySocialMedia.Create(company.Id, socialMediaTypeEntity.Id, (string)socialMediaDto.Url, (bool)socialMediaDto.IsPrimary);
+                    company.AddSocialMedia(socialMedia);
+                }
             }
 
             return socialMediaTypeNames;
@@ -164,11 +221,76 @@ namespace Dualcomp.Auth.Application.Companies
         }
 
         /// <summary>
+        /// Elimina contactos que ya no están en la request (fueron eliminados por el usuario)
+        /// </summary>
+        public async Task RemoveDeletedContactsAsync(Company company, IEnumerable<dynamic> addresses, IEnumerable<dynamic> emails, IEnumerable<dynamic> phones, IEnumerable<dynamic> socialMedias, CancellationToken cancellationToken)
+        {
+            // Obtener IDs de contactos que están en la request
+            var requestedAddressIds = addresses
+                .Where(a => a.Id != null && (Guid)a.Id != Guid.Empty)
+                .Select(a => (Guid)a.Id)
+                .ToHashSet();
+
+            var requestedEmailIds = emails
+                .Where(e => e.Id != null && (Guid)e.Id != Guid.Empty)
+                .Select(e => (Guid)e.Id)
+                .ToHashSet();
+
+            var requestedPhoneIds = phones
+                .Where(p => p.Id != null && (Guid)p.Id != Guid.Empty)
+                .Select(p => (Guid)p.Id)
+                .ToHashSet();
+
+            var requestedSocialMediaIds = socialMedias
+                .Where(sm => sm.Id != null && (Guid)sm.Id != Guid.Empty)
+                .Select(sm => (Guid)sm.Id)
+                .ToHashSet();
+
+            // Eliminar direcciones que no están en la request
+            var addressesToRemove = company.Addresses
+                .Where(a => !requestedAddressIds.Contains(a.Id))
+                .ToList();
+            foreach (var address in addressesToRemove)
+            {
+                company.RemoveAddress(address);
+            }
+
+            // Eliminar emails que no están en la request
+            var emailsToRemove = company.Emails
+                .Where(e => !requestedEmailIds.Contains(e.Id))
+                .ToList();
+            foreach (var email in emailsToRemove)
+            {
+                company.RemoveEmail(email);
+            }
+
+            // Eliminar teléfonos que no están en la request
+            var phonesToRemove = company.Phones
+                .Where(p => !requestedPhoneIds.Contains(p.Id))
+                .ToList();
+            foreach (var phone in phonesToRemove)
+            {
+                company.RemovePhone(phone);
+            }
+
+            // Eliminar redes sociales que no están en la request
+            var socialMediasToRemove = company.SocialMedias
+                .Where(sm => !requestedSocialMediaIds.Contains(sm.Id))
+                .ToList();
+            foreach (var socialMedia in socialMediasToRemove)
+            {
+                company.RemoveSocialMedia(socialMedia);
+            }
+
+            await Task.CompletedTask; // Para mantener la signatura async
+        }
+
+        /// <summary>
         /// Construye los resultados de direcciones
         /// </summary>
         public List<CompanyAddressResult> BuildAddressResults(Company company, Dictionary<Guid, string> addressTypeNames)
         {
-            return company.Addresses.Select(a => new CompanyAddressResult(addressTypeNames[a.AddressTypeId], a.Address, a.IsPrimary)).ToList();
+            return company.Addresses.Select(a => new CompanyAddressResult(a.Id.ToString(), a.AddressTypeId.ToString(), a.Address, a.IsPrimary)).ToList();
         }
 
         /// <summary>
@@ -176,7 +298,7 @@ namespace Dualcomp.Auth.Application.Companies
         /// </summary>
         public List<CompanyEmailResult> BuildEmailResults(Company company, Dictionary<Guid, string> emailTypeNames)
         {
-            return company.Emails.Select(e => new CompanyEmailResult(emailTypeNames[e.EmailTypeId], e.Email.Value, e.IsPrimary)).ToList();
+            return company.Emails.Select(e => new CompanyEmailResult(e.Id.ToString(), e.EmailTypeId.ToString(), e.Email.Value, e.IsPrimary)).ToList();
         }
 
         /// <summary>
@@ -184,7 +306,7 @@ namespace Dualcomp.Auth.Application.Companies
         /// </summary>
         public List<CompanyPhoneResult> BuildPhoneResults(Company company, Dictionary<Guid, string> phoneTypeNames)
         {
-            return company.Phones.Select(p => new CompanyPhoneResult(phoneTypeNames[p.PhoneTypeId], p.Phone, p.IsPrimary)).ToList();
+            return company.Phones.Select(p => new CompanyPhoneResult(p.Id.ToString(), p.PhoneTypeId.ToString(), p.Phone, p.IsPrimary)).ToList();
         }
 
         /// <summary>
@@ -192,7 +314,7 @@ namespace Dualcomp.Auth.Application.Companies
         /// </summary>
         public List<CompanySocialMediaResult> BuildSocialMediaResults(Company company, Dictionary<Guid, string> socialMediaTypeNames)
         {
-            return company.SocialMedias.Select(sm => new CompanySocialMediaResult(socialMediaTypeNames[sm.SocialMediaTypeId], sm.Url, sm.IsPrimary)).ToList();
+            return company.SocialMedias.Select(sm => new CompanySocialMediaResult(sm.Id.ToString(), sm.SocialMediaTypeId.ToString(), sm.Url, sm.IsPrimary)).ToList();
         }
 
         /// <summary>
@@ -200,7 +322,98 @@ namespace Dualcomp.Auth.Application.Companies
         /// </summary>
         public List<CompanyEmployeeResult> BuildEmployeeResults(Company company)
         {
-            return company.Employees.Select(e => new CompanyEmployeeResult(e.FullName, e.Email, e.Phone, e.Position, e.HireDate)).ToList();
+            return company.Employees.Select(e => new CompanyEmployeeResult(e.Id.ToString(), e.FullName, e.Email, e.Phone, e.Position, e.HireDate)).ToList();
+        }
+
+        /// <summary>
+        /// Construye todos los resultados de contacto de la empresa de manera optimizada
+        /// </summary>
+        public async Task<CompanyContactResults> BuildAllContactResultsAsync(Company company, CancellationToken cancellationToken)
+        {
+            // Obtener todos los tipos únicos necesarios
+            var addressTypeIds = company.Addresses.Select(a => a.AddressTypeId).Distinct().ToList();
+            var emailTypeIds = company.Emails.Select(e => e.EmailTypeId).Distinct().ToList();
+            var phoneTypeIds = company.Phones.Select(p => p.PhoneTypeId).Distinct().ToList();
+            var socialMediaTypeIds = company.SocialMedias.Select(sm => sm.SocialMediaTypeId).Distinct().ToList();
+
+            // Obtener todos los tipos en paralelo
+            var addressTypesTask = GetAddressTypesByIdsAsync(addressTypeIds, cancellationToken);
+            var emailTypesTask = GetEmailTypesByIdsAsync(emailTypeIds, cancellationToken);
+            var phoneTypesTask = GetPhoneTypesByIdsAsync(phoneTypeIds, cancellationToken);
+            var socialMediaTypesTask = GetSocialMediaTypesByIdsAsync(socialMediaTypeIds, cancellationToken);
+
+            await Task.WhenAll(addressTypesTask, emailTypesTask, phoneTypesTask, socialMediaTypesTask);
+
+            var addressTypes = await addressTypesTask;
+            var emailTypes = await emailTypesTask;
+            var phoneTypes = await phoneTypesTask;
+            var socialMediaTypes = await socialMediaTypesTask;
+
+            // Construir los resultados
+            var addressResults = company.Addresses.Select(a => 
+                new CompanyAddressResult(a.Id.ToString(), a.AddressTypeId.ToString(), a.Address, a.IsPrimary)).ToList();
+            
+            var emailResults = company.Emails.Select(e => 
+                new CompanyEmailResult(e.Id.ToString(), e.EmailTypeId.ToString(), e.Email.Value, e.IsPrimary)).ToList();
+            
+            var phoneResults = company.Phones.Select(p => 
+                new CompanyPhoneResult(p.Id.ToString(), p.PhoneTypeId.ToString(), p.Phone, p.IsPrimary)).ToList();
+            
+            var socialMediaResults = company.SocialMedias.Select(sm => 
+                new CompanySocialMediaResult(sm.Id.ToString(), sm.SocialMediaTypeId.ToString(), sm.Url, sm.IsPrimary)).ToList();
+            
+            var employeeResults = company.Employees.Select(e => 
+                new CompanyEmployeeResult(e.Id.ToString(), e.FullName, e.Email, e.Phone, e.Position, e.HireDate)).ToList();
+
+            return new CompanyContactResults(addressResults, emailResults, phoneResults, socialMediaResults, employeeResults);
+        }
+
+        private async Task<Dictionary<Guid, string>> GetAddressTypesByIdsAsync(List<Guid> typeIds, CancellationToken cancellationToken)
+        {
+            var result = new Dictionary<Guid, string>();
+            foreach (var typeId in typeIds)
+            {
+                var type = await _addressTypeRepository.GetByIdAsync(typeId, cancellationToken);
+                if (type != null)
+                    result[typeId] = type.Name;
+            }
+            return result;
+        }
+
+        private async Task<Dictionary<Guid, string>> GetEmailTypesByIdsAsync(List<Guid> typeIds, CancellationToken cancellationToken)
+        {
+            var result = new Dictionary<Guid, string>();
+            foreach (var typeId in typeIds)
+            {
+                var type = await _emailTypeRepository.GetByIdAsync(typeId, cancellationToken);
+                if (type != null)
+                    result[typeId] = type.Name;
+            }
+            return result;
+        }
+
+        private async Task<Dictionary<Guid, string>> GetPhoneTypesByIdsAsync(List<Guid> typeIds, CancellationToken cancellationToken)
+        {
+            var result = new Dictionary<Guid, string>();
+            foreach (var typeId in typeIds)
+            {
+                var type = await _phoneTypeRepository.GetByIdAsync(typeId, cancellationToken);
+                if (type != null)
+                    result[typeId] = type.Name;
+            }
+            return result;
+        }
+
+        private async Task<Dictionary<Guid, string>> GetSocialMediaTypesByIdsAsync(List<Guid> typeIds, CancellationToken cancellationToken)
+        {
+            var result = new Dictionary<Guid, string>();
+            foreach (var typeId in typeIds)
+            {
+                var type = await _socialMediaTypeRepository.GetByIdAsync(typeId, cancellationToken);
+                if (type != null)
+                    result[typeId] = type.Name;
+            }
+            return result;
         }
 
         /// <summary>
@@ -246,5 +459,16 @@ namespace Dualcomp.Auth.Application.Companies
         Dictionary<Guid, string> EmailTypeNames,
         Dictionary<Guid, string> PhoneTypeNames,
         Dictionary<Guid, string> SocialMediaTypeNames
+    );
+
+    /// <summary>
+    /// Contenedor para todos los resultados de contacto de una empresa
+    /// </summary>
+    public record CompanyContactResults(
+        List<CompanyAddressResult> Addresses,
+        List<CompanyEmailResult> Emails,
+        List<CompanyPhoneResult> Phones,
+        List<CompanySocialMediaResult> SocialMedias,
+        List<CompanyEmployeeResult> Employees
     );
 }

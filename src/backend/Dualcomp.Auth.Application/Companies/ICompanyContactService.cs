@@ -23,6 +23,17 @@ namespace Dualcomp.Auth.Application.Companies
             CancellationToken cancellationToken);
 
         /// <summary>
+        /// Elimina contactos que ya no están en la request (fueron eliminados por el usuario)
+        /// </summary>
+        Task RemoveDeletedContactsAsync(
+            Company company,
+            IEnumerable<dynamic> addresses,
+            IEnumerable<dynamic> emails,
+            IEnumerable<dynamic> phones,
+            IEnumerable<dynamic> socialMedias,
+            CancellationToken cancellationToken);
+
+        /// <summary>
         /// Crea un usuario automáticamente para un empleado
         /// </summary>
         Task<User> CreateUserForEmployee(string fullName, string email, Guid companyId, CancellationToken cancellationToken);

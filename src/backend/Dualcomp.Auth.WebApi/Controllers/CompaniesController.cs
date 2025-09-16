@@ -99,14 +99,13 @@ namespace Dualcomp.Auth.WebApi.Controllers
 			{
 				var query = new GetCompanyQuery(id);
 				var result = await _getCompanyHandler.Handle(query, cancellationToken);
-
 				return Ok(result);
 			}
 			catch (InvalidOperationException ex)
 			{
 				return NotFound(new { message = ex.Message });
 			}
-			catch (Exception)
+			catch (Exception ex)
 			{
 				return BadRequest(new { message = "Error interno del servidor" });
 			}

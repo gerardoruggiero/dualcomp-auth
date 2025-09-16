@@ -143,49 +143,54 @@ public class RegisterCompanyCommandHandlerTests
 		contactServiceMock.Setup(x => x.BuildAddressResults(It.IsAny<Dualcomp.Auth.Domain.Companies.Company>(), It.IsAny<Dictionary<Guid, string>>()))
 			.Returns((Dualcomp.Auth.Domain.Companies.Company company, Dictionary<Guid, string> typeNames) => 
 			{
-				return company.Addresses.Select(a => new Dualcomp.Auth.Application.Companies.GetCompany.CompanyAddressResult(
-					"Principal", // TypeName
-					a.Address, 
-					a.IsPrimary
-				)).ToList();
+			return company.Addresses.Select(a => new Dualcomp.Auth.Application.Companies.GetCompany.CompanyAddressResult(
+				a.Id.ToString(), // Id
+				"Principal", // TypeName
+				a.Address, 
+				a.IsPrimary
+			)).ToList();
 			});
 		contactServiceMock.Setup(x => x.BuildEmailResults(It.IsAny<Dualcomp.Auth.Domain.Companies.Company>(), It.IsAny<Dictionary<Guid, string>>()))
 			.Returns((Dualcomp.Auth.Domain.Companies.Company company, Dictionary<Guid, string> typeNames) => 
 			{
-				return company.Emails.Select(e => new Dualcomp.Auth.Application.Companies.GetCompany.CompanyEmailResult(
-					"Principal", // TypeName
-					e.Email.Value, 
-					e.IsPrimary
-				)).ToList();
+			return company.Emails.Select(e => new Dualcomp.Auth.Application.Companies.GetCompany.CompanyEmailResult(
+				e.Id.ToString(), // Id
+				"Principal", // TypeName
+				e.Email.Value, 
+				e.IsPrimary
+			)).ToList();
 			});
 		contactServiceMock.Setup(x => x.BuildPhoneResults(It.IsAny<Dualcomp.Auth.Domain.Companies.Company>(), It.IsAny<Dictionary<Guid, string>>()))
 			.Returns((Dualcomp.Auth.Domain.Companies.Company company, Dictionary<Guid, string> typeNames) => 
 			{
-				return company.Phones.Select(p => new Dualcomp.Auth.Application.Companies.GetCompany.CompanyPhoneResult(
-					"Principal", // TypeName
-					p.Phone, 
-					p.IsPrimary
-				)).ToList();
+			return company.Phones.Select(p => new Dualcomp.Auth.Application.Companies.GetCompany.CompanyPhoneResult(
+				p.Id.ToString(), // Id
+				"Principal", // TypeName
+				p.Phone, 
+				p.IsPrimary
+			)).ToList();
 			});
 		contactServiceMock.Setup(x => x.BuildSocialMediaResults(It.IsAny<Dualcomp.Auth.Domain.Companies.Company>(), It.IsAny<Dictionary<Guid, string>>()))
 			.Returns((Dualcomp.Auth.Domain.Companies.Company company, Dictionary<Guid, string> typeNames) => 
 			{
-				return company.SocialMedias.Select(sm => new Dualcomp.Auth.Application.Companies.GetCompany.CompanySocialMediaResult(
-					"Facebook", // TypeName
-					sm.Url, 
-					sm.IsPrimary
-				)).ToList();
+			return company.SocialMedias.Select(sm => new Dualcomp.Auth.Application.Companies.GetCompany.CompanySocialMediaResult(
+				sm.Id.ToString(), // Id
+				"Facebook", // TypeName
+				sm.Url, 
+				sm.IsPrimary
+			)).ToList();
 			});
 		contactServiceMock.Setup(x => x.BuildEmployeeResults(It.IsAny<Dualcomp.Auth.Domain.Companies.Company>()))
 			.Returns((Dualcomp.Auth.Domain.Companies.Company company) => 
 			{
-				return company.Employees.Select(e => new Dualcomp.Auth.Application.Companies.GetCompany.CompanyEmployeeResult(
-					e.FullName, 
-					e.Email, 
-					e.Phone, 
-					e.Position, 
-					e.HireDate
-				)).ToList();
+			return company.Employees.Select(e => new Dualcomp.Auth.Application.Companies.GetCompany.CompanyEmployeeResult(
+				e.Id.ToString(), // Id
+				e.FullName, 
+				e.Email, 
+				e.Phone, 
+				e.Position, 
+				e.HireDate
+			)).ToList();
 			});
 		
 		// Create additional mocks for the new constructor parameters

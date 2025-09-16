@@ -1,11 +1,12 @@
 import { ChangeDetectionStrategy, Component, inject, signal, OnInit, effect } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { 
   CompanyRegisterForm, 
-  RegisterCompanyCommand,
+  UpdateCompanyCommand,
+  GetCompanyResult,
   CompanyAddressForm,
   CompanyEmailForm,
   CompanyPhoneForm,
@@ -22,14 +23,15 @@ import { AccordionSectionComponent } from '../../admin-layout/accordion-section/
 import { ContentHeaderComponent, ContentHeaderAction } from '../../shared/components/content-header/content-header.component';
 
 @Component({
-  selector: 'app-company-register',
+  selector: 'app-company-edit',
   imports: [CommonModule, FormsModule, AccordionSectionComponent, ContentHeaderComponent],
-  templateUrl: './company-register.component.html',
-  styleUrls: ['./company-register.component.scss'],
+  templateUrl: './company-edit.component.html',
+  styleUrls: ['./company-edit.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class CompanyRegisterComponent implements OnInit {
+export class CompanyEditComponent implements OnInit {
   router = inject(Router);
+  route = inject(ActivatedRoute);
   private addressTypeService = inject(AddressTypeService);
   private emailTypeService = inject(EmailTypeService);
   private phoneTypeService = inject(PhoneTypeService);
@@ -38,8 +40,10 @@ export class CompanyRegisterComponent implements OnInit {
 
   // Estado del componente
   isLoading = signal(false);
+  isInitialLoading = signal(true);
   errorMessage = signal('');
   successMessage = signal('');
+  companyId = signal('');
 
   // Formulario
   form = signal<CompanyRegisterForm>({
@@ -74,7 +78,7 @@ export class CompanyRegisterComponent implements OnInit {
   });
 
   // Configuración del header
-  headerTitle = 'Registro de Empresa';
+  headerTitle = 'Edición de Empresa';
   headerActions: ContentHeaderAction[] = [
     {
       label: 'Volver al listado',
@@ -92,8 +96,18 @@ export class CompanyRegisterComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.loadTypeOptions();
-    
+    // Obtener el ID de la empresa desde la ruta
+    this.route.params.subscribe(params => {
+      const id = params['id'];
+      if (id) {
+        this.companyId.set(id);
+        this.loadCompanyData(id);
+      } else {
+        this.errorMessage.set('ID de empresa no válido');
+        this.isInitialLoading.set(false);
+      }
+    });
+
     // Actualizar el estado de los botones cuando cambie el loading
     effect(() => {
       this.isLoading(); // Leer el signal para que el effect se ejecute cuando cambie
@@ -103,6 +117,7 @@ export class CompanyRegisterComponent implements OnInit {
 
   private updateHeaderActions() {
     const isLoading = this.isLoading();
+    const isInitialLoading = this.isInitialLoading();
     
     this.headerActions = [
       {
@@ -113,60 +128,243 @@ export class CompanyRegisterComponent implements OnInit {
         onClick: () => this.navigateToList()
       },
       {
-        label: isLoading ? 'Registrando...' : 'Guardar',
+        label: isLoading ? 'Actualizando...' : 'Guardar',
         icon: isLoading ? 'fas fa-spinner fa-spin' : 'fas fa-save',
         class: 'btn btn-primary',
-        disabled: isLoading,
+        disabled: isLoading || isInitialLoading,
         onClick: () => this.onSubmit()
       }
     ];
   }
 
-  private loadTypeOptions() {
-    // Cargar todos los tipos de datos en paralelo
+  private loadCompanyData(id: string) {
+    this.isInitialLoading.set(true);
+    this.clearMessages();
+
+    // Cargar datos de la empresa y tipos en paralelo
     forkJoin({
+      company: this.companyService.getCompanyById(id),
       addressTypes: this.addressTypeService.getAll(),
       emailTypes: this.emailTypeService.getAll(),
       phoneTypes: this.phoneTypeService.getAll(),
       socialMediaTypes: this.socialMediaTypeService.getAll()
     }).subscribe({
       next: (results) => {
-        console.log('All types loaded:', results);
+        console.log('Company data loaded:', results);
+        console.log('Company object specifically:', results.company);
+        console.log('Company type:', typeof results.company);
+        console.log('Company keys:', Object.keys(results.company));
         
-        // Actualizar el formulario con todos los datos
-        this.form.update(current => ({
-          ...current,
-          addressTypeOptions: results.addressTypes,
-          emailTypeOptions: results.emailTypes,
-          phoneTypeOptions: results.phoneTypes,
-          socialMediaTypeOptions: results.socialMediaTypes
-        }));
-        
-        // Ahora que todos los datos están cargados, inicializar el formulario
-        this.initializeForm();
+        // Verificar si el objeto company tiene datos
+        if (results.company && Object.keys(results.company).length > 0) {
+          // Mapear los datos de la empresa al formulario
+          this.mapCompanyToForm(results.company, results);
+        } else {
+          console.warn('Company data is empty, creating empty form');
+          // Si no hay datos, crear un formulario vacío
+          this.createEmptyForm(results);
+        }
+        this.isInitialLoading.set(false);
       },
       error: (error) => {
-        console.error('Error loading type options:', error);
-        this.errorMessage.set('Error al cargar las opciones de tipos');
+        console.error('Error loading company data:', error);
+        console.log('Attempting to load types only and create empty form');
+        
+        // Si falla la carga de la empresa, al menos cargar los tipos
+        forkJoin({
+          addressTypes: this.addressTypeService.getAll(),
+          emailTypes: this.emailTypeService.getAll(),
+          phoneTypes: this.phoneTypeService.getAll(),
+          socialMediaTypes: this.socialMediaTypeService.getAll()
+        }).subscribe({
+          next: (typeResults) => {
+            console.log('Types loaded successfully, creating empty form');
+            this.createEmptyForm(typeResults);
+            this.isInitialLoading.set(false);
+          },
+          error: (typeError) => {
+            console.error('Error loading types:', typeError);
+            this.errorMessage.set('Error al cargar los datos de la empresa y tipos');
+            this.isInitialLoading.set(false);
+          }
+        });
       }
     });
   }
 
-  private initializeForm() {
-    // Inicializar con al menos un elemento de cada tipo
-    this.addAddress();
-    this.addEmail();
-    this.addPhone();
-    this.addSocialMedia();
-    this.addEmployee();
+  private createEmptyForm(typeOptions: any) {
+    console.log('Creating empty form with types:', typeOptions);
+    
+    // Crear formulario vacío con al menos un elemento de cada tipo
+    const addresses: CompanyAddressForm[] = [{
+      addressType: '',
+      address: '',
+      isPrimary: true,
+      addressTypeOptions: typeOptions.addressTypes || []
+    }];
+
+    const emails: CompanyEmailForm[] = [{
+      emailType: '',
+      email: '',
+      isPrimary: true,
+      emailTypeOptions: typeOptions.emailTypes || []
+    }];
+
+    const phones: CompanyPhoneForm[] = [{
+      phoneType: '',
+      phone: '',
+      isPrimary: true,
+      phoneTypeOptions: typeOptions.phoneTypes || []
+    }];
+
+    const socialMedias: CompanySocialMediaForm[] = [{
+      socialMediaType: '',
+      url: '',
+      isPrimary: true,
+      socialMediaTypeOptions: typeOptions.socialMediaTypes || []
+    }];
+
+    const employees: CompanyEmployeeForm[] = [{
+      fullName: '',
+      email: '',
+      phone: '',
+      position: '',
+      hireDate: new Date()
+    }];
+
+    // Actualizar el formulario
+    this.form.set({
+      name: '',
+      taxId: '',
+      addresses,
+      emails,
+      phones,
+      socialMedias,
+      employees,
+      addressTypeOptions: typeOptions.addressTypes || [],
+      emailTypeOptions: typeOptions.emailTypes || [],
+      phoneTypeOptions: typeOptions.phoneTypes || [],
+      socialMediaTypeOptions: typeOptions.socialMediaTypes || []
+    });
   }
 
-  // Métodos para agregar elementos
+  private mapCompanyToForm(company: GetCompanyResult, typeOptions: any) {
+    console.log('Mapping company to form:', company);
+    
+    // Mapear direcciones (con validación)
+    const addresses: CompanyAddressForm[] = (company.addresses || []).map(addr => ({
+      id: addr.id, // Incluir el ID del elemento existente
+      addressType: addr.addressType, // ID del tipo
+      address: addr.address,
+      isPrimary: addr.isPrimary,
+      addressTypeOptions: typeOptions.addressTypes
+    }));
+
+    // Mapear emails (con validación)
+    const emails: CompanyEmailForm[] = (company.emails || []).map(email => ({
+      id: email.id, // Incluir el ID del elemento existente
+      emailType: email.emailType, // ID del tipo
+      email: email.email,
+      isPrimary: email.isPrimary,
+      emailTypeOptions: typeOptions.emailTypes
+    }));
+
+    // Mapear teléfonos (con validación)
+    const phones: CompanyPhoneForm[] = (company.phones || []).map(phone => ({
+      id: phone.id, // Incluir el ID del elemento existente
+      phoneType: phone.phoneType, // ID del tipo
+      phone: phone.phone,
+      isPrimary: phone.isPrimary,
+      phoneTypeOptions: typeOptions.phoneTypes
+    }));
+
+    // Mapear redes sociales (con validación)
+    const socialMedias: CompanySocialMediaForm[] = (company.socialMedias || []).map(social => ({
+      id: social.id, // Incluir el ID del elemento existente
+      socialMediaType: social.socialMediaType, // ID del tipo
+      url: social.url,
+      isPrimary: social.isPrimary,
+      socialMediaTypeOptions: typeOptions.socialMediaTypes
+    }));
+
+    // Mapear empleados (con validación)
+    const employees: CompanyEmployeeForm[] = (company.employees || []).map(employee => ({
+      id: employee.id, // Incluir el ID del elemento existente
+      fullName: employee.fullName,
+      email: employee.email,
+      phone: employee.phone,
+      position: employee.position,
+      hireDate: employee.hireDate ? new Date(employee.hireDate) : undefined
+    }));
+
+    // Si no hay elementos, agregar al menos uno de cada tipo
+    if (addresses.length === 0) {
+      addresses.push({
+        addressType: '',
+        address: '',
+        isPrimary: true,
+        addressTypeOptions: typeOptions.addressTypes
+      });
+    }
+
+    if (emails.length === 0) {
+      emails.push({
+        emailType: '',
+        email: '',
+        isPrimary: true,
+        emailTypeOptions: typeOptions.emailTypes
+      });
+    }
+
+    if (phones.length === 0) {
+      phones.push({
+        phoneType: '',
+        phone: '',
+        isPrimary: true,
+        phoneTypeOptions: typeOptions.phoneTypes
+      });
+    }
+
+    if (socialMedias.length === 0) {
+      socialMedias.push({
+        socialMediaType: '',
+        url: '',
+        isPrimary: true,
+        socialMediaTypeOptions: typeOptions.socialMediaTypes
+      });
+    }
+
+    if (employees.length === 0) {
+      employees.push({
+        fullName: '',
+        email: '',
+        phone: '',
+        position: '',
+        hireDate: new Date()
+      });
+    }
+
+    // Actualizar el formulario
+    this.form.set({
+      name: company.name || '',
+      taxId: company.taxId || '',
+      addresses,
+      emails,
+      phones,
+      socialMedias,
+      employees,
+      addressTypeOptions: typeOptions.addressTypes,
+      emailTypeOptions: typeOptions.emailTypes,
+      phoneTypeOptions: typeOptions.phoneTypes,
+      socialMediaTypeOptions: typeOptions.socialMediaTypes
+    });
+  }
+
+  // Métodos para agregar elementos (reutilizados de company-register)
   addAddress() {
     const currentForm = this.form();
-    console.log('Adding address with options:', currentForm.addressTypeOptions);
     const newAddress: CompanyAddressForm = {
-      addressType: '', // ID del tipo de dirección
+      addressType: '',
       address: '',
       isPrimary: currentForm.addresses.length === 0,
       addressTypeOptions: currentForm.addressTypeOptions
@@ -181,7 +379,7 @@ export class CompanyRegisterComponent implements OnInit {
   addEmail() {
     const currentForm = this.form();
     const newEmail: CompanyEmailForm = {
-      emailType: '', // ID del tipo de email
+      emailType: '',
       email: '',
       isPrimary: currentForm.emails.length === 0,
       emailTypeOptions: currentForm.emailTypeOptions
@@ -196,7 +394,7 @@ export class CompanyRegisterComponent implements OnInit {
   addPhone() {
     const currentForm = this.form();
     const newPhone: CompanyPhoneForm = {
-      phoneType: '', // ID del tipo de teléfono
+      phoneType: '',
       phone: '',
       isPrimary: currentForm.phones.length === 0,
       phoneTypeOptions: currentForm.phoneTypeOptions
@@ -211,7 +409,7 @@ export class CompanyRegisterComponent implements OnInit {
   addSocialMedia() {
     const currentForm = this.form();
     const newSocialMedia: CompanySocialMediaForm = {
-      socialMediaType: '', // ID del tipo de red social
+      socialMediaType: '',
       url: '',
       isPrimary: currentForm.socialMedias.length === 0,
       socialMediaTypeOptions: currentForm.socialMediaTypeOptions
@@ -238,7 +436,7 @@ export class CompanyRegisterComponent implements OnInit {
     }));
   }
 
-  // Métodos para remover elementos
+  // Métodos para remover elementos (reutilizados de company-register)
   removeAddress(index: number) {
     this.form.update(current => ({
       ...current,
@@ -274,7 +472,7 @@ export class CompanyRegisterComponent implements OnInit {
     }));
   }
 
-  // Métodos para toggle de secciones
+  // Métodos para toggle de secciones (reutilizados de company-register)
   toggleSection(section: 'basicInfo' | 'addresses' | 'emails' | 'phones' | 'socialMedias' | 'employees') {
     this.sectionsCollapsed.update(current => ({
       ...current,
@@ -282,7 +480,7 @@ export class CompanyRegisterComponent implements OnInit {
     }));
   }
 
-  // Validaciones
+  // Validaciones (reutilizadas de company-register)
   private validateForm(): string[] {
     const errors: string[] = [];
     const currentForm = this.form();
@@ -356,7 +554,7 @@ export class CompanyRegisterComponent implements OnInit {
     return errors;
   }
 
-  // Envío del formulario
+  // Envío del formulario (modificado para actualización)
   onSubmit() {
     this.clearMessages();
 
@@ -370,31 +568,38 @@ export class CompanyRegisterComponent implements OnInit {
 
     try {
       const currentForm = this.form();
+      const companyId = this.companyId();
       
-      const command: RegisterCompanyCommand = {
+      const command: UpdateCompanyCommand = {
+        id: companyId,
         name: currentForm.name.trim(),
         taxId: currentForm.taxId.trim(),
         addresses: currentForm.addresses.map(addr => ({
-          addressTypeId: addr.addressType, // Ya es el ID directamente
+          id: addr.id, // Incluir el ID si existe (para actualizaciones)
+          addressTypeId: addr.addressType,
           address: addr.address.trim(),
           isPrimary: addr.isPrimary
         })),
         emails: currentForm.emails.map(email => ({
-          emailTypeId: email.emailType, // Ya es el ID directamente
+          id: email.id, // Incluir el ID si existe (para actualizaciones)
+          emailTypeId: email.emailType,
           email: email.email.trim(),
           isPrimary: email.isPrimary
         })),
         phones: currentForm.phones.map(phone => ({
-          phoneTypeId: phone.phoneType, // Ya es el ID directamente
+          id: phone.id, // Incluir el ID si existe (para actualizaciones)
+          phoneTypeId: phone.phoneType,
           phone: phone.phone.trim(),
           isPrimary: phone.isPrimary
         })),
         socialMedias: currentForm.socialMedias.map(social => ({
-          socialMediaTypeId: social.socialMediaType, // Ya es el ID directamente
+          id: social.id, // Incluir el ID si existe (para actualizaciones)
+          socialMediaTypeId: social.socialMediaType,
           url: social.url.trim(),
           isPrimary: social.isPrimary
         })),
         employees: currentForm.employees.map(employee => ({
+          id: employee.id, // Incluir el ID si existe (para actualizaciones)
           fullName: employee.fullName.trim(),
           email: employee.email.trim(),
           phone: employee.phone?.trim(),
@@ -403,20 +608,20 @@ export class CompanyRegisterComponent implements OnInit {
         }))
       };
 
-      this.companyService.registerCompany(command).subscribe({
+      this.companyService.updateCompany(companyId, command).subscribe({
         next: (result) => {
           this.isLoading.set(false);
-          this.successMessage.set('Empresa registrada exitosamente. Será redirigido al login.');
+          this.successMessage.set('Empresa actualizada exitosamente.');
           
-          // Redirigir al login después de 3 segundos
+          // Redirigir al listado después de 2 segundos
           setTimeout(() => {
-            this.router.navigate(['/login']);
-          }, 3000);
+            this.router.navigate(['/company/list']);
+          }, 2000);
         },
         error: (error) => {
           this.isLoading.set(false);
-          console.error('Error al registrar empresa:', error);
-          this.errorMessage.set('Error al registrar la empresa. Intente nuevamente.');
+          console.error('Error al actualizar empresa:', error);
+          this.errorMessage.set('Error al actualizar la empresa. Intente nuevamente.');
         }
       });
     } catch (mappingError) {

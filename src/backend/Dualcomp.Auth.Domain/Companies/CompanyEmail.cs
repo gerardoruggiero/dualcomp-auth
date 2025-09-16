@@ -29,6 +29,13 @@ namespace Dualcomp.Auth.Domain.Companies
 			Email = email ?? throw new ArgumentNullException(nameof(email));
 		}
 
+		public void UpdateInfo(Guid emailTypeId, Email email, bool isPrimary)
+		{
+			EmailTypeId = emailTypeId == Guid.Empty ? throw new ArgumentException("EmailTypeId cannot be empty", nameof(emailTypeId)) : emailTypeId;
+			Email = email ?? throw new ArgumentNullException(nameof(email));
+			IsPrimary = isPrimary;
+		}
+
 		public void SetAsPrimary()
 		{
 			IsPrimary = true;

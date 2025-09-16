@@ -29,6 +29,13 @@ namespace Dualcomp.Auth.Domain.Companies
 			Phone = string.IsNullOrWhiteSpace(phone) ? throw new ArgumentException("Phone is required", nameof(phone)) : phone.Trim();
 		}
 
+		public void UpdateInfo(Guid phoneTypeId, string phone, bool isPrimary)
+		{
+			PhoneTypeId = phoneTypeId == Guid.Empty ? throw new ArgumentException("PhoneTypeId cannot be empty", nameof(phoneTypeId)) : phoneTypeId;
+			Phone = string.IsNullOrWhiteSpace(phone) ? throw new ArgumentException("Phone is required", nameof(phone)) : phone.Trim();
+			IsPrimary = isPrimary;
+		}
+
 		public void SetAsPrimary()
 		{
 			IsPrimary = true;

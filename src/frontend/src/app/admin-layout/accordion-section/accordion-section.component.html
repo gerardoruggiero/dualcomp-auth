@@ -1,0 +1,26 @@
+<div class="card">
+  <div class="card-header">
+    <h3 class="card-title">
+      <i [class]="icon"></i>
+      {{ title }} <span *ngIf="count > 0">({{ count }})</span>
+    </h3>
+    <div class="card-tools">
+      <button type="button" class="btn btn-tool" (click)="onToggleSection()">
+        <i class="fas fa-minus" *ngIf="!isCollapsed"></i>
+        <i class="fas fa-plus" *ngIf="isCollapsed"></i>
+      </button>
+    </div>
+  </div>
+  
+  <div class="card-body" [class.collapse]="isCollapsed" [class.show]="!isCollapsed">
+    <ng-content></ng-content>
+    
+    <button 
+      *ngIf="showAddButton"
+      type="button" 
+      class="btn btn-primary" 
+      (click)="onAddItem()">
+      <i class="fas fa-plus"></i> {{ addButtonText }}
+    </button>
+  </div>
+</div>

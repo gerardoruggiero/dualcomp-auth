@@ -1,0 +1,437 @@
+<!-- Company Edit Form -->
+<div class="row">
+  <div class="col-12">
+    <app-content-header 
+      [title]="headerTitle" 
+      [actions]="headerActions">
+    </app-content-header>
+
+  <section class="content">
+    <div class="container-fluid">
+      
+      <!-- Loading inicial -->
+      <div *ngIf="isInitialLoading()" class="text-center">
+        <div class="spinner-border" role="status">
+          <span class="sr-only">Cargando...</span>
+        </div>
+        <p class="mt-2">Cargando datos de la empresa...</p>
+      </div>
+
+      <!-- Formulario -->
+      <div *ngIf="!isInitialLoading()">
+        <!-- Mensajes de estado -->
+        <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <i class="fas fa-exclamation-triangle"></i>
+          {{ errorMessage() }}
+        </div>
+        
+        <div *ngIf="successMessage()" class="alert alert-success alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <i class="fas fa-check-circle"></i>
+          {{ successMessage() }}
+        </div>
+
+        <form id="editForm" (ngSubmit)="onSubmit()" #editForm="ngForm">
+      
+          <!-- Sección: Datos Básicos -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">
+                <i class="fas fa-building"></i>
+                Datos Básicos de la Empresa
+              </h3>
+              <div class="card-tools">
+                <button type="button" class="btn btn-tool" (click)="toggleSection('basicInfo')">
+                  <i class="fas fa-minus" *ngIf="!sectionsCollapsed().basicInfo"></i>
+                  <i class="fas fa-plus" *ngIf="sectionsCollapsed().basicInfo"></i>
+                </button>
+              </div>
+            </div>
+            
+            <div class="card-body" [class.collapse]="sectionsCollapsed().basicInfo" [class.show]="!sectionsCollapsed().basicInfo">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="companyName">Nombre de la Empresa *</label>
+                    <input 
+                      type="text" 
+                      id="companyName"
+                      class="form-control" 
+                      [(ngModel)]="form().name" 
+                      name="companyName"
+                      placeholder="Ingrese el nombre de la empresa"
+                      required>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label for="taxId">Tax ID *</label>
+                    <input 
+                      type="text" 
+                      id="taxId"
+                      class="form-control" 
+                      [(ngModel)]="form().taxId" 
+                      name="taxId"
+                      placeholder="Ingrese el Tax ID"
+                      required>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Sección: Direcciones -->
+          <app-accordion-section
+            title="Direcciones"
+            icon="fas fa-map-marker-alt"
+            [count]="form().addresses.length"
+            [isCollapsed]="sectionsCollapsed().addresses"
+            addButtonText="Agregar Dirección"
+            (toggleSection)="toggleSection('addresses')"
+            (addItem)="addAddress()">
+            
+            <div *ngFor="let address of form().addresses; let i = index" class="contact-item">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Tipo de Dirección *</label>
+                    <select 
+                      class="form-control" 
+                      [(ngModel)]="address.addressType" 
+                      [name]="'addressType' + i"
+                      required>
+                      <option value="">Seleccione tipo</option>
+                      <option *ngFor="let type of address.addressTypeOptions" [value]="type.id">
+                        {{ type.name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Dirección *</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      [(ngModel)]="address.address" 
+                      [name]="'address' + i"
+                      placeholder="Ingrese la dirección completa"
+                      required>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-group">
+                    <label>&nbsp;</label>
+                    <div class="form-control-static">
+                      <div class="form-check">
+                        <input 
+                          type="checkbox" 
+                          class="form-check-input" 
+                          [(ngModel)]="address.isPrimary" 
+                          [name]="'addressPrimary' + i"
+                          id="addressPrimary{{ i }}">
+                        <label class="form-check-label" for="addressPrimary{{ i }}">
+                          Principal
+                        </label>
+                      </div>
+                      <button 
+                        type="button" 
+                        class="btn btn-sm btn-danger mt-2"
+                        (click)="removeAddress(i)"
+                        [disabled]="form().addresses.length === 1">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </app-accordion-section>
+
+          <!-- Sección: Emails -->
+          <app-accordion-section
+            title="Emails"
+            icon="fas fa-envelope"
+            [count]="form().emails.length"
+            [isCollapsed]="sectionsCollapsed().emails"
+            addButtonText="Agregar Email"
+            (toggleSection)="toggleSection('emails')"
+            (addItem)="addEmail()">
+            
+            <div *ngFor="let email of form().emails; let i = index" class="contact-item">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Tipo de Email *</label>
+                    <select 
+                      class="form-control" 
+                      [(ngModel)]="email.emailType" 
+                      [name]="'emailType' + i"
+                      required>
+                      <option value="">Seleccione tipo</option>
+                      <option *ngFor="let type of email.emailTypeOptions" [value]="type.id">
+                        {{ type.name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Email *</label>
+                    <input 
+                      type="email" 
+                      class="form-control" 
+                      [(ngModel)]="email.email" 
+                      [name]="'email' + i"
+                      placeholder="ejemplo@empresa.com"
+                      required>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-group">
+                    <label>&nbsp;</label>
+                    <div class="form-control-static">
+                      <div class="form-check">
+                        <input 
+                          type="checkbox" 
+                          class="form-check-input" 
+                          [(ngModel)]="email.isPrimary" 
+                          [name]="'emailPrimary' + i"
+                          id="emailPrimary{{ i }}">
+                        <label class="form-check-label" for="emailPrimary{{ i }}">
+                          Principal
+                        </label>
+                      </div>
+                      <button 
+                        type="button" 
+                        class="btn btn-sm btn-danger mt-2"
+                        (click)="removeEmail(i)"
+                        [disabled]="form().emails.length === 1">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </app-accordion-section>
+
+          <!-- Sección: Teléfonos -->
+          <app-accordion-section
+            title="Teléfonos"
+            icon="fas fa-phone"
+            [count]="form().phones.length"
+            [isCollapsed]="sectionsCollapsed().phones"
+            addButtonText="Agregar Teléfono"
+            (toggleSection)="toggleSection('phones')"
+            (addItem)="addPhone()">
+            
+            <div *ngFor="let phone of form().phones; let i = index" class="contact-item">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Tipo de Teléfono *</label>
+                    <select 
+                      class="form-control" 
+                      [(ngModel)]="phone.phoneType" 
+                      [name]="'phoneType' + i"
+                      required>
+                      <option value="">Seleccione tipo</option>
+                      <option *ngFor="let type of phone.phoneTypeOptions" [value]="type.id">
+                        {{ type.name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>Teléfono *</label>
+                    <input 
+                      type="tel" 
+                      class="form-control" 
+                      [(ngModel)]="phone.phone" 
+                      [name]="'phone' + i"
+                      placeholder="+1 (555) 123-4567"
+                      required>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-group">
+                    <label>&nbsp;</label>
+                    <div class="form-control-static">
+                      <div class="form-check">
+                        <input 
+                          type="checkbox" 
+                          class="form-check-input" 
+                          [(ngModel)]="phone.isPrimary" 
+                          [name]="'phonePrimary' + i"
+                          id="phonePrimary{{ i }}">
+                        <label class="form-check-label" for="phonePrimary{{ i }}">
+                          Principal
+                        </label>
+                      </div>
+                      <button 
+                        type="button" 
+                        class="btn btn-sm btn-danger mt-2"
+                        (click)="removePhone(i)"
+                        [disabled]="form().phones.length === 1">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </app-accordion-section>
+
+          <!-- Sección: Redes Sociales -->
+          <app-accordion-section
+            title="Redes Sociales"
+            icon="fas fa-share-alt"
+            [count]="form().socialMedias.length"
+            [isCollapsed]="sectionsCollapsed().socialMedias"
+            addButtonText="Agregar Red Social"
+            (toggleSection)="toggleSection('socialMedias')"
+            (addItem)="addSocialMedia()">
+            
+            <div *ngFor="let social of form().socialMedias; let i = index" class="contact-item">
+              <div class="row">
+                <div class="col-md-4">
+                  <div class="form-group">
+                    <label>Tipo de Red Social *</label>
+                    <select 
+                      class="form-control" 
+                      [(ngModel)]="social.socialMediaType" 
+                      [name]="'socialMediaType' + i"
+                      required>
+                      <option value="">Seleccione tipo</option>
+                      <option *ngFor="let type of social.socialMediaTypeOptions" [value]="type.id">
+                        {{ type.name }}
+                      </option>
+                    </select>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <div class="form-group">
+                    <label>URL *</label>
+                    <input 
+                      type="url" 
+                      class="form-control" 
+                      [(ngModel)]="social.url" 
+                      [name]="'socialUrl' + i"
+                      placeholder="https://www.ejemplo.com"
+                      required>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-group">
+                    <label>&nbsp;</label>
+                    <div class="form-control-static">
+                      <div class="form-check">
+                        <input 
+                          type="checkbox" 
+                          class="form-check-input" 
+                          [(ngModel)]="social.isPrimary" 
+                          [name]="'socialPrimary' + i"
+                          id="socialPrimary{{ i }}">
+                        <label class="form-check-label" for="socialPrimary{{ i }}">
+                          Principal
+                        </label>
+                      </div>
+                      <button 
+                        type="button" 
+                        class="btn btn-sm btn-danger mt-2"
+                        (click)="removeSocialMedia(i)"
+                        [disabled]="form().socialMedias.length === 1">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </app-accordion-section>
+
+          <!-- Sección: Empleados -->
+          <app-accordion-section
+            title="Empleados"
+            icon="fas fa-users"
+            [count]="form().employees.length"
+            [isCollapsed]="sectionsCollapsed().employees"
+            addButtonText="Agregar Empleado"
+            (toggleSection)="toggleSection('employees')"
+            (addItem)="addEmployee()">
+            
+            <div *ngFor="let employee of form().employees; let i = index" class="contact-item">
+              <div class="row">
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label>Nombre Completo *</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      [(ngModel)]="employee.fullName" 
+                      [name]="'employeeName' + i"
+                      placeholder="Nombre completo"
+                      required>
+                  </div>
+                </div>
+                <div class="col-md-3">
+                  <div class="form-group">
+                    <label>Email *</label>
+                    <input 
+                      type="email" 
+                      class="form-control" 
+                      [(ngModel)]="employee.email" 
+                      [name]="'employeeEmail' + i"
+                      placeholder="email@ejemplo.com"
+                      required>
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-group">
+                    <label>Teléfono</label>
+                    <input 
+                      type="tel" 
+                      class="form-control" 
+                      [(ngModel)]="employee.phone" 
+                      [name]="'employeePhone' + i"
+                      placeholder="+1 (555) 123-4567">
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-group">
+                    <label>Posición</label>
+                    <input 
+                      type="text" 
+                      class="form-control" 
+                      [(ngModel)]="employee.position" 
+                      [name]="'employeePosition' + i"
+                      placeholder="Cargo">
+                  </div>
+                </div>
+                <div class="col-md-2">
+                  <div class="form-group">
+                    <label>&nbsp;</label>
+                    <div class="form-control-static">
+                      <button 
+                        type="button" 
+                        class="btn btn-sm btn-danger"
+                        (click)="removeEmployee(i)"
+                        [disabled]="form().employees.length === 1">
+                        <i class="fas fa-trash"></i>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </app-accordion-section>
+
+        </form>
+      </div>
+    </div>
+  </section>
+</div>
+</div>

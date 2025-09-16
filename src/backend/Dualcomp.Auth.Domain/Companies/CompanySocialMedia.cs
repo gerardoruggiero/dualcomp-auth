@@ -29,6 +29,13 @@ namespace Dualcomp.Auth.Domain.Companies
 			Url = string.IsNullOrWhiteSpace(url) ? throw new ArgumentException("Url is required", nameof(url)) : url.Trim();
 		}
 
+		public void UpdateInfo(Guid socialMediaTypeId, string url, bool isPrimary)
+		{
+			SocialMediaTypeId = socialMediaTypeId == Guid.Empty ? throw new ArgumentException("SocialMediaTypeId cannot be empty", nameof(socialMediaTypeId)) : socialMediaTypeId;
+			Url = string.IsNullOrWhiteSpace(url) ? throw new ArgumentException("Url is required", nameof(url)) : url.Trim();
+			IsPrimary = isPrimary;
+		}
+
 		public void SetAsPrimary()
 		{
 			IsPrimary = true;

@@ -1,45 +1,52 @@
+using System.Text.Json.Serialization;
+
 namespace Dualcomp.Auth.Application.Companies.GetCompany
 {
-    public class GetCompanyResult(
-        Guid Id,
-        string Name,
-        string TaxId,
-        List<CompanyAddressResult> Addresses,
-        List<CompanyEmailResult> Emails,
-        List<CompanyPhoneResult> Phones,
-        List<CompanySocialMediaResult> SocialMedias,
-        List<CompanyEmployeeResult> Employees
+    public record GetCompanyResult(
+        [property: JsonPropertyName("id")] Guid Id,
+        [property: JsonPropertyName("name")] string Name,
+        [property: JsonPropertyName("taxId")] string TaxId,
+        [property: JsonPropertyName("addresses")] List<CompanyAddressResult> Addresses,
+        [property: JsonPropertyName("emails")] List<CompanyEmailResult> Emails,
+        [property: JsonPropertyName("phones")] List<CompanyPhoneResult> Phones,
+        [property: JsonPropertyName("socialMedias")] List<CompanySocialMediaResult> SocialMedias,
+        [property: JsonPropertyName("employees")] List<CompanyEmployeeResult> Employees
     );
 
     public record CompanyAddressResult(
-        string AddressType,
-        string Address,
-        bool IsPrimary
+        [property: JsonPropertyName("id")] string Id,
+        [property: JsonPropertyName("addressType")] string AddressType,
+        [property: JsonPropertyName("address")] string Address,
+        [property: JsonPropertyName("isPrimary")] bool IsPrimary
     );
 
     public record CompanyEmailResult(
-        string EmailType,
-        string Email,
-        bool IsPrimary
+        [property: JsonPropertyName("id")] string Id,
+        [property: JsonPropertyName("emailType")] string EmailType,
+        [property: JsonPropertyName("email")] string Email,
+        [property: JsonPropertyName("isPrimary")] bool IsPrimary
     );
 
     public record CompanyPhoneResult(
-        string PhoneType,
-        string Phone,
-        bool IsPrimary
+        [property: JsonPropertyName("id")] string Id,
+        [property: JsonPropertyName("phoneType")] string PhoneType,
+        [property: JsonPropertyName("phone")] string Phone,
+        [property: JsonPropertyName("isPrimary")] bool IsPrimary
     );
 
     public record CompanySocialMediaResult(
-        string SocialMediaType,
-        string Url,
-        bool IsPrimary
+        [property: JsonPropertyName("id")] string Id,
+        [property: JsonPropertyName("socialMediaType")] string SocialMediaType,
+        [property: JsonPropertyName("url")] string Url,
+        [property: JsonPropertyName("isPrimary")] bool IsPrimary
     );
 
     public record CompanyEmployeeResult(
-        string FullName,
-        string Email,
-        string? Phone,
-        string? Position,
-        DateTime? HireDate
+        [property: JsonPropertyName("id")] string Id,
+        [property: JsonPropertyName("fullName")] string FullName,
+        [property: JsonPropertyName("email")] string Email,
+        [property: JsonPropertyName("phone")] string? Phone,
+        [property: JsonPropertyName("position")] string? Position,
+        [property: JsonPropertyName("hireDate")] DateTime? HireDate
     );
 }

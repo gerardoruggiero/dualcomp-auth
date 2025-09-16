@@ -7,6 +7,8 @@ import { authGuard } from './auth/services/AuthGuard';
 import { AddressTypeComponent } from './address-type/address-type.component';
 import { CompanyRegisterLayoutComponent } from '../pages/company-register-layout/company-register-layout.component';
 import { CompanyRegisterComponent } from './company/register/company-register.component';
+import { CompanyEditComponent } from './company/edit/company-edit.component';
+import { CompanyListComponent } from './company/list/company-list.component';
 import { SocialMediaComponent } from './social-media/social-media.component';
 import { EmailTypeComponent } from './email-type/email-type.component';
 import { PhoneTypeComponent } from './phone-type/phone-type.component';
@@ -23,13 +25,6 @@ export const routes: Routes = [
   },
   {
     path: '',
-    component: CompanyRegisterLayoutComponent, // layout independiente para registro de empresa
-    children: [
-      { path: 'company/register', component: CompanyRegisterComponent }
-    ]
-  },
-  {
-    path: '',
     component: MainLayoutComponent, // layout completo para app logueada
     children: [
       { path: 'dashboard', component: MainPageComponent, canActivate: [authGuard] },
@@ -37,7 +32,10 @@ export const routes: Routes = [
       { path: 'phonetype', component: PhoneTypeComponent, canActivate: [authGuard] },
       { path: 'emailtype', component: EmailTypeComponent, canActivate: [authGuard]},
       { path: 'addresstype', component: AddressTypeComponent, canActivate: [authGuard]},
-      { path: 'socialmedia', component: SocialMediaComponent, canActivate: [authGuard]}
+      { path: 'socialmedia', component: SocialMediaComponent, canActivate: [authGuard]},
+      { path: 'company/register', component: CompanyRegisterComponent },
+      { path: 'company/list', component: CompanyListComponent, canActivate: [authGuard] },
+      { path: 'company/edit/:id', component: CompanyEditComponent, canActivate: [authGuard] }
     ]
   },
   {

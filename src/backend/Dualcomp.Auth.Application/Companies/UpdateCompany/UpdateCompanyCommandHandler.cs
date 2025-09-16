@@ -48,36 +48,22 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
             // Actualizar información básica de la empresa
             company.UpdateInfo(request.Name, request.TaxId);
 
-            // Limpiar colecciones existentes
-            var existingAddresses = company.Addresses.ToList();
-            var existingEmails = company.Emails.ToList();
-            var existingPhones = company.Phones.ToList();
-            var existingSocialMedias = company.SocialMedias.ToList();
-
-            foreach (var address in existingAddresses)
-            {
-                company.RemoveAddress(address);
-            }
-            foreach (var email in existingEmails)
-            {
-                company.RemoveEmail(email);
-            }
-            foreach (var phone in existingPhones)
-            {
-                company.RemovePhone(phone);
-            }
-            foreach (var socialMedia in existingSocialMedias)
-            {
-                company.RemoveSocialMedia(socialMedia);
-            }
-
-            // Procesar todos los contactos usando el servicio
+            // Procesar todos los contactos usando el servicio (maneja existentes y nuevos)
             var contactTypeNames = await _contactService.ProcessAllContactsAsync(
                 company, 
                 request.Addresses, 
                 request.Emails, 
                 request.Phones, 
                 request.SocialMedias, 
+                cancellationToken);
+
+            // Eliminar contactos que ya no están en la request
+            await _contactService.RemoveDeletedContactsAsync(
+                company,
+                request.Addresses,
+                request.Emails,
+                request.Phones,
+                request.SocialMedias,
                 cancellationToken);
 
             // Procesar empleados (existentes y nuevos)
