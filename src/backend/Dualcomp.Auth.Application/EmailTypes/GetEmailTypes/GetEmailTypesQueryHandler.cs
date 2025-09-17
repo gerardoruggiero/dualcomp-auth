@@ -10,7 +10,7 @@ namespace Dualcomp.Auth.Application.EmailTypes.GetEmailTypes
             : base(
                 emailTypeRepository,
                 (repo, ct) => repo.GetAllAsync(ct),
-                entities => new GetEmailTypesResult(entities.Select(e => new EmailTypeItem(e.Id.ToString(), e.Name))))
+                entities => new GetEmailTypesResult(entities.Select(e => new EmailTypeItem(e.Id.ToString(), e.Name, e.Description, e.IsActive))))
         {
         }
 	}

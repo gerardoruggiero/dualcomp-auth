@@ -99,12 +99,12 @@ export interface DataTableConfig {
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let row of data; let i = index" [class.table-active]="selectedRow === i">
+              <tr *ngFor="let row of (data || []); let i = index" [class.table-active]="selectedRow === i">
                 <td *ngFor="let col of columns">
                   <span [innerHTML]="col.render ? col.render(row[col.key], row) : row[col.key]"></span>
                 </td>
-                <td *ngIf="actions.length > 0">
-                  <div class="btn-group" role="group">
+                <td *ngIf="actions.length > 0" style="width: 120px;">
+                  <div class="d-flex gap-1">
                     <button 
                       *ngFor="let action of actions" 
                       type="button"
@@ -124,7 +124,7 @@ export interface DataTableConfig {
         </div>
 
         <!-- Mensaje cuando no hay datos -->
-        <div *ngIf="data.length === 0" class="text-center py-4">
+        <div *ngIf="!data || data.length === 0" class="text-center py-4">
           <i class="fas fa-inbox fa-3x text-muted mb-3"></i>
           <p class="text-muted">{{ config.emptyMessage || 'No hay datos disponibles' }}</p>
         </div>

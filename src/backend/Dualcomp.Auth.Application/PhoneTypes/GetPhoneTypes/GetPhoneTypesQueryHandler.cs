@@ -10,7 +10,7 @@ namespace Dualcomp.Auth.Application.PhoneTypes.GetPhoneTypes
             : base(
                 phoneTypeRepository,
                 (repo, ct) => repo.GetAllAsync(ct),
-                entities => new GetPhoneTypesResult(entities.Select(e => new PhoneTypeItem(e.Id.ToString(), e.Name))))
+                entities => new GetPhoneTypesResult(entities.Select(e => new PhoneTypeItem(e.Id.ToString(), e.Name, e.Description, e.IsActive))))
         {
         }
 	}

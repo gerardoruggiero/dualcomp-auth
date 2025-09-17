@@ -19,5 +19,6 @@ namespace Dualcomp.Auth.Application.Abstractions.Commands
         Guid Id { get; }
         string Name { get; }
         string? Description { get; }
+        bool IsActive { get; }
     }
 }

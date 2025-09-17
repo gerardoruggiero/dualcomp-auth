@@ -10,7 +10,7 @@ namespace Dualcomp.Auth.Application.SocialMediaTypes.GetSocialMediaTypes
             : base(
                 socialMediaTypeRepository,
                 (repo, ct) => repo.GetAllAsync(ct),
-                entities => new GetSocialMediaTypesResult(entities.Select(e => new SocialMediaTypeItem(e.Id.ToString(), e.Name))))
+                entities => new GetSocialMediaTypesResult(entities.Select(e => new SocialMediaTypeItem(e.Id.ToString(), e.Name, e.Description, e.IsActive))))
         {
         }
 	}

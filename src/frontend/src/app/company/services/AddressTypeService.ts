@@ -5,7 +5,7 @@ import { BaseTypeClass } from '../../shared/models/BaseType';
 import { environment } from '../../environments/environment';
 
 interface AddressTypeResponse {
-  addressTypes: Array<{ id: string; value: string }>;
+  addressTypes: Array<{ id: string; value: string; name?: string }>;
 }
 
 @Injectable({
@@ -21,7 +21,7 @@ export class AddressTypeService {
         console.log('AddressTypes response:', response);
         return response.addressTypes.map(item => ({
           id: item.id, // Usar el ID real del backend
-          name: item.value
+          name: item.name || item.value // Usar name si existe, sino value
         }));
       })
     );

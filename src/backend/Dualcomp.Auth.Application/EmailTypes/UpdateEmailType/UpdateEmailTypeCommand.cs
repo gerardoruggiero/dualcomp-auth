@@ -4,7 +4,7 @@ using Dualcomp.Auth.Domain.Companies;
 
 namespace Dualcomp.Auth.Application.EmailTypes.UpdateEmailType
 {
-    public record UpdateEmailTypeCommand(Guid Id, string Name, string? Description = null) 
+    public record UpdateEmailTypeCommand(Guid Id, string Name, string? Description = null, bool IsActive = true) 
         : ICommand<UpdateEmailTypeResult>, IUpdateTypeCommand;
 
     public record UpdateEmailTypeResult(Guid Id, string Name, string? Description, bool IsActive) 

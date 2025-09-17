@@ -38,7 +38,7 @@ namespace Dualcomp.Auth.Application.EmailTypes.UpdateEmailType
             await ValidateNameUniqueness(command.Name, command.Id, cancellationToken);
 
             // Actualizar entidad
-            entity.UpdateInfo(command.Name, command.Description);
+            entity.UpdateInfo(command.Name, command.Description, command.IsActive);
 
             // Guardar cambios
             await _repository.UpdateAsync(entity, cancellationToken);

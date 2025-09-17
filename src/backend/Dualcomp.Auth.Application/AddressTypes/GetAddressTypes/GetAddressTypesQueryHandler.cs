@@ -10,7 +10,7 @@ namespace Dualcomp.Auth.Application.AddressTypes.GetAddressTypes
             : base(
                 addressTypeRepository,
                 (repo, ct) => repo.GetAllAsync(ct),
-                entities => new GetAddressTypesResult(entities.Select(e => new AddressTypeItem(e.Id.ToString(), e.Name))))
+                entities => new GetAddressTypesResult(entities.Select(e => new AddressTypeItem(e.Id.ToString(), e.Name, e.Description, e.IsActive))))
         {
         }
 	}

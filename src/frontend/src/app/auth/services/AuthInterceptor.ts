@@ -19,17 +19,17 @@ export const authInterceptor: HttpInterceptorFn = (req: HttpRequest<any>, next: 
 
   // URLs que NO requieren autenticación
   const publicUrls = [
-    '/addresstypes',
-    '/emailtypes', 
-    '/phonetypes',
-    '/socialmediatypes'
+    '/api/addresstypes',
+    '/api/emailtypes', 
+    '/api/phonetypes',
+    '/api/socialmediatypes'
   ];
 
   // Verificar si la URL es pública
   let isPublicUrl = publicUrls.some(url => req.url.includes(url));
   
-  // Solo el POST a /companies (registro) es público, PUT y GET requieren autenticación
-  if (req.url.includes('/companies') && req.method === 'POST') {
+  // Solo el POST a /api/companies (registro) es público, PUT y GET requieren autenticación
+  if (req.url.includes('/api/companies') && req.method === 'POST') {
     isPublicUrl = true;
   }
 

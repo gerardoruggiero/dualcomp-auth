@@ -15,7 +15,7 @@ namespace Dualcomp.Auth.Application.Abstractions.Commands
     /// Comando base genérico para actualizar tipos de entidades
     /// </summary>
     /// <typeparam name="TEntity">Tipo de entidad</typeparam>
-    public abstract record BaseUpdateTypeCommand<TEntity>(Guid Id, string Name, string? Description = null) 
+    public abstract record BaseUpdateTypeCommand<TEntity>(Guid Id, string Name, string? Description = null, bool IsActive = true) 
         : ICommand<BaseTypeResult<TEntity>>, IUpdateTypeCommand
         where TEntity : BaseTypeEntity;
 }

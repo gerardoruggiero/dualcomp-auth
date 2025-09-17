@@ -1,46 +1,63 @@
 <div class="row">
-          <div class="col-12">
-            <div class="card">
-              <div class="card-header">
-                <h3 class="card-title">Responsive Hover Table</h3>
-
-                <div class="card-tools">
-                  <div class="input-group input-group-sm" style="width: 150px;">
-                    <input type="text" name="table_search" class="form-control float-right" placeholder="Search">
-
-                    <div class="input-group-append">
-                      <button type="submit" class="btn btn-default">
-                        <i class="fas fa-search"></i>
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <!-- /.card-header -->
-              <div class="card-body table-responsive p-0">
-                <table class="table table-hover text-nowrap">
-                  <thead>
-                    <tr>
-                      <th>ID</th>
-                      <th>Internal ID</th>
-                      <th>Name</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    @for (item of items(); track $index) 
-                    {
-                        <tr>
-                            <td>{{$index + 1}}</td>
-                            <td>{{item.id}}</td>
-                            <td>{{item.name}}</td>
-                        </tr>
-                        <p></p> <p></p>
-                    }                    
-                  </tbody>
-                </table>
-              </div>
-              <!-- /.card-body -->
-            </div>
-            <!-- /.card -->
+  <div class="col-12">
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Tipos de Teléfono</h1>
           </div>
         </div>
+      </div>
+    </div>
+
+    <section class="content">
+      <div class="container-fluid">
+        <!-- Mensajes de estado -->
+        <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <i class="fas fa-exclamation-triangle"></i>
+          {{ errorMessage() }}
+        </div>
+
+        <!-- Loading inicial -->
+        <div *ngIf="isLoading() && !isSearching()" class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="sr-only">Cargando...</span>
+          </div>
+          <p class="mt-2">Cargando tipos de teléfono...</p>
+        </div>
+
+        <!-- Data Table -->
+        <app-data-table
+          *ngIf="!isLoading() || isSearching()"
+          title="Tipos de Teléfono"
+          titleIcon="fas fa-phone"
+          [columns]="columns"
+          [data]="items()"
+          [actions]="actions"
+          [config]="tableConfig"
+          [currentPage]="currentPage()"
+          [totalPages]="totalPages()"
+          [totalCount]="totalCount()"
+          [pageSize]="pageSize()"
+          [searchValue]="searchTerm()"
+          (onAdd)="onAddType()"
+          (onSearch)="onSearch($event)"
+          (onSort)="onSort($event)"
+          (onPageChange)="onPageChange($event)"
+          (onPageSizeChange)="onPageSizeChange($event)">
+        </app-data-table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Modal para crear/editar -->
+<app-type-modal
+  [isVisible]="showModal"
+  [config]="modalConfig"
+  [isLoading]="modalLoading"
+  [initialData]="selectedItem()"
+  (onSaveEvent)="onModalSave($event)"
+  (onCancelEvent)="onModalCancel()">
+</app-type-modal>

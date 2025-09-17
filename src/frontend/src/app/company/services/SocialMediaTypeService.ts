@@ -5,7 +5,7 @@ import { BaseTypeClass } from '../../shared/models/BaseType';
 import { environment } from '../../environments/environment';
 
 interface SocialMediaTypeResponse {
-  socialMediaTypes: Array<{ id: string; value: string }>;
+  socialMediaTypes: Array<{ id: string; value: string; name?: string }>;
 }
 
 @Injectable({
@@ -21,7 +21,7 @@ export class SocialMediaTypeService {
         console.log('SocialMediaTypes response:', response);
         return response.socialMediaTypes.map(item => ({
           id: item.id, // Usar el ID real del backend
-          name: item.value
+          name: item.name || item.value // Usar name si existe, sino value
         }));
       })
     );

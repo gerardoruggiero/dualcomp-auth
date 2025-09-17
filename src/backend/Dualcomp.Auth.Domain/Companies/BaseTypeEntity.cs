@@ -27,6 +27,13 @@ namespace Dualcomp.Auth.Domain.Companies
             Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
         }
 
+        public virtual void UpdateInfo(string name, string? description = null, bool isActive = true)
+        {
+            Name = string.IsNullOrWhiteSpace(name) ? throw new ArgumentException("Name is required", nameof(name)) : name.Trim();
+            Description = string.IsNullOrWhiteSpace(description) ? null : description.Trim();
+            IsActive = isActive;
+        }
+
         public virtual void Activate() => IsActive = true;
         public virtual void Deactivate() => IsActive = false;
     }

@@ -21,41 +21,16 @@
       <!-- Sidebar Menu -->
       <nav class="mt-2">
         <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-          <li class="nav-item">
-              <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-ellipsis-v"></i>
-              <p>
-                Clientes
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <sidebar-child-item TextValue="Empresas" Icon="fa-building" [routerLink]="['/company/list']"></sidebar-child-item>
-              <sidebar-child-item TextValue="Usuarios" Icon="fa-users-cog"></sidebar-child-item>
-              <sidebar-child-item TextValue="Domicilios" Icon="fa-warehouse"></sidebar-child-item>
-              <sidebar-child-item TextValue="Redes sociales" Icon="fa-hashtag"></sidebar-child-item>
-              <sidebar-child-item TextValue="Teléfonos" Icon="fa-phone"></sidebar-child-item>
-            </ul>
-          </li>
-          <li class="nav-item">
-            <a href="#" class="nav-link">
-              <i class="nav-icon fas fa-ellipsis-v"></i>
-              <p>
-                Configuración
-                <i class="right fas fa-angle-left"></i>
-              </p>
-            </a>
-            <ul class="nav nav-treeview">
-              <li class="nav-header">Datos maestros</li>
-              <sidebar-child-item TextValue="Tipos de teléfonos" Icon="fa-phone" [routerLink]="['/phonetype']"></sidebar-child-item>
-              <sidebar-child-item TextValue="Tipos de domicilios" Icon="fa-map-marker" [routerLink]="['/addresstype']"></sidebar-child-item>
-              <sidebar-child-item TextValue="Tipos de redes Emails" Icon="fa-at" [routerLink]="['/emailtype']"></sidebar-child-item>
-              <sidebar-child-item TextValue="Tipos de redes sociales" Icon="fa-hashtag" [routerLink]="['/socialmedia']"></sidebar-child-item>
-              <li class="nav-header">Datos para clientes</li>
-              <sidebar-child-item TextValue="Titulos" Icon="fa-user-graduate"></sidebar-child-item>
-              <sidebar-child-item TextValue="Tipos de Documentos" Icon="fa-id-card"></sidebar-child-item>
-            </ul>
-          </li>
+          <sidebar-child-item TextValue="Empresas" Icon="fa-building" [routerLink]="['/company/list']"></sidebar-child-item>
+          <sidebar-child-item TextValue="Usuarios" Icon="fa-users-cog"></sidebar-child-item>              
+          <li class="nav-header">Datos maestros</li>
+          <sidebar-child-item TextValue="Tipos de teléfonos" Icon="fa-phone" [routerLink]="['/phonetype']"></sidebar-child-item>
+          <sidebar-child-item TextValue="Tipos de domicilios" Icon="fa-map-marker" [routerLink]="['/addresstype']"></sidebar-child-item>
+          <sidebar-child-item TextValue="Tipos de redes Emails" Icon="fa-at" [routerLink]="['/emailtype']"></sidebar-child-item>
+          <sidebar-child-item TextValue="Tipos de redes sociales" Icon="fa-hashtag" [routerLink]="['/socialmedia']"></sidebar-child-item>
+          <li class="nav-header">Datos para clientes</li>
+          <sidebar-child-item TextValue="Titulos" Icon="fa-user-graduate"></sidebar-child-item>
+          <sidebar-child-item TextValue="Tipos de Documentos" Icon="fa-id-card"></sidebar-child-item>
         </ul>
       </nav>
       <!-- /.sidebar-menu -->
