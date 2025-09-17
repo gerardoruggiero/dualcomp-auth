@@ -1,4 +1,3 @@
-using Xunit;
 using Moq;
 using Dualcomp.Auth.Application.Users.ForcePasswordChange;
 using Dualcomp.Auth.Domain.Users;
@@ -72,8 +71,8 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var email = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("test@example.com");
-            var hashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("hashedPassword");
+            var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
+            var hashedPassword = HashedPassword.Create("hashedPassword");
             var user = User.Create("John", "Doe", email, hashedPassword);
             user.SetTemporaryPassword("temp123");
             
@@ -153,8 +152,8 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var email = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("test@example.com");
-            var hashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("hashedPassword");
+            var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
+            var hashedPassword = HashedPassword.Create("hashedPassword");
             var user = User.Create("John", "Doe", email, hashedPassword);
             // User doesn't require password change
             
@@ -177,8 +176,8 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var email = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("test@example.com");
-            var hashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("hashedPassword");
+            var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
+            var hashedPassword = HashedPassword.Create("hashedPassword");
             var user = User.Create("John", "Doe", email, hashedPassword);
             user.SetTemporaryPassword("correctTemp123");
             
@@ -201,8 +200,8 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var email = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("test@example.com");
-            var hashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("hashedPassword");
+            var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
+            var hashedPassword = HashedPassword.Create("hashedPassword");
             var user = User.Create("John", "Doe", email, hashedPassword);
             user.SetTemporaryPassword("temp123");
             

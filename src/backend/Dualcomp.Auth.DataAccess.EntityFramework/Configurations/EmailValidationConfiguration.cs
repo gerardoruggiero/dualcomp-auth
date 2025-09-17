@@ -9,7 +9,6 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
         public void Configure(EntityTypeBuilder<EmailValidation> builder)
         {
             builder.HasKey(ev => ev.Id);
-
             builder.Property(ev => ev.UserId)
                 .IsRequired();
 

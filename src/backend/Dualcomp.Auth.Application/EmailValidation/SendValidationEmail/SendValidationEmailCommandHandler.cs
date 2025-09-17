@@ -1,6 +1,5 @@
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Dualcomp.Auth.Domain.Users.Repositories;
-using Dualcomp.Auth.Domain.Users;
 using Dualcomp.Auth.Domain.Users.ValueObjects;
 using DualComp.Infraestructure.Mail.Interfaces;
 using DualComp.Infraestructure.Mail.Models;

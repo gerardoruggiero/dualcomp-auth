@@ -9,7 +9,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.HasKey(u => u.Id);
-
+            builder.Property(u => u.Id).ValueGeneratedNever();
             builder.Property(u => u.FirstName)
                 .IsRequired()
                 .HasMaxLength(100);

@@ -1,5 +1,4 @@
 using Dualcomp.Auth.Application.Abstractions.Messaging;
-using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
 
 namespace Dualcomp.Auth.WebApi.Extensions

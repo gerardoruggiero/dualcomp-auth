@@ -1,9 +1,7 @@
 using Dualcomp.Auth.Application.Users.Logout;
 using Dualcomp.Auth.Domain.Users;
-using DualComp.Infraestructure.Domain.Domain.Common.Results;
 using DualComp.Infraestructure.Data.Persistence;
 using Moq;
-using Xunit;
 using Dualcomp.Auth.Domain.Users.Repositories;
 
 namespace Dualcomp.Auth.UnitTests.Users

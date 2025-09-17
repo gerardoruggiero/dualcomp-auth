@@ -83,7 +83,7 @@ namespace Dualcomp.Auth.Application.Users.CreateUser
 
             // Generar token de validación de email
             var token = EmailValidationToken.GenerateWithTimestamp();
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.CreateWithDefaultExpiration(user.Id, token.Value);
+            var emailValidation = Domain.Users.EmailValidation.CreateWithDefaultExpiration(user.Id, token.Value);
             await _emailValidationRepository.AddAsync(emailValidation, cancellationToken);
 
             // Guardar cambios

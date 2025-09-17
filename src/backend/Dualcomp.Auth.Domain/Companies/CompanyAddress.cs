@@ -1,4 +1,3 @@
-using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using DualComp.Infraestructure.Domain.Domain.Common;
 
 namespace Dualcomp.Auth.Domain.Companies

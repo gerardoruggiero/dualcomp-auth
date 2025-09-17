@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Dualcomp.Auth.Domain.Users;
-using Dualcomp.Auth.Domain.Users.ValueObjects;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using Dualcomp.Auth.Domain.Users.Repositories;
 

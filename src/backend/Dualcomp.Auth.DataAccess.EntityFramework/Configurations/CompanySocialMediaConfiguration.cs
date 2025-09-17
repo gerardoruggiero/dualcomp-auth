@@ -9,6 +9,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
 		public void Configure(EntityTypeBuilder<CompanySocialMedia> builder)
 		{
 			builder.HasKey(csm => csm.Id);
+			builder.Property(csm => csm.Id).ValueGeneratedNever();
 			builder.Property(csm => csm.CompanyId).IsRequired();
 			builder.Property(csm => csm.Url).IsRequired().HasMaxLength(500);
 			builder.Property(csm => csm.IsPrimary).IsRequired();

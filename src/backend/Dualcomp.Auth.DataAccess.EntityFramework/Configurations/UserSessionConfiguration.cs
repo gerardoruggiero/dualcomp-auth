@@ -9,7 +9,6 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
         public void Configure(EntityTypeBuilder<UserSession> builder)
         {
             builder.HasKey(s => s.Id);
-
             builder.Property(s => s.UserId)
                 .IsRequired();
 

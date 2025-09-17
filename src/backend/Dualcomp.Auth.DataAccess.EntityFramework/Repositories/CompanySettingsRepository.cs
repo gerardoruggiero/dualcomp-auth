@@ -1,6 +1,5 @@
 using Dualcomp.Auth.Domain.Companies;
 using Dualcomp.Auth.Domain.Companies.Repositories;
-using Dualcomp.Auth.DataAccess.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 
 namespace Dualcomp.Auth.DataAccess.EntityFramework.Repositories

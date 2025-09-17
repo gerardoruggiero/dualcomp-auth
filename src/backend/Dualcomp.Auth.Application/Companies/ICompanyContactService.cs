@@ -1,4 +1,6 @@
 using Dualcomp.Auth.Application.Companies.GetCompany;
+using Dualcomp.Auth.Application.Companies.RegisterCompany;
+using Dualcomp.Auth.Application.Companies.UpdateCompany;
 using Dualcomp.Auth.Domain.Companies;
 using Dualcomp.Auth.Domain.Users;
 
@@ -7,19 +9,43 @@ namespace Dualcomp.Auth.Application.Companies
     public interface ICompanyContactService
     {
         /// <summary>
-        /// Valida que se proporcionen los contactos requeridos
+        /// Valida que se proporcionen los contactos requeridos para registro
         /// </summary>
-        void ValidateRequiredContacts(IEnumerable<object>? addresses, IEnumerable<object>? emails, IEnumerable<object>? phones, IEnumerable<object>? socialMedias);
+        void ValidateRequiredContactsForRegistration(
+            IEnumerable<RegisterCompanyAddressDto>? addresses, 
+            IEnumerable<RegisterCompanyEmailDto>? emails, 
+            IEnumerable<RegisterCompanyPhoneDto>? phones, 
+            IEnumerable<RegisterCompanySocialMediaDto>? socialMedias);
 
         /// <summary>
-        /// Procesa todos los contactos de una empresa (direcciones, emails, teléfonos, redes sociales)
+        /// Valida que se proporcionen los contactos requeridos para actualización
         /// </summary>
-        Task<ContactTypeNames> ProcessAllContactsAsync(
+        void ValidateRequiredContactsForUpdate(
+            IEnumerable<UpdateCompanyAddressDto>? addresses, 
+            IEnumerable<UpdateCompanyEmailDto>? emails, 
+            IEnumerable<UpdateCompanyPhoneDto>? phones, 
+            IEnumerable<UpdateCompanySocialMediaDto>? socialMedias);
+
+        /// <summary>
+        /// Procesa todos los contactos de una empresa para registro (direcciones, emails, teléfonos, redes sociales)
+        /// </summary>
+        Task<ContactTypeNames> ProcessAllContactsForRegistrationAsync(
             Company company, 
-            IEnumerable<dynamic> addresses, 
-            IEnumerable<dynamic> emails, 
-            IEnumerable<dynamic> phones, 
-            IEnumerable<dynamic> socialMedias, 
+            IEnumerable<RegisterCompanyAddressDto> addresses, 
+            IEnumerable<RegisterCompanyEmailDto> emails, 
+            IEnumerable<RegisterCompanyPhoneDto> phones, 
+            IEnumerable<RegisterCompanySocialMediaDto> socialMedias, 
+            CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Procesa todos los contactos de una empresa para actualización (direcciones, emails, teléfonos, redes sociales)
+        /// </summary>
+        Task<ContactTypeNames> ProcessAllContactsForUpdateAsync(
+            Company company, 
+            IEnumerable<UpdateCompanyAddressDto> addresses, 
+            IEnumerable<UpdateCompanyEmailDto> emails, 
+            IEnumerable<UpdateCompanyPhoneDto> phones, 
+            IEnumerable<UpdateCompanySocialMediaDto> socialMedias, 
             CancellationToken cancellationToken);
 
         /// <summary>
@@ -27,10 +53,31 @@ namespace Dualcomp.Auth.Application.Companies
         /// </summary>
         Task RemoveDeletedContactsAsync(
             Company company,
-            IEnumerable<dynamic> addresses,
-            IEnumerable<dynamic> emails,
-            IEnumerable<dynamic> phones,
-            IEnumerable<dynamic> socialMedias,
+            IEnumerable<UpdateCompanyAddressDto> addresses,
+            IEnumerable<UpdateCompanyEmailDto> emails,
+            IEnumerable<UpdateCompanyPhoneDto> phones,
+            IEnumerable<UpdateCompanySocialMediaDto> socialMedias,
+            CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Procesa empleados para actualización (pueden ser nuevos o existentes)
+        /// </summary>
+        Task ProcessEmployeesForUpdateAsync(
+            Company company, 
+            IEnumerable<UpdateCompanyEmployeeDto> employees, 
+            CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Procesa empleados para registro (solo nuevos empleados)
+        /// </summary>
+        Task ProcessEmployeesForRegistrationAsync(
+            Company company, 
+            IEnumerable<RegisterCompanyEmployeeDto> employees, 
+            CancellationToken cancellationToken);
+
+        Task DeactivateDeletedEmployeesAsync(
+            Company company,
+            IEnumerable<UpdateCompanyEmployeeDto> employees,
             CancellationToken cancellationToken);
 
         /// <summary>

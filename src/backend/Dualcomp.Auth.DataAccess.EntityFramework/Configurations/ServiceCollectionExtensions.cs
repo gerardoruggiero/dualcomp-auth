@@ -25,7 +25,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
 			);
 			
 			// Registrar DbContext como Scoped para compatibilidad con UnitOfWork
-			services.AddScoped<BaseDbContext>(provider =>
+			services.AddScoped(provider =>
 			{
 				var factory = provider.GetRequiredService<IDbContextFactory<BaseDbContext>>();
 				return factory.CreateDbContext();

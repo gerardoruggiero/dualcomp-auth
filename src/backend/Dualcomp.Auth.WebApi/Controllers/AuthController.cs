@@ -6,7 +6,6 @@ using Dualcomp.Auth.Application.Users.RefreshToken;
 using Dualcomp.Auth.Application.Users.ForcePasswordChange;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
-using DualComp.Infraestructure.Domain.Domain.Common.Results;
 using System.Security.Claims;
 
 namespace Dualcomp.Auth.WebApi.Controllers

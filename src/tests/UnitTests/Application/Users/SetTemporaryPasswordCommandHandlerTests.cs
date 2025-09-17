@@ -1,4 +1,3 @@
-using Xunit;
 using Moq;
 using Dualcomp.Auth.Application.Users.SetTemporaryPassword;
 using Dualcomp.Auth.Domain.Users;
@@ -61,12 +60,12 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var targetUserId = Guid.NewGuid();
             var companyId = Guid.NewGuid();
             
-            var adminEmail = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("admin@example.com");
-            var adminHashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("adminPassword");
+            var adminEmail = Domain.Companies.ValueObjects.Email.Create("admin@example.com");
+            var adminHashedPassword = HashedPassword.Create("adminPassword");
             var adminUser = User.Create("Admin", "User", adminEmail, adminHashedPassword, companyId, true);
             
-            var targetEmail = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("target@example.com");
-            var targetHashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("targetPassword");
+            var targetEmail = Domain.Companies.ValueObjects.Email.Create("target@example.com");
+            var targetHashedPassword = HashedPassword.Create("targetPassword");
             var targetUser = User.Create("Target", "User", targetEmail, targetHashedPassword, companyId);
             
             var command = new SetTemporaryPasswordCommand(targetUserId, adminId, "tempPassword123");
@@ -142,8 +141,8 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var targetUserId = Guid.NewGuid();
             var companyId = Guid.NewGuid();
             
-            var adminEmail = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("admin@example.com");
-            var adminHashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("adminPassword");
+            var adminEmail = Domain.Companies.ValueObjects.Email.Create("admin@example.com");
+            var adminHashedPassword = HashedPassword.Create("adminPassword");
             var adminUser = User.Create("Admin", "User", adminEmail, adminHashedPassword, companyId, false); // Not admin
             
             var command = new SetTemporaryPasswordCommand(targetUserId, adminId, "tempPassword123");
@@ -168,8 +167,8 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var targetUserId = Guid.NewGuid();
             var companyId = Guid.NewGuid();
             
-            var adminEmail = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("admin@example.com");
-            var adminHashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("adminPassword");
+            var adminEmail = Domain.Companies.ValueObjects.Email.Create("admin@example.com");
+            var adminHashedPassword = HashedPassword.Create("adminPassword");
             var adminUser = User.Create("Admin", "User", adminEmail, adminHashedPassword, companyId, true);
             
             var command = new SetTemporaryPasswordCommand(targetUserId, adminId, "tempPassword123");
@@ -197,12 +196,12 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var adminCompanyId = Guid.NewGuid();
             var targetCompanyId = Guid.NewGuid();
             
-            var adminEmail = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("admin@example.com");
-            var adminHashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("adminPassword");
+            var adminEmail = Domain.Companies.ValueObjects.Email.Create("admin@example.com");
+            var adminHashedPassword = HashedPassword.Create("adminPassword");
             var adminUser = User.Create("Admin", "User", adminEmail, adminHashedPassword, adminCompanyId, true);
             
-            var targetEmail = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("target@example.com");
-            var targetHashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("targetPassword");
+            var targetEmail = Domain.Companies.ValueObjects.Email.Create("target@example.com");
+            var targetHashedPassword = HashedPassword.Create("targetPassword");
             var targetUser = User.Create("Target", "User", targetEmail, targetHashedPassword, targetCompanyId);
             
             var command = new SetTemporaryPasswordCommand(targetUserId, adminId, "tempPassword123");
@@ -229,12 +228,12 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var targetUserId = Guid.NewGuid();
             var companyId = Guid.NewGuid();
             
-            var adminEmail = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("admin@example.com");
-            var adminHashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("adminPassword");
+            var adminEmail = Domain.Companies.ValueObjects.Email.Create("admin@example.com");
+            var adminHashedPassword = HashedPassword.Create("adminPassword");
             var adminUser = User.Create("Admin", "User", adminEmail, adminHashedPassword, companyId, true);
             
-            var targetEmail = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("target@example.com");
-            var targetHashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("targetPassword");
+            var targetEmail = Domain.Companies.ValueObjects.Email.Create("target@example.com");
+            var targetHashedPassword = HashedPassword.Create("targetPassword");
             var targetUser = User.Create("Target", "User", targetEmail, targetHashedPassword, companyId);
             
             var command = new SetTemporaryPasswordCommand(targetUserId, adminId, ""); // Empty password
@@ -283,12 +282,12 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var targetUserId = Guid.NewGuid();
             var companyId = Guid.NewGuid();
             
-            var adminEmail = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("admin@example.com");
-            var adminHashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("adminPassword");
+            var adminEmail = Domain.Companies.ValueObjects.Email.Create("admin@example.com");
+            var adminHashedPassword = HashedPassword.Create("adminPassword");
             var adminUser = User.Create("Admin", "User", adminEmail, adminHashedPassword, companyId, true);
             
-            var targetEmail = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("target@example.com");
-            var targetHashedPassword = Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("targetPassword");
+            var targetEmail = Domain.Companies.ValueObjects.Email.Create("target@example.com");
+            var targetHashedPassword = HashedPassword.Create("targetPassword");
             var targetUser = User.Create("Target", "User", targetEmail, targetHashedPassword, companyId);
             
             var command = new SetTemporaryPasswordCommand(targetUserId, adminId, "tempPassword123");

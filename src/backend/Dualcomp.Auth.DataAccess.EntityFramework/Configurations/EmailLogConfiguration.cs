@@ -9,7 +9,6 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
         public void Configure(EntityTypeBuilder<EmailLog> builder)
         {
             builder.HasKey(el => el.Id);
-
             builder.Property(el => el.CompanyId)
                 .IsRequired();
 

@@ -1,5 +1,4 @@
 using Dualcomp.Auth.Application.Abstractions.Messaging;
-using DualComp.Infraestructure.Data.Persistence;
 
 namespace Dualcomp.Auth.Application.Abstractions.Queries
 {

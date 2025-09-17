@@ -3,14 +3,12 @@ using Dualcomp.Auth.Domain.Users;
 using Dualcomp.Auth.Domain.Users.Repositories;
 using Dualcomp.Auth.Domain.Users.ValueObjects;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
-using Dualcomp.Auth.Domain.Companies.Repositories;
 using DualComp.Infraestructure.Data.Persistence;
 using DualComp.Infraestructure.Mail.Interfaces;
 using DualComp.Infraestructure.Mail.Models;
 using DualComp.Infraestructure.Security;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using Xunit;
 using Dualcomp.Auth.Application.Services;
 
 namespace Dualcomp.Auth.UnitTests.Application.Users
@@ -68,7 +66,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var temporaryPassword = "TempPass123!";
             var hashedPassword = "hashedPassword";
             var user = User.Create("John", "Doe", Email.Create("john@example.com"), HashedPassword.Create(hashedPassword), companyId);
-            var companySettings = Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            var companySettings = Domain.Companies.CompanySettings.Create(
                 companyId, "smtp.gmail.com", 587, "test@example.com", "password",
                 true, "noreply@example.com", "Test Company");
 
@@ -80,7 +78,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
                 .Returns(hashedPassword);
             _userRepositoryMock.Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
-            _emailValidationRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Dualcomp.Auth.Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()))
+            _emailValidationRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
             _unitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(1);
@@ -104,7 +102,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             Assert.False(result.IsCompanyAdmin);
 
             _userRepositoryMock.Verify(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()), Times.Once);
-            _emailValidationRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Dualcomp.Auth.Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()), Times.Once);
+            _emailValidationRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()), Times.Once);
             _unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
             _emailServiceMock.Verify(x => x.SendEmailAsync(It.IsAny<EmailMessage>(), It.IsAny<SmtpConfiguration>(), It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -187,7 +185,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
                 .Returns("hashedPassword");
             _userRepositoryMock.Setup(x => x.AddAsync(It.IsAny<User>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
-            _emailValidationRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Dualcomp.Auth.Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()))
+            _emailValidationRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
             _unitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
                 .ReturnsAsync(1);

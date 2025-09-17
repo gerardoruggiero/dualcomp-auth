@@ -1,8 +1,5 @@
 using Dualcomp.Auth.Application.Abstractions.Messaging;
-using Dualcomp.Auth.Application.Companies;
-using Dualcomp.Auth.Domain.Companies;
 using Dualcomp.Auth.Domain.Companies.Repositories;
-using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using DualComp.Infraestructure.Data.Persistence;
 
 namespace Dualcomp.Auth.Application.Companies.UpdateCompany
@@ -43,19 +40,10 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
             if (!request.Employees?.Any() == true) throw new ArgumentException("At least one employee is required", nameof(request.Employees));
             
             // Validar contactos requeridos usando el servicio
-            _contactService.ValidateRequiredContacts(request.Addresses, request.Emails, request.Phones, request.SocialMedias);
+            _contactService.ValidateRequiredContactsForUpdate(request.Addresses, request.Emails, request.Phones, request.SocialMedias);
 
             // Actualizar información básica de la empresa
             company.UpdateInfo(request.Name, request.TaxId);
-
-            // Procesar todos los contactos usando el servicio (maneja existentes y nuevos)
-            var contactTypeNames = await _contactService.ProcessAllContactsAsync(
-                company, 
-                request.Addresses, 
-                request.Emails, 
-                request.Phones, 
-                request.SocialMedias, 
-                cancellationToken);
 
             // Eliminar contactos que ya no están en la request
             await _contactService.RemoveDeletedContactsAsync(
@@ -66,26 +54,20 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
                 request.SocialMedias,
                 cancellationToken);
 
-            // Procesar empleados (existentes y nuevos)
-            foreach (var employeeDto in request.Employees)
-            {
-                if (employeeDto.Id.HasValue)
-                {
-                    // Empleado existente - actualizar información
-                    var existingEmployee = company.Employees.FirstOrDefault(e => e.Id == employeeDto.Id.Value);
-                    if (existingEmployee != null)
-                    {
-                        existingEmployee.UpdateProfile(employeeDto.FullName, employeeDto.Email, employeeDto.Phone, employeeDto.Position);
-                    }
-                }
-                else
-                {
-                    // Empleado nuevo - crear usuario automáticamente
-                    var user = await _contactService.CreateUserForEmployee(employeeDto.FullName, employeeDto.Email, company.Id, cancellationToken);
-                    var employee = Employee.Create(employeeDto.FullName, employeeDto.Email, employeeDto.Phone, company.Id, employeeDto.Position, employeeDto.HireDate, user.Id);
-                    company.AddEmployee(employee);
-                }
-            }
+            // Desactivar empleados que ya no están en la request
+            await _contactService.DeactivateDeletedEmployeesAsync(company, request.Employees, cancellationToken);
+
+            // Procesar todos los contactos usando el servicio (maneja existentes y nuevos)
+            var contactTypeNames = await _contactService.ProcessAllContactsForUpdateAsync(
+                company, 
+                request.Addresses, 
+                request.Emails, 
+                request.Phones, 
+                request.SocialMedias, 
+                cancellationToken);
+
+            // Procesar empleados usando el servicio unificado
+            await _contactService.ProcessEmployeesForUpdateAsync(company, request.Employees, cancellationToken);
 
             // Validar que la empresa esté completa
             if (!company.IsValidForRegistration())
@@ -93,8 +75,15 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
                 throw new InvalidOperationException("Company does not meet registration requirements");
             }
 
-            await _companyRepository.UpdateAsync(company, cancellationToken);
-            await _unitOfWork.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await _companyRepository.UpdateAsync(company, cancellationToken);
+                await _unitOfWork.SaveChangesAsync(cancellationToken);
+            }
+            catch (Exception ex) 
+            {
+                throw new Exception(ex.Message, ex);
+            }
 
             return new UpdateCompanyResult(
                 company.Id,

@@ -14,7 +14,6 @@ using DualComp.Infraestructure.Mail.Models;
 using DualComp.Infraestructure.Security;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using Xunit;
 
 namespace Dualcomp.Auth.UnitTests.Application.Companies
 {
@@ -46,18 +45,18 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                 new Dictionary<Guid, string>()
             );
             
-            _contactServiceMock.Setup(x => x.ProcessAllContactsAsync(
+            _contactServiceMock.Setup(x => x.ProcessAllContactsForRegistrationAsync(
                 It.IsAny<Company>(), 
-                It.IsAny<IEnumerable<dynamic>>(), 
-                It.IsAny<IEnumerable<dynamic>>(), 
-                It.IsAny<IEnumerable<dynamic>>(), 
-                It.IsAny<IEnumerable<dynamic>>(), 
+                It.IsAny<IEnumerable<RegisterCompanyAddressDto>>(), 
+                It.IsAny<IEnumerable<RegisterCompanyEmailDto>>(), 
+                It.IsAny<IEnumerable<RegisterCompanyPhoneDto>>(), 
+                It.IsAny<IEnumerable<RegisterCompanySocialMediaDto>>(), 
                 It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Company company, IEnumerable<dynamic> addresses, IEnumerable<dynamic> emails, IEnumerable<dynamic> phones, IEnumerable<dynamic> socialMedias, CancellationToken ct) =>
+                .ReturnsAsync((Company company, IEnumerable<RegisterCompanyAddressDto> addresses, IEnumerable<RegisterCompanyEmailDto> emails, IEnumerable<RegisterCompanyPhoneDto> phones, IEnumerable<RegisterCompanySocialMediaDto> socialMedias, CancellationToken ct) =>
                 {
                     // Simular el procesamiento real agregando contactos a la empresa
                     // Usar un ID temporal ya que la empresa aún no tiene ID asignado
-                    var tempCompanyId = Guid.NewGuid();
+                    var tempCompanyId = company.Id;
                     
                     foreach (var address in addresses)
                     {
@@ -77,7 +76,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                         var emailEntity = CompanyEmail.Create(
                             tempCompanyId, // CompanyId temporal
                             Guid.NewGuid(), // EmailTypeId
-                            Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("info@company.com"), // Email
+                            Email.Create("info@company.com"), // Email
                             true // IsPrimary
                         );
                         company.AddEmail(emailEntity);
@@ -121,8 +120,8 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                     var user = User.Create(
                         fullName.Split(' ')[0], 
                         fullName.Split(' ').Length > 1 ? fullName.Split(' ')[1] : "User", 
-                        Email.Create(email), 
-                        Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("hashedPassword"), 
+                        Email.Create(email),
+                        HashedPassword.Create("hashedPassword"), 
                         companyId);
                     return user;
                 });
@@ -239,17 +238,17 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
 
             var company = Company.Create(command.Name, TaxId.Create(command.TaxId));
             var user = User.Create("John", "Doe", Email.Create("john@company.com"), HashedPassword.Create("hashedPassword"), companyId);
-            var companySettings = Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            var companySettings = CompanySettings.Create(
                 companyId, "smtp.gmail.com", 587, "test@example.com", "password",
                 true, "noreply@example.com", "Test Company");
 
             _companyRepositoryMock.Setup(x => x.ExistsByTaxIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
-            _contactServiceMock.Setup(x => x.ProcessAllContactsAsync(It.IsAny<Company>(), It.IsAny<IEnumerable<dynamic>>(), It.IsAny<IEnumerable<dynamic>>(), It.IsAny<IEnumerable<dynamic>>(), It.IsAny<IEnumerable<dynamic>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Company company, IEnumerable<dynamic> addresses, IEnumerable<dynamic> emails, IEnumerable<dynamic> phones, IEnumerable<dynamic> socialMedias, CancellationToken ct) =>
+            _contactServiceMock.Setup(x => x.ProcessAllContactsForRegistrationAsync(It.IsAny<Company>(), It.IsAny<IEnumerable<RegisterCompanyAddressDto>>(), It.IsAny<IEnumerable<RegisterCompanyEmailDto>>(), It.IsAny<IEnumerable<RegisterCompanyPhoneDto>>(), It.IsAny<IEnumerable<RegisterCompanySocialMediaDto>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Company company, IEnumerable<RegisterCompanyAddressDto> addresses, IEnumerable<RegisterCompanyEmailDto> emails, IEnumerable<RegisterCompanyPhoneDto> phones, IEnumerable<RegisterCompanySocialMediaDto> socialMedias, CancellationToken ct) =>
                 {
                     // Simular el procesamiento real agregando contactos a la empresa
-                    var tempCompanyId = Guid.NewGuid();
+                    var tempCompanyId = company.Id;
                     
                     foreach (var address in addresses)
                     {
@@ -267,7 +266,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                         var emailEntity = CompanyEmail.Create(
                             tempCompanyId,
                             Guid.NewGuid(),
-                            Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("info@company.com"),
+                            Email.Create("info@company.com"),
                             true
                         );
                         company.AddEmail(emailEntity);
@@ -303,6 +302,17 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                 });
             _contactServiceMock.Setup(x => x.CreateUserForEmployee(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(user);
+            _contactServiceMock.Setup(x => x.ProcessEmployeesForRegistrationAsync(It.IsAny<Company>(), It.IsAny<IEnumerable<RegisterCompanyEmployeeDto>>(), It.IsAny<CancellationToken>()))
+                .Returns((Company company, IEnumerable<RegisterCompanyEmployeeDto> employees, CancellationToken ct) =>
+                {
+                    // Simular el procesamiento real agregando empleados a la empresa
+                    foreach (var employeeDto in employees)
+                    {
+                        var employee = Employee.Create(employeeDto.FullName, employeeDto.Email, employeeDto.Phone, company.Id, employeeDto.Position, employeeDto.HireDate, user);
+                        company.AddEmployee(employee);
+                    }
+                    return Task.CompletedTask;
+                });
             _companyRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Company>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
             _unitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))
@@ -311,7 +321,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                 .ReturnsAsync(user);
             _companySettingsServiceMock.Setup(x => x.GetOrCreateDefaultSmtpSettingsAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(companySettings);
-            _emailValidationRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Dualcomp.Auth.Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()))
+            _emailValidationRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
             _emailTemplateServiceMock.Setup(x => x.CreateWelcomeEmailTemplate(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(new EmailMessage { To = "john@company.com", Subject = "Welcome", Body = "Welcome email" });
@@ -330,7 +340,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
 
             // Verify that email services were called
             _companySettingsServiceMock.Verify(x => x.GetOrCreateDefaultSmtpSettingsAsync(It.IsAny<Guid>(), It.IsAny<Guid?>(), It.IsAny<CancellationToken>()), Times.Once);
-            _emailValidationRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Dualcomp.Auth.Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()), Times.Once);
+            _emailValidationRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()), Times.Once);
             _emailTemplateServiceMock.Verify(x => x.CreateWelcomeEmailTemplate(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Once);
             _emailServiceMock.Verify(x => x.SendEmailAsync(It.IsAny<EmailMessage>(), It.IsAny<SmtpConfiguration>(), It.IsAny<CancellationToken>()), Times.Once);
         }
@@ -367,11 +377,11 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
 
             _companyRepositoryMock.Setup(x => x.ExistsByTaxIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
-            _contactServiceMock.Setup(x => x.ProcessAllContactsAsync(It.IsAny<Company>(), It.IsAny<IEnumerable<dynamic>>(), It.IsAny<IEnumerable<dynamic>>(), It.IsAny<IEnumerable<dynamic>>(), It.IsAny<IEnumerable<dynamic>>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Company company, IEnumerable<dynamic> addresses, IEnumerable<dynamic> emails, IEnumerable<dynamic> phones, IEnumerable<dynamic> socialMedias, CancellationToken ct) =>
+            _contactServiceMock.Setup(x => x.ProcessAllContactsForRegistrationAsync(It.IsAny<Company>(), It.IsAny<IEnumerable<RegisterCompanyAddressDto>>(), It.IsAny<IEnumerable<RegisterCompanyEmailDto>>(), It.IsAny<IEnumerable<RegisterCompanyPhoneDto>>(), It.IsAny<IEnumerable<RegisterCompanySocialMediaDto>>(), It.IsAny<CancellationToken>()))
+                .ReturnsAsync((Company company, IEnumerable<RegisterCompanyAddressDto> addresses, IEnumerable<RegisterCompanyEmailDto> emails, IEnumerable<RegisterCompanyPhoneDto> phones, IEnumerable<RegisterCompanySocialMediaDto> socialMedias, CancellationToken ct) =>
                 {
                     // Simular el procesamiento real agregando contactos a la empresa
-                    var tempCompanyId = Guid.NewGuid();
+                    var tempCompanyId = company.Id;
                     
                     foreach (var address in addresses)
                     {
@@ -389,7 +399,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                         var emailEntity = CompanyEmail.Create(
                             tempCompanyId,
                             Guid.NewGuid(),
-                            Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("info@company.com"),
+                            Email.Create("info@company.com"),
                             true
                         );
                         company.AddEmail(emailEntity);
@@ -425,6 +435,18 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                 });
             _contactServiceMock.Setup(x => x.CreateUserForEmployee(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(User.Create("John", "Doe", Email.Create("john@company.com"), HashedPassword.Create("hashedPassword")));
+            _contactServiceMock.Setup(x => x.ProcessEmployeesForRegistrationAsync(It.IsAny<Company>(), It.IsAny<IEnumerable<RegisterCompanyEmployeeDto>>(), It.IsAny<CancellationToken>()))
+                .Returns((Company company, IEnumerable<RegisterCompanyEmployeeDto> employees, CancellationToken ct) =>
+                {
+                    // Simular el procesamiento real agregando empleados a la empresa
+                    var user = User.Create("John", "Doe", Email.Create("john@company.com"), HashedPassword.Create("hashedPassword"));
+                    foreach (var employeeDto in employees)
+                    {
+                        var employee = Employee.Create(employeeDto.FullName, employeeDto.Email, employeeDto.Phone, company.Id, employeeDto.Position, employeeDto.HireDate, user);
+                        company.AddEmployee(employee);
+                    }
+                    return Task.CompletedTask;
+                });
             _companyRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Company>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
             _unitOfWorkMock.Setup(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()))

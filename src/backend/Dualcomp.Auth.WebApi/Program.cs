@@ -4,7 +4,6 @@ using DualComp.Infraestructure.Web.Authentication;
 using DualComp.Infraestructure.Security;
 using DualComp.Infraestructure.Mail.Extensions;
 using Dualcomp.Auth.WebApi.Extensions;
-using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 

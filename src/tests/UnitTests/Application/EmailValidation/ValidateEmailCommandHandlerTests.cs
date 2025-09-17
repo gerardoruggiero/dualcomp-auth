@@ -1,4 +1,3 @@
-using Xunit;
 using Moq;
 using Dualcomp.Auth.Application.EmailValidation.ValidateEmail;
 using Dualcomp.Auth.Domain.Users;
@@ -28,11 +27,11 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             // Arrange
             var userId = Guid.NewGuid();
             var token = "valid-token-123";
-            var email = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("test@example.com");
+            var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
             var user = User.Create("John", "Doe", email, hashedPassword);
             
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.CreateWithDefaultExpiration(userId, token);
+            var emailValidation = Domain.Users.EmailValidation.CreateWithDefaultExpiration(userId, token);
             var command = new ValidateEmailCommand(token);
 
             _emailValidationRepositoryMock.Setup(x => x.GetByTokenAsync(token, It.IsAny<CancellationToken>()))
@@ -68,7 +67,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             var command = new ValidateEmailCommand(token);
 
             _emailValidationRepositoryMock.Setup(x => x.GetByTokenAsync(token, It.IsAny<CancellationToken>()))
-                .ReturnsAsync((Dualcomp.Auth.Domain.Users.EmailValidation?)null);
+                .ReturnsAsync((Domain.Users.EmailValidation?)null);
 
             // Act
             var result = await _handler.Handle(command, CancellationToken.None);
@@ -111,7 +110,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             var userId = Guid.NewGuid();
             var token = "expired-token-123";
             var expiresAt = DateTime.UtcNow.AddHours(-1); // Expired
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.Create(userId, token, expiresAt);
+            var emailValidation = Domain.Users.EmailValidation.Create(userId, token, expiresAt);
             
             var command = new ValidateEmailCommand(token);
 
@@ -133,7 +132,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             // Arrange
             var userId = Guid.NewGuid();
             var token = "valid-token-123";
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.CreateWithDefaultExpiration(userId, token);
+            var emailValidation = Domain.Users.EmailValidation.CreateWithDefaultExpiration(userId, token);
             
             var command = new ValidateEmailCommand(token);
 
@@ -157,12 +156,12 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             // Arrange
             var userId = Guid.NewGuid();
             var token = "valid-token-123";
-            var email = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("test@example.com");
+            var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
             var user = User.Create("John", "Doe", email, hashedPassword);
             user.ValidateEmail(); // Already validated
             
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.CreateWithDefaultExpiration(userId, token);
+            var emailValidation = Domain.Users.EmailValidation.CreateWithDefaultExpiration(userId, token);
             var command = new ValidateEmailCommand(token);
 
             _emailValidationRepositoryMock.Setup(x => x.GetByTokenAsync(token, It.IsAny<CancellationToken>()))

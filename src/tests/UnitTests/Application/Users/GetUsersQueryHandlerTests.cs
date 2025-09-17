@@ -4,7 +4,6 @@ using Dualcomp.Auth.Domain.Users.Repositories;
 using Dualcomp.Auth.Domain.Users.ValueObjects;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using Moq;
-using Xunit;
 
 namespace Dualcomp.Auth.UnitTests.Application.Users
 {

@@ -9,6 +9,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
 		public void Configure(EntityTypeBuilder<CompanyAddress> builder)
 		{
 			builder.HasKey(ca => ca.Id);
+			builder.Property(ca => ca.Id).ValueGeneratedNever();
 			builder.Property(ca => ca.CompanyId).IsRequired();
 			builder.Property(ca => ca.Address).IsRequired().HasMaxLength(500);
 			builder.Property(ca => ca.IsPrimary).IsRequired();

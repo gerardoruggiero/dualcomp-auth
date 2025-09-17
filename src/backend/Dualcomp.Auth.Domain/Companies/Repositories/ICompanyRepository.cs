@@ -10,8 +10,6 @@ namespace Dualcomp.Auth.Domain.Companies.Repositories
 		Task<Company?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 		Task<Company?> GetByTaxIdAsync(TaxId taxId, CancellationToken cancellationToken = default);
 		Task<IEnumerable<Company>> GetAllAsync(CancellationToken cancellationToken = default);
-		Task UpdateAsync(Company company, CancellationToken cancellationToken = default);
-		Task<CompanyWithTypes?> GetByIdWithTypesAsync(Guid id, CancellationToken cancellationToken = default);
 	}
 
 	/// <summary>

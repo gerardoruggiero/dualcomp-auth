@@ -48,33 +48,33 @@ public class RegisterCompanyCommandHandlerTests
 			.Returns("TempPassword123!");
 		
 		// Create CompanyContactService mock
-		var contactServiceMock = new Mock<Dualcomp.Auth.Application.Companies.ICompanyContactService>();
+		var contactServiceMock = new Mock<Auth.Application.Companies.ICompanyContactService>();
 		
 		// Setup default ContactTypeNames for the mock
-		var defaultContactTypeNames = new Dualcomp.Auth.Application.Companies.ContactTypeNames(
+		var defaultContactTypeNames = new Auth.Application.Companies.ContactTypeNames(
 			new Dictionary<Guid, string>(),
 			new Dictionary<Guid, string>(),
 			new Dictionary<Guid, string>(),
 			new Dictionary<Guid, string>()
 		);
 		
-		contactServiceMock.Setup(x => x.ProcessAllContactsAsync(
-			It.IsAny<Dualcomp.Auth.Domain.Companies.Company>(), 
-			It.IsAny<IEnumerable<dynamic>>(), 
-			It.IsAny<IEnumerable<dynamic>>(), 
-			It.IsAny<IEnumerable<dynamic>>(), 
-			It.IsAny<IEnumerable<dynamic>>(), 
+		contactServiceMock.Setup(x => x.ProcessAllContactsForRegistrationAsync(
+			It.IsAny<Company>(), 
+			It.IsAny<IEnumerable<RegisterCompanyAddressDto>>(), 
+			It.IsAny<IEnumerable<RegisterCompanyEmailDto>>(), 
+			It.IsAny<IEnumerable<RegisterCompanyPhoneDto>>(), 
+			It.IsAny<IEnumerable<RegisterCompanySocialMediaDto>>(), 
 			It.IsAny<CancellationToken>()))
-			.ReturnsAsync((Dualcomp.Auth.Domain.Companies.Company company, IEnumerable<dynamic> addresses, IEnumerable<dynamic> emails, IEnumerable<dynamic> phones, IEnumerable<dynamic> socialMedias, CancellationToken ct) =>
+			.ReturnsAsync((Company company, IEnumerable<RegisterCompanyAddressDto> addresses, IEnumerable<RegisterCompanyEmailDto> emails, IEnumerable<RegisterCompanyPhoneDto> phones, IEnumerable<RegisterCompanySocialMediaDto> socialMedias, CancellationToken ct) =>
 			{
 				// Simular el procesamiento real agregando contactos a la empresa
-				// Usar un ID temporal ya que la empresa aún no tiene ID asignado
-				var tempCompanyId = Guid.NewGuid();
+				// Usar el ID de la empresa
+				var tempCompanyId = company.Id;
 				
 				foreach (var address in addresses)
 				{
 					// Agregar dirección mock
-					var addressEntity = Dualcomp.Auth.Domain.Companies.CompanyAddress.Create(
+					var addressEntity = CompanyAddress.Create(
 						tempCompanyId, // CompanyId temporal
 						Guid.NewGuid(), // AddressTypeId
 						"123 Main St", // Address
@@ -86,10 +86,10 @@ public class RegisterCompanyCommandHandlerTests
 				foreach (var email in emails)
 				{
 					// Agregar email mock
-					var emailEntity = Dualcomp.Auth.Domain.Companies.CompanyEmail.Create(
+					var emailEntity = CompanyEmail.Create(
 						tempCompanyId, // CompanyId temporal
 						Guid.NewGuid(), // EmailTypeId
-						Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("info@company.com"), // Email
+                        Email.Create("info@company.com"), // Email
 						true // IsPrimary
 					);
 					company.AddEmail(emailEntity);
@@ -98,7 +98,7 @@ public class RegisterCompanyCommandHandlerTests
 				foreach (var phone in phones)
 				{
 					// Agregar teléfono mock
-					var phoneEntity = Dualcomp.Auth.Domain.Companies.CompanyPhone.Create(
+					var phoneEntity = CompanyPhone.Create(
 						tempCompanyId, // CompanyId temporal
 						Guid.NewGuid(), // PhoneTypeId
 						"+1234567890", // Phone
@@ -110,7 +110,7 @@ public class RegisterCompanyCommandHandlerTests
 				foreach (var socialMedia in socialMedias)
 				{
 					// Agregar red social mock
-					var socialMediaEntity = Dualcomp.Auth.Domain.Companies.CompanySocialMedia.Create(
+					var socialMediaEntity = CompanySocialMedia.Create(
 						tempCompanyId, // CompanyId temporal
 						Guid.NewGuid(), // SocialMediaTypeId
 						"https://facebook.com/company", // Url
@@ -130,60 +130,90 @@ public class RegisterCompanyCommandHandlerTests
 			It.IsAny<CancellationToken>()))
 			.ReturnsAsync((string fullName, string email, Guid companyId, CancellationToken ct) => 
 			{
-				var user = Dualcomp.Auth.Domain.Users.User.Create(
+				var user = User.Create(
 					fullName.Split(' ')[0], 
 					fullName.Split(' ').Length > 1 ? fullName.Split(' ')[1] : "User", 
-					Email.Create(email), 
-					Dualcomp.Auth.Domain.Users.ValueObjects.HashedPassword.Create("hashedPassword"), 
+					Email.Create(email),
+                    Domain.Users.ValueObjects.HashedPassword.Create("hashedPassword"), 
 					companyId);
 				return user;
 			});
 		
-		// Setup Build*Results mocks to return realistic data
-		contactServiceMock.Setup(x => x.BuildAddressResults(It.IsAny<Dualcomp.Auth.Domain.Companies.Company>(), It.IsAny<Dictionary<Guid, string>>()))
-			.Returns((Dualcomp.Auth.Domain.Companies.Company company, Dictionary<Guid, string> typeNames) => 
+		// Setup ProcessEmployeesForRegistrationAsync mock
+		contactServiceMock.Setup(x => x.ProcessEmployeesForRegistrationAsync(
+			It.IsAny<Company>(), 
+			It.IsAny<IEnumerable<RegisterCompanyEmployeeDto>>(), 
+			It.IsAny<CancellationToken>()))
+			.Returns((Company company, IEnumerable<RegisterCompanyEmployeeDto> employees, CancellationToken ct) =>
 			{
-			return company.Addresses.Select(a => new Dualcomp.Auth.Application.Companies.GetCompany.CompanyAddressResult(
+				// Simular el procesamiento real agregando empleados a la empresa
+				foreach (var employeeDto in employees)
+				{
+					var user = User.Create(
+						employeeDto.FullName.Split(' ')[0], 
+						employeeDto.FullName.Split(' ').Length > 1 ? employeeDto.FullName.Split(' ')[1] : "User", 
+						Email.Create(employeeDto.Email),
+                        Domain.Users.ValueObjects.HashedPassword.Create("hashedPassword"), 
+						company.Id);
+					
+					var employee = Employee.Create(
+						employeeDto.FullName, 
+						employeeDto.Email, 
+						employeeDto.Phone, 
+						company.Id, 
+						employeeDto.Position, 
+						employeeDto.HireDate, 
+						user);
+					company.AddEmployee(employee);
+				}
+				return Task.CompletedTask;
+			});
+		
+		// Setup Build*Results mocks to return realistic data
+		contactServiceMock.Setup(x => x.BuildAddressResults(It.IsAny<Company>(), It.IsAny<Dictionary<Guid, string>>()))
+			.Returns((Company company, Dictionary<Guid, string> typeNames) => 
+			{
+			return company.Addresses.Select(a => new Auth.Application.Companies.GetCompany.CompanyAddressResult(
 				a.Id.ToString(), // Id
 				"Principal", // TypeName
 				a.Address, 
 				a.IsPrimary
 			)).ToList();
 			});
-		contactServiceMock.Setup(x => x.BuildEmailResults(It.IsAny<Dualcomp.Auth.Domain.Companies.Company>(), It.IsAny<Dictionary<Guid, string>>()))
-			.Returns((Dualcomp.Auth.Domain.Companies.Company company, Dictionary<Guid, string> typeNames) => 
+		contactServiceMock.Setup(x => x.BuildEmailResults(It.IsAny<Company>(), It.IsAny<Dictionary<Guid, string>>()))
+			.Returns((Company company, Dictionary<Guid, string> typeNames) => 
 			{
-			return company.Emails.Select(e => new Dualcomp.Auth.Application.Companies.GetCompany.CompanyEmailResult(
+			return company.Emails.Select(e => new Auth.Application.Companies.GetCompany.CompanyEmailResult(
 				e.Id.ToString(), // Id
 				"Principal", // TypeName
 				e.Email.Value, 
 				e.IsPrimary
 			)).ToList();
 			});
-		contactServiceMock.Setup(x => x.BuildPhoneResults(It.IsAny<Dualcomp.Auth.Domain.Companies.Company>(), It.IsAny<Dictionary<Guid, string>>()))
-			.Returns((Dualcomp.Auth.Domain.Companies.Company company, Dictionary<Guid, string> typeNames) => 
+		contactServiceMock.Setup(x => x.BuildPhoneResults(It.IsAny<Company>(), It.IsAny<Dictionary<Guid, string>>()))
+			.Returns((Company company, Dictionary<Guid, string> typeNames) => 
 			{
-			return company.Phones.Select(p => new Dualcomp.Auth.Application.Companies.GetCompany.CompanyPhoneResult(
+			return company.Phones.Select(p => new Auth.Application.Companies.GetCompany.CompanyPhoneResult(
 				p.Id.ToString(), // Id
 				"Principal", // TypeName
 				p.Phone, 
 				p.IsPrimary
 			)).ToList();
 			});
-		contactServiceMock.Setup(x => x.BuildSocialMediaResults(It.IsAny<Dualcomp.Auth.Domain.Companies.Company>(), It.IsAny<Dictionary<Guid, string>>()))
-			.Returns((Dualcomp.Auth.Domain.Companies.Company company, Dictionary<Guid, string> typeNames) => 
+		contactServiceMock.Setup(x => x.BuildSocialMediaResults(It.IsAny<Company>(), It.IsAny<Dictionary<Guid, string>>()))
+			.Returns((Company company, Dictionary<Guid, string> typeNames) => 
 			{
-			return company.SocialMedias.Select(sm => new Dualcomp.Auth.Application.Companies.GetCompany.CompanySocialMediaResult(
+			return company.SocialMedias.Select(sm => new Auth.Application.Companies.GetCompany.CompanySocialMediaResult(
 				sm.Id.ToString(), // Id
 				"Facebook", // TypeName
 				sm.Url, 
 				sm.IsPrimary
 			)).ToList();
 			});
-		contactServiceMock.Setup(x => x.BuildEmployeeResults(It.IsAny<Dualcomp.Auth.Domain.Companies.Company>()))
-			.Returns((Dualcomp.Auth.Domain.Companies.Company company) => 
+		contactServiceMock.Setup(x => x.BuildEmployeeResults(It.IsAny<Company>()))
+			.Returns((Company company) => 
 			{
-			return company.Employees.Select(e => new Dualcomp.Auth.Application.Companies.GetCompany.CompanyEmployeeResult(
+			return company.Employees.Select(e => new Auth.Application.Companies.GetCompany.CompanyEmployeeResult(
 				e.Id.ToString(), // Id
 				e.FullName, 
 				e.Email, 
@@ -197,10 +227,10 @@ public class RegisterCompanyCommandHandlerTests
 		var mockEmailValidationRepo = new Mock<IEmailValidationRepository>();
 		var mockEmailService = new Mock<DualComp.Infraestructure.Mail.Interfaces.IEmailService>();
 		var mockEmailTemplateService = new Mock<DualComp.Infraestructure.Mail.Interfaces.IEmailTemplateService>();
-		var mockCompanySettingsService = new Mock<Dualcomp.Auth.Application.Services.ICompanySettingsService>();
+		var mockCompanySettingsService = new Mock<Auth.Application.Services.ICompanySettingsService>();
 		
 		// Setup CompanySettingsService mock
-		var defaultCompanySettings = Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+		var defaultCompanySettings = CompanySettings.Create(
 			Guid.NewGuid(), "smtp.gmail.com", 587, "test@example.com", "password",
 			true, "noreply@example.com", "Test Company");
 		mockCompanySettingsService.Setup(x => x.GetOrCreateDefaultSmtpSettingsAsync(

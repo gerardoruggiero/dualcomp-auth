@@ -9,7 +9,8 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
 		public void Configure(EntityTypeBuilder<Company> builder)
 		{
 			builder.HasKey(c => c.Id);
-			builder.Property(c => c.Name).IsRequired().HasMaxLength(200);
+			builder.Property(c=> c.Id).ValueGeneratedNever();
+            builder.Property(c => c.Name).IsRequired().HasMaxLength(200);
 
 			builder.OwnsOne(c => c.TaxId, taxId =>
 			{
@@ -23,6 +24,6 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
 			builder.HasMany(c => c.Emails).WithOne().HasForeignKey(ce => ce.CompanyId).OnDelete(DeleteBehavior.Cascade);
 			builder.HasMany(c => c.Phones).WithOne().HasForeignKey(cp => cp.CompanyId).OnDelete(DeleteBehavior.Cascade);
 			builder.HasMany(c => c.SocialMedias).WithOne().HasForeignKey(csm => csm.CompanyId).OnDelete(DeleteBehavior.Cascade);
-		}
+        }
 	}
 }

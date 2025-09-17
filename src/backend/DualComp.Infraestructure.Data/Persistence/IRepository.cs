@@ -10,7 +10,8 @@ namespace DualComp.Infraestructure.Data.Persistence
 		Task<IReadOnlyList<TAggregate>> ListAsync(Expression<Func<TAggregate, bool>> predicate, CancellationToken cancellationToken = default);
 		Task AddAsync(TAggregate entity, CancellationToken cancellationToken = default);
 		Task AddRangeAsync(IEnumerable<TAggregate> entities, CancellationToken cancellationToken = default);
-		void Update(TAggregate entity);
+		Task<TAggregate> UpdateAsync(TAggregate item, CancellationToken cancellationToken = default);
+        void Update(TAggregate entity);
 		void Remove(TAggregate entity);
 	}
 }

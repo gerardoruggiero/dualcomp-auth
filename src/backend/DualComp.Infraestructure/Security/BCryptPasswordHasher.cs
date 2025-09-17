@@ -1,5 +1,3 @@
-using BCrypt.Net;
-
 namespace DualComp.Infraestructure.Security
 {
     public class BCryptPasswordHasher : IPasswordHasher

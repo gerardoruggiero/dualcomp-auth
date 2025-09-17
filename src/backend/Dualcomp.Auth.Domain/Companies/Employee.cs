@@ -1,4 +1,4 @@
-using Dualcomp.Auth.Domain.Companies.ValueObjects;
+using Dualcomp.Auth.Domain.Users;
 using DualComp.Infraestructure.Domain.Domain.Common;
 
 namespace Dualcomp.Auth.Domain.Companies
@@ -13,10 +13,33 @@ namespace Dualcomp.Auth.Domain.Companies
 		public string? Position { get; private set; }
 		public DateTime? HireDate { get; private set; }
 		public bool IsActive { get; private set; }
+        public User User { get; private set; } = null!;
 
-		private Employee() { }
+        private Employee() { }
 
-		private Employee(string fullName, string email, string? phone, Guid companyId, string? position = null, DateTime? hireDate = null, Guid? userId = null)
+        private Employee(string fullName, string email, string? phone, Guid companyId, string? position = null, DateTime? hireDate = null, User user = null)
+        {
+            Id = Guid.NewGuid();
+            FullName = string.IsNullOrWhiteSpace(fullName) ? throw new ArgumentException("FullName is required", nameof(fullName)) : fullName.Trim();
+
+            if (string.IsNullOrWhiteSpace(email))
+                throw new ArgumentException("Email is required", nameof(email));
+
+            var trimmedEmail = email.Trim();
+            if (!IsValidEmail(trimmedEmail))
+                throw new ArgumentException("Invalid email format", nameof(email));
+
+            Email = trimmedEmail;
+            Phone = string.IsNullOrWhiteSpace(phone) ? null : phone.Trim();
+            CompanyId = companyId;
+            Position = string.IsNullOrWhiteSpace(position) ? null : position.Trim();
+            HireDate = hireDate ?? DateTime.UtcNow;
+            User = user;
+			UserId = user.Id;
+            IsActive = true;
+        }
+
+        private Employee(string fullName, string email, string? phone, Guid companyId, string? position = null, DateTime? hireDate = null, Guid? userId = null)
 		{
 			Id = Guid.NewGuid();
 			FullName = string.IsNullOrWhiteSpace(fullName) ? throw new ArgumentException("FullName is required", nameof(fullName)) : fullName.Trim();
@@ -36,8 +59,10 @@ namespace Dualcomp.Auth.Domain.Companies
 			UserId = userId;
 			IsActive = true;
 		}
+        public static Employee Create(string fullName, string email, string? phone, Guid companyId, string? position = null, DateTime? hireDate = null, User? user = null)
+            => new Employee(fullName, email, phone, companyId, position, hireDate, user);
 
-		public static Employee Create(string fullName, string email, string? phone, Guid companyId, string? position = null, DateTime? hireDate = null, Guid? userId = null)
+        public static Employee Create(string fullName, string email, string? phone, Guid companyId, string? position = null, DateTime? hireDate = null, Guid? userId = null)
 			=> new Employee(fullName, email, phone, companyId, position, hireDate, userId);
 
 		public void UpdateProfile(string fullName, string email, string? phone, string? position)

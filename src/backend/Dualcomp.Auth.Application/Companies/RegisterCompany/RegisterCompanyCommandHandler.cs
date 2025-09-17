@@ -3,7 +3,6 @@ using Dualcomp.Auth.Domain.Companies;
 using Dualcomp.Auth.Domain.Companies.Repositories;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using Dualcomp.Auth.Domain.Users.Repositories;
-using Dualcomp.Auth.Domain.Users.ValueObjects;
 using DualComp.Infraestructure.Data.Persistence;
 using DualComp.Infraestructure.Security;
 using DualComp.Infraestructure.Mail.Interfaces;
@@ -61,7 +60,7 @@ namespace Dualcomp.Auth.Application.Companies.RegisterCompany
 			if (!command.Employees?.Any() == true) throw new ArgumentException("At least one employee is required", nameof(command.Employees));
 
 			// Validar contactos requeridos usando el servicio
-			_contactService.ValidateRequiredContacts(command.Addresses, command.Emails, command.Phones, command.SocialMedias);
+			_contactService.ValidateRequiredContactsForRegistration(command.Addresses, command.Emails, command.Phones, command.SocialMedias);
 
 			var taxId = TaxId.Create(command.TaxId);
 			// uniqueness check
@@ -72,7 +71,7 @@ namespace Dualcomp.Auth.Application.Companies.RegisterCompany
 			var company = Company.Create(command.Name, taxId);
 
 			// Procesar todos los contactos usando el servicio
-			var contactTypeNames = await _contactService.ProcessAllContactsAsync(
+			var contactTypeNames = await _contactService.ProcessAllContactsForRegistrationAsync(
 				company, 
 				command.Addresses, 
 				command.Emails, 
@@ -80,15 +79,8 @@ namespace Dualcomp.Auth.Application.Companies.RegisterCompany
 				command.SocialMedias, 
 				cancellationToken);
 
-			// Agregar empleados y crear usuarios automáticamente
-			foreach (var employeeDto in command.Employees)
-			{
-				// Crear usuario del sistema automáticamente para cada empleado
-				var user = await _contactService.CreateUserForEmployee(employeeDto.FullName, employeeDto.Email, company.Id, cancellationToken);
-
-                var employee = Employee.Create(employeeDto.FullName, employeeDto.Email, employeeDto.Phone, company.Id, employeeDto.Position, employeeDto.HireDate, user.Id);
-                company.AddEmployee(employee);
-            }
+			// Procesar empleados usando el servicio unificado
+			await _contactService.ProcessEmployeesForRegistrationAsync(company, command.Employees, cancellationToken);
 
 			// Validar que la empresa esté completa para registro
 			if (!company.IsValidForRegistration())
@@ -142,8 +134,8 @@ namespace Dualcomp.Auth.Application.Companies.RegisterCompany
 					if (user != null)
 					{
 						// Generar token de validación de email
-						var token = Dualcomp.Auth.Domain.Users.ValueObjects.EmailValidationToken.GenerateWithTimestamp();
-						var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.CreateWithDefaultExpiration(user.Id, token.Value);
+						var token = Domain.Users.ValueObjects.EmailValidationToken.GenerateWithTimestamp();
+						var emailValidation = Domain.Users.EmailValidation.CreateWithDefaultExpiration(user.Id, token.Value);
 						
 						// Guardar el token en la base de datos
 						await _emailValidationRepository.AddAsync(emailValidation, cancellationToken);

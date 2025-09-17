@@ -1,4 +1,3 @@
-using Xunit;
 using System.Security.Claims;
 using DualComp.Infraestructure.Security;
 

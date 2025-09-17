@@ -4,7 +4,6 @@ using Dualcomp.Auth.Application.Companies.GetCompany;
 using Dualcomp.Auth.Application.Companies.GetCompanies;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
-using DualComp.Infraestructure.Domain.Domain.Common.Results;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 

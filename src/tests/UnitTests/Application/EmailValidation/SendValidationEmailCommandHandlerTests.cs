@@ -1,4 +1,3 @@
-using Xunit;
 using Moq;
 using Dualcomp.Auth.Application.EmailValidation.SendValidationEmail;
 using Dualcomp.Auth.Domain.Users;
@@ -53,7 +52,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var email = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("test@example.com");
+            var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
             var user = User.Create("John", "Doe", email, hashedPassword);
             
@@ -70,7 +69,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
                 .ReturnsAsync(user);
             _emailValidationRepositoryMock.Setup(x => x.HasActiveTokenAsync(userId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
-            _emailValidationRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Dualcomp.Auth.Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()))
+            _emailValidationRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
             _emailTemplateServiceMock.Setup(x => x.CreateEmailValidationTemplate(
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
@@ -90,7 +89,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             Assert.NotNull(result.ValidationToken);
             Assert.NotNull(result.ExpiresAt);
 
-            _emailValidationRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Dualcomp.Auth.Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()), Times.Once);
+            _emailValidationRepositoryMock.Verify(x => x.AddAsync(It.IsAny<Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()), Times.Once);
             _emailServiceMock.Verify(x => x.SendEmailAsync(It.IsAny<EmailMessage>(), It.IsAny<SmtpConfiguration>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
@@ -120,7 +119,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var email = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("test@example.com");
+            var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
             var user = User.Create("John", "Doe", email, hashedPassword);
             user.ValidateEmail(); // Already validated
@@ -144,7 +143,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var email = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("test@example.com");
+            var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
             var user = User.Create("John", "Doe", email, hashedPassword);
             
@@ -169,7 +168,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
         {
             // Arrange
             var userId = Guid.NewGuid();
-            var email = Dualcomp.Auth.Domain.Companies.ValueObjects.Email.Create("test@example.com");
+            var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
             var user = User.Create("John", "Doe", email, hashedPassword);
             
@@ -186,14 +185,14 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
                 .ReturnsAsync(user);
             _emailValidationRepositoryMock.Setup(x => x.HasActiveTokenAsync(userId, It.IsAny<CancellationToken>()))
                 .ReturnsAsync(false);
-            _emailValidationRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Dualcomp.Auth.Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()))
+            _emailValidationRepositoryMock.Setup(x => x.AddAsync(It.IsAny<Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
             _emailTemplateServiceMock.Setup(x => x.CreateEmailValidationTemplate(
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
                 .Returns(emailMessage);
             _emailServiceMock.Setup(x => x.SendEmailAsync(It.IsAny<EmailMessage>(), It.IsAny<SmtpConfiguration>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(EmailResult.Failure("SMTP error"));
-            _emailValidationRepositoryMock.Setup(x => x.DeleteAsync(It.IsAny<Dualcomp.Auth.Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()))
+            _emailValidationRepositoryMock.Setup(x => x.DeleteAsync(It.IsAny<Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()))
                 .Returns(Task.CompletedTask);
             _configurationMock.Setup(x => x["ApplicationSettings:BaseUrl"])
                 .Returns("https://localhost:5001");
@@ -206,7 +205,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             Assert.False(result.IsSuccess);
             Assert.Contains("Error al enviar email", result.Message);
 
-            _emailValidationRepositoryMock.Verify(x => x.DeleteAsync(It.IsAny<Dualcomp.Auth.Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()), Times.Once);
+            _emailValidationRepositoryMock.Verify(x => x.DeleteAsync(It.IsAny<Domain.Users.EmailValidation>(), It.IsAny<CancellationToken>()), Times.Once);
         }
 
         [Fact]

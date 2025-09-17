@@ -1,6 +1,5 @@
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Dualcomp.Auth.Domain.Users.Repositories;
-using Dualcomp.Auth.Domain.Users.ValueObjects;
 
 namespace Dualcomp.Auth.Application.Users.GetUsers
 {

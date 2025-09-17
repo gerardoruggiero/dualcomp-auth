@@ -1,6 +1,4 @@
-using Xunit;
 using Dualcomp.Auth.Domain.Users;
-using Dualcomp.Auth.Domain.Users.ValueObjects;
 
 namespace Dualcomp.Auth.UnitTests.Users
 {
@@ -15,7 +13,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var expiresAt = DateTime.UtcNow.AddHours(24);
 
             // Act
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.Create(userId, token, expiresAt);
+            var emailValidation = EmailValidation.Create(userId, token, expiresAt);
 
             // Assert
             Assert.NotNull(emailValidation);
@@ -35,7 +33,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var token = "test-token-456";
 
             // Act
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.CreateWithDefaultExpiration(userId, token);
+            var emailValidation = EmailValidation.CreateWithDefaultExpiration(userId, token);
 
             // Assert
             Assert.NotNull(emailValidation);
@@ -56,7 +54,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var expiresAt = DateTime.UtcNow.AddHours(24);
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Users.EmailValidation.Create(userId, token, expiresAt));
+            Assert.Throws<ArgumentException>(() => EmailValidation.Create(userId, token, expiresAt));
         }
 
         [Fact]
@@ -68,7 +66,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var expiresAt = DateTime.UtcNow.AddHours(24);
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Users.EmailValidation.Create(userId, token, expiresAt));
+            Assert.Throws<ArgumentException>(() => EmailValidation.Create(userId, token, expiresAt));
         }
 
         [Fact]
@@ -78,7 +76,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var userId = Guid.NewGuid();
             var token = "test-token-789";
             var expiresAt = DateTime.UtcNow.AddHours(24);
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.Create(userId, token, expiresAt);
+            var emailValidation = EmailValidation.Create(userId, token, expiresAt);
 
             // Act
             emailValidation.MarkAsUsed();
@@ -97,7 +95,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var userId = Guid.NewGuid();
             var token = "test-token-101";
             var expiresAt = DateTime.UtcNow.AddHours(24);
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.Create(userId, token, expiresAt);
+            var emailValidation = EmailValidation.Create(userId, token, expiresAt);
             emailValidation.MarkAsUsed();
 
             // Act & Assert
@@ -111,7 +109,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var userId = Guid.NewGuid();
             var token = "test-token-202";
             var expiresAt = DateTime.UtcNow.AddHours(-1); // Expired
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.Create(userId, token, expiresAt);
+            var emailValidation = EmailValidation.Create(userId, token, expiresAt);
 
             // Act & Assert
             Assert.Throws<InvalidOperationException>(() => emailValidation.MarkAsUsed());
@@ -124,7 +122,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var userId = Guid.NewGuid();
             var token = "test-token-303";
             var expiresAt = DateTime.UtcNow.AddHours(-1); // Expired
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.Create(userId, token, expiresAt);
+            var emailValidation = EmailValidation.Create(userId, token, expiresAt);
 
             // Act
             var isExpired = emailValidation.IsExpired();
@@ -141,7 +139,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var userId = Guid.NewGuid();
             var token = "test-token-404";
             var expiresAt = DateTime.UtcNow.AddHours(1); // Not expired
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.Create(userId, token, expiresAt);
+            var emailValidation = EmailValidation.Create(userId, token, expiresAt);
 
             // Act
             var isExpired = emailValidation.IsExpired();
@@ -158,7 +156,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var userId = Guid.NewGuid();
             var token = "test-token-505";
             var expiresAt = DateTime.UtcNow.AddHours(24);
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.Create(userId, token, expiresAt);
+            var emailValidation = EmailValidation.Create(userId, token, expiresAt);
             emailValidation.MarkAsUsed();
 
             // Act
@@ -175,7 +173,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var userId = Guid.NewGuid();
             var token = "test-token-606";
             var expiresAt = DateTime.UtcNow.AddHours(2);
-            var emailValidation = Dualcomp.Auth.Domain.Users.EmailValidation.Create(userId, token, expiresAt);
+            var emailValidation = EmailValidation.Create(userId, token, expiresAt);
 
             // Act
             var timeUntilExpiration = emailValidation.GetTimeUntilExpiration();

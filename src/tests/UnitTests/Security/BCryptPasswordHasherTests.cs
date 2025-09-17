@@ -1,4 +1,3 @@
-using Xunit;
 using DualComp.Infraestructure.Security;
 
 namespace Dualcomp.Auth.UnitTests.Security

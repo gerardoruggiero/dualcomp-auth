@@ -1,4 +1,3 @@
-using Xunit;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
 
 namespace Dualcomp.Auth.UnitTests.Companies.ValueObjects
@@ -18,7 +17,7 @@ namespace Dualcomp.Auth.UnitTests.Companies.ValueObjects
             var fromName = "Test Company";
 
             // Act
-            var smtpSettings = Dualcomp.Auth.Domain.Companies.ValueObjects.SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName);
+            var smtpSettings = SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName);
 
             // Assert
             Assert.NotNull(smtpSettings);
@@ -45,7 +44,7 @@ namespace Dualcomp.Auth.UnitTests.Companies.ValueObjects
             var fromName = "Test Company";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.ValueObjects.SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName));
+            Assert.Throws<ArgumentException>(() => SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName));
         }
 
         [Fact]
@@ -61,7 +60,7 @@ namespace Dualcomp.Auth.UnitTests.Companies.ValueObjects
             var fromName = "Test Company";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.ValueObjects.SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName));
+            Assert.Throws<ArgumentException>(() => SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName));
         }
 
         [Fact]
@@ -77,7 +76,7 @@ namespace Dualcomp.Auth.UnitTests.Companies.ValueObjects
             var fromName = "Test Company";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.ValueObjects.SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName));
+            Assert.Throws<ArgumentException>(() => SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName));
         }
 
         [Fact]
@@ -93,7 +92,7 @@ namespace Dualcomp.Auth.UnitTests.Companies.ValueObjects
             var fromName = "Test Company";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.ValueObjects.SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName));
+            Assert.Throws<ArgumentException>(() => SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName));
         }
 
         [Fact]
@@ -109,7 +108,7 @@ namespace Dualcomp.Auth.UnitTests.Companies.ValueObjects
             var fromName = "Test Company";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.ValueObjects.SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName));
+            Assert.Throws<ArgumentException>(() => SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName));
         }
 
         [Fact]
@@ -125,14 +124,14 @@ namespace Dualcomp.Auth.UnitTests.Companies.ValueObjects
             var fromName = ""; // Invalid
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.ValueObjects.SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName));
+            Assert.Throws<ArgumentException>(() => SmtpSettings.Create(server, port, username, password, useSsl, fromEmail, fromName));
         }
 
         [Fact]
         public void CreateDefault_ShouldCreateDefaultSettings()
         {
             // Act
-            var smtpSettings = Dualcomp.Auth.Domain.Companies.ValueObjects.SmtpSettings.CreateDefault();
+            var smtpSettings = SmtpSettings.CreateDefault();
 
             // Assert
             Assert.NotNull(smtpSettings);
@@ -150,7 +149,7 @@ namespace Dualcomp.Auth.UnitTests.Companies.ValueObjects
         public void IsValid_WithValidSettings_ShouldReturnTrue()
         {
             // Arrange
-            var smtpSettings = Dualcomp.Auth.Domain.Companies.ValueObjects.SmtpSettings.Create(
+            var smtpSettings = SmtpSettings.Create(
                 "smtp.gmail.com", 587, "test@example.com", "password",
                 true, "noreply@example.com", "Test Company");
 
@@ -165,12 +164,12 @@ namespace Dualcomp.Auth.UnitTests.Companies.ValueObjects
         public void IsValid_WithInvalidSettings_ShouldReturnFalse()
         {
             // Arrange
-            var smtpSettings = Dualcomp.Auth.Domain.Companies.ValueObjects.SmtpSettings.Create(
+            var smtpSettings = SmtpSettings.Create(
                 "smtp.gmail.com", 587, "test@example.com", "password",
                 true, "noreply@example.com", "Test Company");
 
             // Act - This would require reflection to modify private fields, so we test with CreateDefault
-            var invalidSettings = Dualcomp.Auth.Domain.Companies.ValueObjects.SmtpSettings.CreateDefault();
+            var invalidSettings = SmtpSettings.CreateDefault();
             // We can't easily make it invalid without reflection, so we'll test the valid case
             var isValid = invalidSettings.IsValid();
 
@@ -182,7 +181,7 @@ namespace Dualcomp.Auth.UnitTests.Companies.ValueObjects
         public void GetConnectionString_ShouldReturnFormattedString()
         {
             // Arrange
-            var smtpSettings = Dualcomp.Auth.Domain.Companies.ValueObjects.SmtpSettings.Create(
+            var smtpSettings = SmtpSettings.Create(
                 "smtp.gmail.com", 587, "test@example.com", "password",
                 true, "noreply@example.com", "Test Company");
 

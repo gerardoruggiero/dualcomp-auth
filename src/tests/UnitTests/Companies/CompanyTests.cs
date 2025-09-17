@@ -119,7 +119,7 @@ public class CompanyTests
 	{
 		// Arrange
 		var company = Company.Create("Test Company", TaxId.Create("12345678-9"));
-		var employee = Employee.Create("John Doe", "john@company.com", "+1234567890", company.Id);
+		var employee = Employee.Create("John Doe", "john@company.com", "+1234567890", company.Id, null, null, (Guid?)null);
 
 		// Act
 		company.AddEmployee(employee);
@@ -196,7 +196,7 @@ public class CompanyTests
 		var socialMedia = CompanySocialMedia.Create(company.Id, socialMediaTypeId, "https://facebook.com/company");
 		company.AddSocialMedia(socialMedia);
 
-		var employee = Employee.Create("John Doe", "john@company.com", "+1234567890", company.Id);
+		var employee = Employee.Create("John Doe", "john@company.com", "+1234567890", company.Id, null, null, (Guid?)null);
 		company.AddEmployee(employee);
 
 		// Act

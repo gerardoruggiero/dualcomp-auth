@@ -1,11 +1,12 @@
 using Dualcomp.Auth.Application.Companies.GetCompany;
+using Dualcomp.Auth.Application.Companies.RegisterCompany;
+using Dualcomp.Auth.Application.Companies.UpdateCompany;
 using Dualcomp.Auth.Domain.Companies;
 using Dualcomp.Auth.Domain.Companies.Repositories;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using Dualcomp.Auth.Domain.Users;
 using Dualcomp.Auth.Domain.Users.Repositories;
 using Dualcomp.Auth.Domain.Users.ValueObjects;
-using DualComp.Infraestructure.Data.Persistence;
 using DualComp.Infraestructure.Security;
 
 namespace Dualcomp.Auth.Application.Companies
@@ -39,9 +40,13 @@ namespace Dualcomp.Auth.Application.Companies
         }
 
         /// <summary>
-        /// Valida que se proporcionen al menos un elemento de cada tipo de contacto requerido
+        /// Valida que se proporcionen al menos un elemento de cada tipo de contacto requerido para registro
         /// </summary>
-        public void ValidateRequiredContacts(IEnumerable<object>? addresses, IEnumerable<object>? emails, IEnumerable<object>? phones, IEnumerable<object>? socialMedias)
+        public void ValidateRequiredContactsForRegistration(
+            IEnumerable<RegisterCompanyAddressDto>? addresses, 
+            IEnumerable<RegisterCompanyEmailDto>? emails, 
+            IEnumerable<RegisterCompanyPhoneDto>? phones, 
+            IEnumerable<RegisterCompanySocialMediaDto>? socialMedias)
         {
             if (!addresses?.Any() == true) throw new ArgumentException("At least one address is required", nameof(addresses));
             if (!emails?.Any() == true) throw new ArgumentException("At least one email is required", nameof(emails));
@@ -50,15 +55,54 @@ namespace Dualcomp.Auth.Application.Companies
         }
 
         /// <summary>
-        /// Procesa y agrega direcciones a la empresa, retornando diccionario de tipos
+        /// Valida que se proporcionen al menos un elemento de cada tipo de contacto requerido para actualización
         /// </summary>
-        public async Task<Dictionary<Guid, string>> ProcessAddressesAsync(Company company, IEnumerable<dynamic> addressDtos, CancellationToken cancellationToken)
+        public void ValidateRequiredContactsForUpdate(
+            IEnumerable<UpdateCompanyAddressDto>? addresses, 
+            IEnumerable<UpdateCompanyEmailDto>? emails, 
+            IEnumerable<UpdateCompanyPhoneDto>? phones, 
+            IEnumerable<UpdateCompanySocialMediaDto>? socialMedias)
+        {
+            if (!addresses?.Any() == true) throw new ArgumentException("At least one address is required", nameof(addresses));
+            if (!emails?.Any() == true) throw new ArgumentException("At least one email is required", nameof(emails));
+            if (!phones?.Any() == true) throw new ArgumentException("At least one phone is required", nameof(phones));
+            if (!socialMedias?.Any() == true) throw new ArgumentException("At least one social media is required", nameof(socialMedias));
+        }
+
+        /// <summary>
+        /// Procesa direcciones para registro (solo nuevas direcciones)
+        /// </summary>
+        private async Task<Dictionary<Guid, string>> ProcessAddressesForRegistrationAsync(Company company, IEnumerable<RegisterCompanyAddressDto> addressDtos, CancellationToken cancellationToken)
         {
             var addressTypeNames = new Dictionary<Guid, string>();
 
             foreach (var addressDto in addressDtos)
             {
-                var addressTypeEntity = await _addressTypeRepository.GetByIdAsync((Guid)addressDto.AddressTypeId, cancellationToken);
+                var addressTypeEntity = await _addressTypeRepository.GetByIdAsync(addressDto.AddressTypeId, cancellationToken);
+                if (addressTypeEntity == null)
+                    throw new ArgumentException($"Address type with ID '{addressDto.AddressTypeId}' not found");
+
+                // Agregar al diccionario para el resultado
+                addressTypeNames[addressTypeEntity.Id] = addressTypeEntity.Name;
+
+                // Crear nueva dirección (en registro siempre son nuevas)
+                var address = CompanyAddress.Create(company.Id, addressTypeEntity.Id, addressDto.Address, addressDto.IsPrimary);
+                company.AddAddress(address);
+            }
+
+            return addressTypeNames;
+        }
+
+        /// <summary>
+        /// Procesa direcciones para actualización (pueden ser nuevas o existentes)
+        /// </summary>
+        private async Task<Dictionary<Guid, string>> ProcessAddressesForUpdateAsync(Company company, IEnumerable<UpdateCompanyAddressDto> addressDtos, CancellationToken cancellationToken)
+        {
+            var addressTypeNames = new Dictionary<Guid, string>();
+
+            foreach (var addressDto in addressDtos)
+            {
+                var addressTypeEntity = await _addressTypeRepository.GetByIdAsync(addressDto.AddressTypeId, cancellationToken);
                 if (addressTypeEntity == null)
                     throw new ArgumentException($"Address type with ID '{addressDto.AddressTypeId}' not found");
 
@@ -66,19 +110,19 @@ namespace Dualcomp.Auth.Application.Companies
                 addressTypeNames[addressTypeEntity.Id] = addressTypeEntity.Name;
 
                 // Verificar si es una dirección existente o nueva
-                if (addressDto.Id != null && (Guid)addressDto.Id != Guid.Empty)
+                if (addressDto.Id.HasValue && addressDto.Id.Value != Guid.Empty)
                 {
                     // Dirección existente - buscar y actualizar
-                    var existingAddress = company.Addresses.FirstOrDefault(a => a.Id == (Guid)addressDto.Id);
+                    var existingAddress = company.Addresses.FirstOrDefault(a => a.Id == addressDto.Id.Value);
                     if (existingAddress != null)
                     {
-                        existingAddress.UpdateInfo(addressTypeEntity.Id, (string)addressDto.Address, (bool)addressDto.IsPrimary);
+                        existingAddress.UpdateInfo(addressTypeEntity.Id, addressDto.Address, addressDto.IsPrimary);
                     }
                 }
                 else
                 {
                     // Dirección nueva - crear
-                    var address = CompanyAddress.Create(company.Id, addressTypeEntity.Id, (string)addressDto.Address, (bool)addressDto.IsPrimary);
+                    var address = CompanyAddress.Create(company.Id, addressTypeEntity.Id, addressDto.Address, addressDto.IsPrimary);
                     company.AddAddress(address);
                 }
             }
@@ -87,15 +131,40 @@ namespace Dualcomp.Auth.Application.Companies
         }
 
         /// <summary>
-        /// Procesa y agrega emails a la empresa, retornando diccionario de tipos
+        /// Procesa emails para registro (solo nuevos emails)
         /// </summary>
-        public async Task<Dictionary<Guid, string>> ProcessEmailsAsync(Company company, IEnumerable<dynamic> emailDtos, CancellationToken cancellationToken)
+        private async Task<Dictionary<Guid, string>> ProcessEmailsForRegistrationAsync(Company company, IEnumerable<RegisterCompanyEmailDto> emailDtos, CancellationToken cancellationToken)
         {
             var emailTypeNames = new Dictionary<Guid, string>();
 
             foreach (var emailDto in emailDtos)
             {
-                var emailTypeEntity = await _emailTypeRepository.GetByIdAsync((Guid)emailDto.EmailTypeId, cancellationToken);
+                var emailTypeEntity = await _emailTypeRepository.GetByIdAsync(emailDto.EmailTypeId, cancellationToken);
+                if (emailTypeEntity == null)
+                    throw new ArgumentException($"Email type with ID '{emailDto.EmailTypeId}' not found");
+
+                // Agregar al diccionario para el resultado
+                emailTypeNames[emailTypeEntity.Id] = emailTypeEntity.Name;
+
+                // Crear nuevo email (en registro siempre son nuevos)
+                var email = Email.Create(emailDto.Email);
+                var companyEmail = CompanyEmail.Create(company.Id, emailTypeEntity.Id, email, emailDto.IsPrimary);
+                company.AddEmail(companyEmail);
+            }
+
+            return emailTypeNames;
+        }
+
+        /// <summary>
+        /// Procesa emails para actualización (pueden ser nuevos o existentes)
+        /// </summary>
+        private async Task<Dictionary<Guid, string>> ProcessEmailsForUpdateAsync(Company company, IEnumerable<UpdateCompanyEmailDto> emailDtos, CancellationToken cancellationToken)
+        {
+            var emailTypeNames = new Dictionary<Guid, string>();
+
+            foreach (var emailDto in emailDtos)
+            {
+                var emailTypeEntity = await _emailTypeRepository.GetByIdAsync(emailDto.EmailTypeId, cancellationToken);
                 if (emailTypeEntity == null)
                     throw new ArgumentException($"Email type with ID '{emailDto.EmailTypeId}' not found");
 
@@ -103,21 +172,21 @@ namespace Dualcomp.Auth.Application.Companies
                 emailTypeNames[emailTypeEntity.Id] = emailTypeEntity.Name;
 
                 // Verificar si es un email existente o nuevo
-                if (emailDto.Id != null && (Guid)emailDto.Id != Guid.Empty)
+                if (emailDto.Id.HasValue && emailDto.Id.Value != Guid.Empty)
                 {
                     // Email existente - buscar y actualizar
-                    var existingEmail = company.Emails.FirstOrDefault(e => e.Id == (Guid)emailDto.Id);
+                    var existingEmail = company.Emails.FirstOrDefault(e => e.Id == emailDto.Id.Value);
                     if (existingEmail != null)
                     {
-                        var email = Email.Create((string)emailDto.Email);
-                        existingEmail.UpdateInfo(emailTypeEntity.Id, email, (bool)emailDto.IsPrimary);
+                        var email = Email.Create(emailDto.Email);
+                        existingEmail.UpdateInfo(emailTypeEntity.Id, email, emailDto.IsPrimary);
                     }
                 }
                 else
                 {
                     // Email nuevo - crear
-                    var email = Email.Create((string)emailDto.Email);
-                    var companyEmail = CompanyEmail.Create(company.Id, emailTypeEntity.Id, email, (bool)emailDto.IsPrimary);
+                    var email = Email.Create(emailDto.Email);
+                    var companyEmail = CompanyEmail.Create(company.Id, emailTypeEntity.Id, email, emailDto.IsPrimary);
                     company.AddEmail(companyEmail);
                 }
             }
@@ -126,15 +195,39 @@ namespace Dualcomp.Auth.Application.Companies
         }
 
         /// <summary>
-        /// Procesa y agrega teléfonos a la empresa, retornando diccionario de tipos
+        /// Procesa teléfonos para registro (solo nuevos teléfonos)
         /// </summary>
-        public async Task<Dictionary<Guid, string>> ProcessPhonesAsync(Company company, IEnumerable<dynamic> phoneDtos, CancellationToken cancellationToken)
+        private async Task<Dictionary<Guid, string>> ProcessPhonesForRegistrationAsync(Company company, IEnumerable<RegisterCompanyPhoneDto> phoneDtos, CancellationToken cancellationToken)
         {
             var phoneTypeNames = new Dictionary<Guid, string>();
 
             foreach (var phoneDto in phoneDtos)
             {
-                var phoneTypeEntity = await _phoneTypeRepository.GetByIdAsync((Guid)phoneDto.PhoneTypeId, cancellationToken);
+                var phoneTypeEntity = await _phoneTypeRepository.GetByIdAsync(phoneDto.PhoneTypeId, cancellationToken);
+                if (phoneTypeEntity == null)
+                    throw new ArgumentException($"Phone type with ID '{phoneDto.PhoneTypeId}' not found");
+
+                // Agregar al diccionario para el resultado
+                phoneTypeNames[phoneTypeEntity.Id] = phoneTypeEntity.Name;
+
+                // Crear nuevo teléfono (en registro siempre son nuevos)
+                var phone = CompanyPhone.Create(company.Id, phoneTypeEntity.Id, phoneDto.Phone, phoneDto.IsPrimary);
+                company.AddPhone(phone);
+            }
+
+            return phoneTypeNames;
+        }
+
+        /// <summary>
+        /// Procesa teléfonos para actualización (pueden ser nuevos o existentes)
+        /// </summary>
+        private async Task<Dictionary<Guid, string>> ProcessPhonesForUpdateAsync(Company company, IEnumerable<UpdateCompanyPhoneDto> phoneDtos, CancellationToken cancellationToken)
+        {
+            var phoneTypeNames = new Dictionary<Guid, string>();
+
+            foreach (var phoneDto in phoneDtos)
+            {
+                var phoneTypeEntity = await _phoneTypeRepository.GetByIdAsync(phoneDto.PhoneTypeId, cancellationToken);
                 if (phoneTypeEntity == null)
                     throw new ArgumentException($"Phone type with ID '{phoneDto.PhoneTypeId}' not found");
 
@@ -142,19 +235,19 @@ namespace Dualcomp.Auth.Application.Companies
                 phoneTypeNames[phoneTypeEntity.Id] = phoneTypeEntity.Name;
 
                 // Verificar si es un teléfono existente o nuevo
-                if (phoneDto.Id != null && (Guid)phoneDto.Id != Guid.Empty)
+                if (phoneDto.Id.HasValue && phoneDto.Id.Value != Guid.Empty)
                 {
                     // Teléfono existente - buscar y actualizar
-                    var existingPhone = company.Phones.FirstOrDefault(p => p.Id == (Guid)phoneDto.Id);
+                    var existingPhone = company.Phones.FirstOrDefault(p => p.Id == phoneDto.Id.Value);
                     if (existingPhone != null)
                     {
-                        existingPhone.UpdateInfo(phoneTypeEntity.Id, (string)phoneDto.Phone, (bool)phoneDto.IsPrimary);
+                        existingPhone.UpdateInfo(phoneTypeEntity.Id, phoneDto.Phone, phoneDto.IsPrimary);
                     }
                 }
                 else
                 {
                     // Teléfono nuevo - crear
-                    var phone = CompanyPhone.Create(company.Id, phoneTypeEntity.Id, (string)phoneDto.Phone, (bool)phoneDto.IsPrimary);
+                    var phone = CompanyPhone.Create(company.Id, phoneTypeEntity.Id, phoneDto.Phone, phoneDto.IsPrimary);
                     company.AddPhone(phone);
                 }
             }
@@ -163,15 +256,39 @@ namespace Dualcomp.Auth.Application.Companies
         }
 
         /// <summary>
-        /// Procesa y agrega redes sociales a la empresa, retornando diccionario de tipos
+        /// Procesa redes sociales para registro (solo nuevas redes sociales)
         /// </summary>
-        public async Task<Dictionary<Guid, string>> ProcessSocialMediasAsync(Company company, IEnumerable<dynamic> socialMediaDtos, CancellationToken cancellationToken)
+        private async Task<Dictionary<Guid, string>> ProcessSocialMediasForRegistrationAsync(Company company, IEnumerable<RegisterCompanySocialMediaDto> socialMediaDtos, CancellationToken cancellationToken)
         {
             var socialMediaTypeNames = new Dictionary<Guid, string>();
 
             foreach (var socialMediaDto in socialMediaDtos)
             {
-                var socialMediaTypeEntity = await _socialMediaTypeRepository.GetByIdAsync((Guid)socialMediaDto.SocialMediaTypeId, cancellationToken);
+                var socialMediaTypeEntity = await _socialMediaTypeRepository.GetByIdAsync(socialMediaDto.SocialMediaTypeId, cancellationToken);
+                if (socialMediaTypeEntity == null)
+                    throw new ArgumentException($"Social media type with ID '{socialMediaDto.SocialMediaTypeId}' not found");
+
+                // Agregar al diccionario para el resultado
+                socialMediaTypeNames[socialMediaTypeEntity.Id] = socialMediaTypeEntity.Name;
+
+                // Crear nueva red social (en registro siempre son nuevas)
+                var socialMedia = CompanySocialMedia.Create(company.Id, socialMediaTypeEntity.Id, socialMediaDto.Url, socialMediaDto.IsPrimary);
+                company.AddSocialMedia(socialMedia);
+            }
+
+            return socialMediaTypeNames;
+        }
+
+        /// <summary>
+        /// Procesa redes sociales para actualización (pueden ser nuevas o existentes)
+        /// </summary>
+        private async Task<Dictionary<Guid, string>> ProcessSocialMediasForUpdateAsync(Company company, IEnumerable<UpdateCompanySocialMediaDto> socialMediaDtos, CancellationToken cancellationToken)
+        {
+            var socialMediaTypeNames = new Dictionary<Guid, string>();
+
+            foreach (var socialMediaDto in socialMediaDtos)
+            {
+                var socialMediaTypeEntity = await _socialMediaTypeRepository.GetByIdAsync(socialMediaDto.SocialMediaTypeId, cancellationToken);
                 if (socialMediaTypeEntity == null)
                     throw new ArgumentException($"Social media type with ID '{socialMediaDto.SocialMediaTypeId}' not found");
 
@@ -179,19 +296,19 @@ namespace Dualcomp.Auth.Application.Companies
                 socialMediaTypeNames[socialMediaTypeEntity.Id] = socialMediaTypeEntity.Name;
 
                 // Verificar si es una red social existente o nueva
-                if (socialMediaDto.Id != null && (Guid)socialMediaDto.Id != Guid.Empty)
+                if (socialMediaDto.Id.HasValue && socialMediaDto.Id.Value != Guid.Empty)
                 {
                     // Red social existente - buscar y actualizar
-                    var existingSocialMedia = company.SocialMedias.FirstOrDefault(sm => sm.Id == (Guid)socialMediaDto.Id);
+                    var existingSocialMedia = company.SocialMedias.FirstOrDefault(sm => sm.Id == socialMediaDto.Id.Value);
                     if (existingSocialMedia != null)
                     {
-                        existingSocialMedia.UpdateInfo(socialMediaTypeEntity.Id, (string)socialMediaDto.Url, (bool)socialMediaDto.IsPrimary);
+                        existingSocialMedia.UpdateInfo(socialMediaTypeEntity.Id, socialMediaDto.Url, socialMediaDto.IsPrimary);
                     }
                 }
                 else
                 {
                     // Red social nueva - crear
-                    var socialMedia = CompanySocialMedia.Create(company.Id, socialMediaTypeEntity.Id, (string)socialMediaDto.Url, (bool)socialMediaDto.IsPrimary);
+                    var socialMedia = CompanySocialMedia.Create(company.Id, socialMediaTypeEntity.Id, socialMediaDto.Url, socialMediaDto.IsPrimary);
                     company.AddSocialMedia(socialMedia);
                 }
             }
@@ -200,15 +317,48 @@ namespace Dualcomp.Auth.Application.Companies
         }
 
         /// <summary>
-        /// Procesa todos los tipos de contacto de una vez
+        /// Procesa todos los tipos de contacto de una vez para registro
         /// </summary>
-        public async Task<ContactTypeNames> ProcessAllContactsAsync(Company company, IEnumerable<dynamic> addresses, IEnumerable<dynamic> emails, IEnumerable<dynamic> phones, IEnumerable<dynamic> socialMedias, CancellationToken cancellationToken)
+        public async Task<ContactTypeNames> ProcessAllContactsForRegistrationAsync(
+            Company company, 
+            IEnumerable<RegisterCompanyAddressDto> addresses, 
+            IEnumerable<RegisterCompanyEmailDto> emails, 
+            IEnumerable<RegisterCompanyPhoneDto> phones, 
+            IEnumerable<RegisterCompanySocialMediaDto> socialMedias, 
+            CancellationToken cancellationToken)
         {
             // Procesar todos los contactos en paralelo para mejor performance
-            var addressTask = ProcessAddressesAsync(company, addresses, cancellationToken);
-            var emailTask = ProcessEmailsAsync(company, emails, cancellationToken);
-            var phoneTask = ProcessPhonesAsync(company, phones, cancellationToken);
-            var socialMediaTask = ProcessSocialMediasAsync(company, socialMedias, cancellationToken);
+            var addressTask = ProcessAddressesForRegistrationAsync(company, addresses, cancellationToken);
+            var emailTask = ProcessEmailsForRegistrationAsync(company, emails, cancellationToken);
+            var phoneTask = ProcessPhonesForRegistrationAsync(company, phones, cancellationToken);
+            var socialMediaTask = ProcessSocialMediasForRegistrationAsync(company, socialMedias, cancellationToken);
+
+            await Task.WhenAll(addressTask, emailTask, phoneTask, socialMediaTask);
+
+            return new ContactTypeNames(
+                await addressTask,
+                await emailTask,
+                await phoneTask,
+                await socialMediaTask
+            );
+        }
+
+        /// <summary>
+        /// Procesa todos los tipos de contacto de una vez para actualización
+        /// </summary>
+        public async Task<ContactTypeNames> ProcessAllContactsForUpdateAsync(
+            Company company, 
+            IEnumerable<UpdateCompanyAddressDto> addresses, 
+            IEnumerable<UpdateCompanyEmailDto> emails, 
+            IEnumerable<UpdateCompanyPhoneDto> phones, 
+            IEnumerable<UpdateCompanySocialMediaDto> socialMedias, 
+            CancellationToken cancellationToken)
+        {
+            // Procesar todos los contactos en paralelo para mejor performance
+            var addressTask = ProcessAddressesForUpdateAsync(company, addresses, cancellationToken);
+            var emailTask = ProcessEmailsForUpdateAsync(company, emails, cancellationToken);
+            var phoneTask = ProcessPhonesForUpdateAsync(company, phones, cancellationToken);
+            var socialMediaTask = ProcessSocialMediasForUpdateAsync(company, socialMedias, cancellationToken);
 
             await Task.WhenAll(addressTask, emailTask, phoneTask, socialMediaTask);
 
@@ -223,27 +373,33 @@ namespace Dualcomp.Auth.Application.Companies
         /// <summary>
         /// Elimina contactos que ya no están en la request (fueron eliminados por el usuario)
         /// </summary>
-        public async Task RemoveDeletedContactsAsync(Company company, IEnumerable<dynamic> addresses, IEnumerable<dynamic> emails, IEnumerable<dynamic> phones, IEnumerable<dynamic> socialMedias, CancellationToken cancellationToken)
+        public async Task RemoveDeletedContactsAsync(
+            Company company, 
+            IEnumerable<UpdateCompanyAddressDto> addresses, 
+            IEnumerable<UpdateCompanyEmailDto> emails, 
+            IEnumerable<UpdateCompanyPhoneDto> phones, 
+            IEnumerable<UpdateCompanySocialMediaDto> socialMedias, 
+            CancellationToken cancellationToken)
         {
             // Obtener IDs de contactos que están en la request
             var requestedAddressIds = addresses
-                .Where(a => a.Id != null && (Guid)a.Id != Guid.Empty)
-                .Select(a => (Guid)a.Id)
+                .Where(a => a.Id.HasValue && a.Id.Value != Guid.Empty)
+                .Select(a => a.Id.Value)
                 .ToHashSet();
 
             var requestedEmailIds = emails
-                .Where(e => e.Id != null && (Guid)e.Id != Guid.Empty)
-                .Select(e => (Guid)e.Id)
+                .Where(e => e.Id.HasValue && e.Id.Value != Guid.Empty)
+                .Select(e => e.Id.Value)
                 .ToHashSet();
 
             var requestedPhoneIds = phones
-                .Where(p => p.Id != null && (Guid)p.Id != Guid.Empty)
-                .Select(p => (Guid)p.Id)
+                .Where(p => p.Id.HasValue && p.Id.Value != Guid.Empty)
+                .Select(p => p.Id.Value)
                 .ToHashSet();
 
             var requestedSocialMediaIds = socialMedias
-                .Where(sm => sm.Id != null && (Guid)sm.Id != Guid.Empty)
-                .Select(sm => (Guid)sm.Id)
+                .Where(sm => sm.Id.HasValue && sm.Id.Value != Guid.Empty)
+                .Select(sm => sm.Id.Value)
                 .ToHashSet();
 
             // Eliminar direcciones que no están en la request
@@ -318,11 +474,14 @@ namespace Dualcomp.Auth.Application.Companies
         }
 
         /// <summary>
-        /// Construye los resultados de empleados
+        /// Construye los resultados de empleados (solo empleados activos)
         /// </summary>
         public List<CompanyEmployeeResult> BuildEmployeeResults(Company company)
         {
-            return company.Employees.Select(e => new CompanyEmployeeResult(e.Id.ToString(), e.FullName, e.Email, e.Phone, e.Position, e.HireDate)).ToList();
+            return company.Employees
+                .Where(e => e.IsActive)
+                .Select(e => new CompanyEmployeeResult(e.Id.ToString(), e.FullName, e.Email, e.Phone, e.Position, e.HireDate))
+                .ToList();
         }
 
         /// <summary>
@@ -362,8 +521,10 @@ namespace Dualcomp.Auth.Application.Companies
             var socialMediaResults = company.SocialMedias.Select(sm => 
                 new CompanySocialMediaResult(sm.Id.ToString(), sm.SocialMediaTypeId.ToString(), sm.Url, sm.IsPrimary)).ToList();
             
-            var employeeResults = company.Employees.Select(e => 
-                new CompanyEmployeeResult(e.Id.ToString(), e.FullName, e.Email, e.Phone, e.Position, e.HireDate)).ToList();
+            var employeeResults = company.Employees
+                .Where(e => e.IsActive)
+                .Select(e => new CompanyEmployeeResult(e.Id.ToString(), e.FullName, e.Email, e.Phone, e.Position, e.HireDate))
+                .ToList();
 
             return new CompanyContactResults(addressResults, emailResults, phoneResults, socialMediaResults, employeeResults);
         }
@@ -448,6 +609,90 @@ namespace Dualcomp.Auth.Application.Companies
             // TODO: Enviar la contraseña temporal por email al empleado
             // Por ahora, la contraseña se genera pero no se comunica al usuario
             // En una implementación completa, se debería enviar por email o SMS
+        }
+
+        /// <summary>
+        /// Procesa empleados para actualización (pueden ser nuevos o existentes)
+        /// </summary>
+        public async Task ProcessEmployeesForUpdateAsync(Company company, IEnumerable<UpdateCompanyEmployeeDto> employees, CancellationToken cancellationToken)
+        {
+            foreach (var employeeDto in employees)
+            {
+                if (employeeDto.Id.HasValue && employeeDto.Id.Value != Guid.Empty)
+                {
+                    // Empleado existente - buscar y actualizar
+                    var existingEmployee = company.Employees.FirstOrDefault(e => e.Id == employeeDto.Id.Value);
+                    if (existingEmployee != null)
+                    {
+                        existingEmployee.UpdateProfile(employeeDto.FullName, employeeDto.Email, employeeDto.Phone, employeeDto.Position);
+                    }
+                }
+                else
+                {
+                    // Empleado nuevo - crear usuario primero (ya se guarda en CreateUserForEmployee), y luego crear empleado
+                    var user = await CreateUserForEmployee(employeeDto.FullName, employeeDto.Email, company.Id, cancellationToken);
+
+                    var userEntity = await _userRepository.GetByIdAsync(user.Id, cancellationToken);
+
+                    // Crear el empleado con el UserId del usuario guardado
+                    var employee = Employee.Create(employeeDto.FullName, employeeDto.Email, employeeDto.Phone, company.Id, employeeDto.Position, employeeDto.HireDate, user);
+                    company.AddEmployee(employee);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Desactiva empleados que ya no están en la request (fueron eliminados por el usuario)
+        /// </summary>
+        public async Task DeactivateDeletedEmployeesAsync(
+            Company company, 
+            IEnumerable<UpdateCompanyEmployeeDto> employees, 
+            CancellationToken cancellationToken)
+        {
+            // Obtener IDs de empleados que están en la request
+            var requestedEmployeeIds = employees
+                .Where(e => e.Id.HasValue && e.Id.Value != Guid.Empty)
+                .Select(e => e.Id.Value)
+                .ToHashSet();
+
+            // Desactivar empleados que no están en la request
+            var employeesToDeactivate = company.Employees
+                .Where(e => !requestedEmployeeIds.Contains(e.Id) && e.IsActive)
+                .ToList();
+
+            foreach (var employee in employeesToDeactivate)
+            {
+                // Desactivar el empleado
+                employee.Deactivate();
+                
+                // Si el empleado tiene un usuario asociado, también desactivarlo
+                if (employee.UserId.HasValue)
+                {
+                    var user = await _userRepository.GetByIdAsync(employee.UserId.Value, cancellationToken);
+                    if (user != null)
+                    {
+                        user.Deactivate();
+                    }
+                }
+            }
+
+            await Task.CompletedTask; // Para mantener la signatura async
+        }
+
+        /// <summary>
+        /// Procesa empleados para registro (solo nuevos empleados)
+        /// </summary>
+        public async Task ProcessEmployeesForRegistrationAsync(Company company, IEnumerable<RegisterCompanyEmployeeDto> employees, CancellationToken cancellationToken)
+        {
+            foreach (var employeeDto in employees)
+            {
+                // En registro siempre son empleados nuevos - crear usuario primero (ya se guarda en CreateUserForEmployee), y luego crear empleado
+                var user = await CreateUserForEmployee(employeeDto.FullName, employeeDto.Email, company.Id, cancellationToken);
+                
+                // Crear el empleado con el UserId del usuario guardado
+                var employee = Employee.Create(employeeDto.FullName, employeeDto.Email, employeeDto.Phone, company.Id, employeeDto.Position, employeeDto.HireDate, user.Id);
+                company.AddEmployee(employee);
+            }
         }
     }
 

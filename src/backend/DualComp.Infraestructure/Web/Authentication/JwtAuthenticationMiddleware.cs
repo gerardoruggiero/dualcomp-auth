@@ -1,7 +1,3 @@
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.Extensions.Options;
-using System.Security.Claims;
 using DualComp.Infraestructure.Security;
 using Microsoft.AspNetCore.Http;
 

@@ -1,6 +1,4 @@
-using Xunit;
 using Moq;
-using DualComp.Infraestructure.Mail.Interfaces;
 using DualComp.Infraestructure.Mail.Models;
 using DualComp.Infraestructure.Mail.Services;
 using Microsoft.Extensions.Logging;

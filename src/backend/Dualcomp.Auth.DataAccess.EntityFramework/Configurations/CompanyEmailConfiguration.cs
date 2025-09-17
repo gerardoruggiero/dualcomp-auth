@@ -9,6 +9,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
 		public void Configure(EntityTypeBuilder<CompanyEmail> builder)
 		{
 			builder.HasKey(ce => ce.Id);
+			builder.Property(ce => ce.Id).ValueGeneratedNever();
 			builder.Property(ce => ce.CompanyId).IsRequired();
 			builder.Property(ce => ce.IsPrimary).IsRequired();
 

@@ -1,6 +1,4 @@
-using Xunit;
 using DualComp.Infraestructure.Mail.Interfaces;
-using DualComp.Infraestructure.Mail.Models;
 using DualComp.Infraestructure.Mail.Services;
 
 namespace Dualcomp.Auth.UnitTests.Infrastructure.Mail

@@ -9,7 +9,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
 		public void Configure(EntityTypeBuilder<EmailTypeEntity> builder)
 		{
 			builder.HasKey(et => et.Id);
-			builder.Property(et => et.Name).IsRequired().HasMaxLength(50);
+            builder.Property(et => et.Name).IsRequired().HasMaxLength(50);
 			builder.Property(et => et.Description).HasMaxLength(200);
 			builder.Property(et => et.IsActive).IsRequired();
 			builder.HasIndex(et => et.Name).IsUnique();

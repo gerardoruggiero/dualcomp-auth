@@ -3,14 +3,12 @@ using Dualcomp.Auth.Domain.Users;
 using Dualcomp.Auth.Domain.Users.Repositories;
 using Dualcomp.Auth.Domain.Users.ValueObjects;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
-using Dualcomp.Auth.Domain.Companies.Repositories;
 using DualComp.Infraestructure.Data.Persistence;
 using DualComp.Infraestructure.Mail.Interfaces;
 using DualComp.Infraestructure.Mail.Models;
 using DualComp.Infraestructure.Security;
 using Microsoft.Extensions.Configuration;
 using Moq;
-using Xunit;
 using Dualcomp.Auth.Application.Services;
 
 namespace Dualcomp.Auth.UnitTests.Application.Users
@@ -65,7 +63,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
 
             var temporaryPassword = "NewTempPass123!";
             var hashedPassword = "newHashedPassword";
-            var companySettings = Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            var companySettings = Domain.Companies.CompanySettings.Create(
                 companyId, "smtp.gmail.com", 587, "test@example.com", "password",
                 true, "noreply@example.com", "Test Company");
 

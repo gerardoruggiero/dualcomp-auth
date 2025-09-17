@@ -1,6 +1,5 @@
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Dualcomp.Auth.Domain.Companies.Repositories;
-using DualComp.Infraestructure.Domain.Domain.Common.Results;
 
 namespace Dualcomp.Auth.Application.Companies.GetCompany
 {
@@ -45,13 +44,15 @@ namespace Dualcomp.Auth.Application.Companies.GetCompany
                     sm.SocialMediaTypeId.ToString(), 
                     sm.Url, 
                     sm.IsPrimary)).ToList(),
-                company.Employees.Select(e => new CompanyEmployeeResult(
-                    e.Id.ToString(), 
-                    e.FullName, 
-                    e.Email, 
-                    e.Phone, 
-                    e.Position, 
-                    e.HireDate)).ToList());
+                company.Employees
+                    .Where(e => e.IsActive)
+                    .Select(e => new CompanyEmployeeResult(
+                        e.Id.ToString(), 
+                        e.FullName, 
+                        e.Email, 
+                        e.Phone, 
+                        e.Position, 
+                        e.HireDate)).ToList());
 
             return result;
         }

@@ -1,9 +1,6 @@
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Dualcomp.Auth.Domain.Users;
-using Dualcomp.Auth.Domain.Users.ValueObjects;
-using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using DualComp.Infraestructure.Security;
-using DualComp.Infraestructure.Domain.Domain.Common.Results;
 using DualComp.Infraestructure.Data.Persistence;
 using Dualcomp.Auth.Domain.Users.Repositories;
 

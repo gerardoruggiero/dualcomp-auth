@@ -10,7 +10,8 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
         public void Configure(EntityTypeBuilder<CompanySettings> builder)
         {
             builder.HasKey(cs => cs.Id);
-
+            builder.Property(cs => cs.Id)
+            .ValueGeneratedNever();
             builder.Property(cs => cs.CompanyId)
                 .IsRequired();
 

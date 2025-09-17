@@ -1,4 +1,3 @@
-using Xunit;
 using Dualcomp.Auth.Domain.Companies;
 
 namespace Dualcomp.Auth.UnitTests.Companies
@@ -20,7 +19,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
             var createdBy = Guid.NewGuid();
 
             // Act
-            var companySettings = Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            var companySettings = CompanySettings.Create(
                 companyId, smtpServer, smtpPort, smtpUsername, smtpPassword,
                 smtpUseSsl, smtpFromEmail, smtpFromName, createdBy);
 
@@ -53,7 +52,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
             var smtpFromName = "Test Company";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            Assert.Throws<ArgumentException>(() => CompanySettings.Create(
                 companyId, smtpServer, smtpPort, smtpUsername, smtpPassword,
                 smtpUseSsl, smtpFromEmail, smtpFromName));
         }
@@ -72,7 +71,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
             var smtpFromName = "Test Company";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            Assert.Throws<ArgumentException>(() => CompanySettings.Create(
                 companyId, smtpServer, smtpPort, smtpUsername, smtpPassword,
                 smtpUseSsl, smtpFromEmail, smtpFromName));
         }
@@ -91,7 +90,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
             var smtpFromName = "Test Company";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            Assert.Throws<ArgumentException>(() => CompanySettings.Create(
                 companyId, smtpServer, smtpPort, smtpUsername, smtpPassword,
                 smtpUseSsl, smtpFromEmail, smtpFromName));
         }
@@ -101,7 +100,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
         {
             // Arrange
             var companyId = Guid.NewGuid();
-            var companySettings = Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            var companySettings = CompanySettings.Create(
                 companyId, "smtp.gmail.com", 587, "old@example.com", "oldpass",
                 true, "old@example.com", "Old Company");
 
@@ -136,7 +135,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
         {
             // Arrange
             var companyId = Guid.NewGuid();
-            var companySettings = Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            var companySettings = CompanySettings.Create(
                 companyId, "smtp.gmail.com", 587, "test@example.com", "password",
                 true, "noreply@example.com", "Test Company");
             companySettings.Deactivate();
@@ -154,7 +153,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
         {
             // Arrange
             var companyId = Guid.NewGuid();
-            var companySettings = Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            var companySettings = CompanySettings.Create(
                 companyId, "smtp.gmail.com", 587, "test@example.com", "password",
                 true, "noreply@example.com", "Test Company");
 
@@ -171,7 +170,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
         {
             // Arrange
             var companyId = Guid.NewGuid();
-            var companySettings = Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            var companySettings = CompanySettings.Create(
                 companyId, "smtp.gmail.com", 587, "test@example.com", "password",
                 true, "noreply@example.com", "Test Company");
 
@@ -187,14 +186,14 @@ namespace Dualcomp.Auth.UnitTests.Companies
         {
             // Arrange
             var companyId = Guid.NewGuid();
-            var companySettings = Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            var companySettings = CompanySettings.Create(
                 companyId, "smtp.gmail.com", 587, "test@example.com", "password",
                 true, "noreply@example.com", "Test Company");
 
             // Act - Test with invalid server (this should throw an exception, not return false)
             // We'll test the validation by trying to create with invalid settings
-            Assert.Throws<ArgumentException>(() => 
-                Dualcomp.Auth.Domain.Companies.CompanySettings.Create(
+            Assert.Throws<ArgumentException>(() =>
+                CompanySettings.Create(
                     companyId, "", 587, "test@example.com", "password",
                     true, "noreply@example.com", "Test Company"));
         }

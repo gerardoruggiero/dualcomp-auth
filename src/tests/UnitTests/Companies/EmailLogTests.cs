@@ -1,4 +1,3 @@
-using Xunit;
 using Dualcomp.Auth.Domain.Companies;
 
 namespace Dualcomp.Auth.UnitTests.Companies
@@ -16,7 +15,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
             var status = "Pending";
 
             // Act
-            var emailLog = Dualcomp.Auth.Domain.Companies.EmailLog.Create(companyId, toEmail, subject, emailType, status);
+            var emailLog = EmailLog.Create(companyId, toEmail, subject, emailType, status);
 
             // Assert
             Assert.NotNull(emailLog);
@@ -44,7 +43,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
             var errorMessage = "SMTP connection failed";
 
             // Act
-            var emailLog = Dualcomp.Auth.Domain.Companies.EmailLog.Create(companyId, toEmail, subject, emailType, status, errorMessage);
+            var emailLog = EmailLog.Create(companyId, toEmail, subject, emailType, status, errorMessage);
 
             // Assert
             Assert.NotNull(emailLog);
@@ -65,7 +64,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
             var status = "Pending";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.EmailLog.Create(companyId, toEmail, subject, emailType, status));
+            Assert.Throws<ArgumentException>(() => EmailLog.Create(companyId, toEmail, subject, emailType, status));
         }
 
         [Fact]
@@ -79,7 +78,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
             var status = "Pending";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.EmailLog.Create(companyId, toEmail, subject, emailType, status));
+            Assert.Throws<ArgumentException>(() => EmailLog.Create(companyId, toEmail, subject, emailType, status));
         }
 
         [Fact]
@@ -93,7 +92,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
             var status = "Pending";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.EmailLog.Create(companyId, toEmail, subject, emailType, status));
+            Assert.Throws<ArgumentException>(() => EmailLog.Create(companyId, toEmail, subject, emailType, status));
         }
 
         [Fact]
@@ -107,7 +106,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
             var status = "";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Companies.EmailLog.Create(companyId, toEmail, subject, emailType, status));
+            Assert.Throws<ArgumentException>(() => EmailLog.Create(companyId, toEmail, subject, emailType, status));
         }
 
         [Fact]
@@ -115,7 +114,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
         {
             // Arrange
             var companyId = Guid.NewGuid();
-            var emailLog = Dualcomp.Auth.Domain.Companies.EmailLog.Create(companyId, "test@example.com", "Test Subject", "Validation", "Pending");
+            var emailLog = EmailLog.Create(companyId, "test@example.com", "Test Subject", "Validation", "Pending");
 
             // Act
             emailLog.MarkAsSent();
@@ -134,7 +133,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
         {
             // Arrange
             var companyId = Guid.NewGuid();
-            var emailLog = Dualcomp.Auth.Domain.Companies.EmailLog.Create(companyId, "test@example.com", "Test Subject", "Validation", "Pending");
+            var emailLog = EmailLog.Create(companyId, "test@example.com", "Test Subject", "Validation", "Pending");
             emailLog.MarkAsSent();
 
             // Act & Assert
@@ -146,7 +145,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
         {
             // Arrange
             var companyId = Guid.NewGuid();
-            var emailLog = Dualcomp.Auth.Domain.Companies.EmailLog.Create(companyId, "test@example.com", "Test Subject", "Validation", "Pending");
+            var emailLog = EmailLog.Create(companyId, "test@example.com", "Test Subject", "Validation", "Pending");
             var errorMessage = "SMTP connection failed";
 
             // Act
@@ -165,7 +164,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
         {
             // Arrange
             var companyId = Guid.NewGuid();
-            var emailLog = Dualcomp.Auth.Domain.Companies.EmailLog.Create(companyId, "test@example.com", "Test Subject", "Validation", "Pending");
+            var emailLog = EmailLog.Create(companyId, "test@example.com", "Test Subject", "Validation", "Pending");
             emailLog.MarkAsSent();
 
             // Act & Assert
@@ -177,7 +176,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
         {
             // Arrange
             var companyId = Guid.NewGuid();
-            var emailLog = Dualcomp.Auth.Domain.Companies.EmailLog.Create(companyId, "test@example.com", "Test Subject", "Validation", "Pending");
+            var emailLog = EmailLog.Create(companyId, "test@example.com", "Test Subject", "Validation", "Pending");
 
             // Act
             emailLog.MarkAsFailed("");
@@ -191,7 +190,7 @@ namespace Dualcomp.Auth.UnitTests.Companies
         {
             // Arrange
             var companyId = Guid.NewGuid();
-            var emailLog = Dualcomp.Auth.Domain.Companies.EmailLog.Create(companyId, "test@example.com", "Test Subject", "Validation", "Failed", "Error");
+            var emailLog = EmailLog.Create(companyId, "test@example.com", "Test Subject", "Validation", "Failed", "Error");
             emailLog.MarkAsFailed("Error");
 
             // Act

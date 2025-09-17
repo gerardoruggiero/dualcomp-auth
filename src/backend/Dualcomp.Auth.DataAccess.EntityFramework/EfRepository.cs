@@ -1,12 +1,13 @@
-using System.Linq.Expressions;
 using DualComp.Infraestructure.Data.Persistence;
+using DualComp.Infraestructure.Domain.Domain.Common;
 using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
 
 namespace Dualcomp.Auth.DataAccess.EntityFramework
 {
 	public class EfRepository<TAggregate> : IRepository<TAggregate>
-		where TAggregate : class
-	{
+		where TAggregate : Entity
+    {
 		protected readonly IDbContextFactory<BaseDbContext> DbContextFactory;
 		protected readonly BaseDbContext DbContext;
 
@@ -60,7 +61,35 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework
 			await DbContext.Set<TAggregate>().AddRangeAsync(entities, cancellationToken);
 		}
 
-		public virtual void Update(TAggregate entity)
+        public virtual async Task<TAggregate> UpdateAsync(TAggregate item, CancellationToken cancellationToken = default)
+        {
+            try
+            {
+                var entry = DbContext.Entry(item);
+                if (entry.State == EntityState.Detached)
+                {
+                    var existingEntity = await DbContext.Set<TAggregate>().Where(w => w.Id == item.Id).SingleAsync();
+                    if (existingEntity == null)
+                    {
+                        throw new KeyNotFoundException("Entity not found in the database");
+                    }
+
+                    DbContext.Entry(existingEntity).CurrentValues.SetValues(item);
+                }
+                else
+                {
+                    entry.State = EntityState.Modified;
+                }
+
+                return item;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error saving the entity", ex);
+            }
+        }
+
+        public virtual void Update(TAggregate entity)
 		{
 			DbContext.Set<TAggregate>().Update(entity);
 		}

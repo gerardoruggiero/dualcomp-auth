@@ -1,4 +1,3 @@
-using Xunit;
 using Dualcomp.Auth.Domain.Users.ValueObjects;
 
 namespace Dualcomp.Auth.UnitTests.Users.ValueObjects
@@ -12,7 +11,7 @@ namespace Dualcomp.Auth.UnitTests.Users.ValueObjects
             var tokenValue = "valid-token-123";
 
             // Act
-            var token = Dualcomp.Auth.Domain.Users.ValueObjects.EmailValidationToken.Create(tokenValue);
+            var token = EmailValidationToken.Create(tokenValue);
 
             // Assert
             Assert.NotNull(token);
@@ -27,7 +26,7 @@ namespace Dualcomp.Auth.UnitTests.Users.ValueObjects
             var tokenValue = "";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Users.ValueObjects.EmailValidationToken.Create(tokenValue));
+            Assert.Throws<ArgumentException>(() => EmailValidationToken.Create(tokenValue));
         }
 
         [Fact]
@@ -37,14 +36,14 @@ namespace Dualcomp.Auth.UnitTests.Users.ValueObjects
             var tokenValue = "   ";
 
             // Act & Assert
-            Assert.Throws<ArgumentException>(() => Dualcomp.Auth.Domain.Users.ValueObjects.EmailValidationToken.Create(tokenValue));
+            Assert.Throws<ArgumentException>(() => EmailValidationToken.Create(tokenValue));
         }
 
         [Fact]
         public void Generate_ShouldCreateValidToken()
         {
             // Act
-            var token = Dualcomp.Auth.Domain.Users.ValueObjects.EmailValidationToken.Generate();
+            var token = EmailValidationToken.Generate();
 
             // Assert
             Assert.NotNull(token);
@@ -57,7 +56,7 @@ namespace Dualcomp.Auth.UnitTests.Users.ValueObjects
         public void GenerateWithTimestamp_ShouldCreateValidToken()
         {
             // Act
-            var token = Dualcomp.Auth.Domain.Users.ValueObjects.EmailValidationToken.GenerateWithTimestamp();
+            var token = EmailValidationToken.GenerateWithTimestamp();
 
             // Assert
             Assert.NotNull(token);
@@ -98,7 +97,7 @@ namespace Dualcomp.Auth.UnitTests.Users.ValueObjects
         {
             // Arrange
             var tokenValue = "test-token-123";
-            var token = Dualcomp.Auth.Domain.Users.ValueObjects.EmailValidationToken.Create(tokenValue);
+            var token = EmailValidationToken.Create(tokenValue);
 
             // Act
             var result = token.ToString();
@@ -112,7 +111,7 @@ namespace Dualcomp.Auth.UnitTests.Users.ValueObjects
         {
             // Arrange
             var tokenValue = "test-token-456";
-            var token = Dualcomp.Auth.Domain.Users.ValueObjects.EmailValidationToken.Create(tokenValue);
+            var token = EmailValidationToken.Create(tokenValue);
 
             // Act
             string result = token;

@@ -1,5 +1,3 @@
-using Dualcomp.Auth.Application.Companies.GetCompany;
-
 namespace Dualcomp.Auth.Application.Companies.RegisterCompany
 {
 	/// <summary>

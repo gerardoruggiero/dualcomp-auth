@@ -3,7 +3,6 @@ using Dualcomp.Auth.DataAccess.EntityFramework.Repositories;
 using Dualcomp.Auth.Domain.Companies;
 using Dualcomp.Auth.UnitTests.DataAccess.TestHelpers;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.InMemory;
 
 namespace Dualcomp.Auth.UnitTests.DataAccess.Repositories;
 

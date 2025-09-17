@@ -1,5 +1,4 @@
 using Dualcomp.Auth.Domain.Companies;
-using Dualcomp.Auth.Domain.Companies.ValueObjects;
 
 namespace Dualcomp.Auth.UnitTests.Companies;
 
