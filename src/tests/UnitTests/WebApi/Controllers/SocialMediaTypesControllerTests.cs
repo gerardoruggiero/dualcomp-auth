@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Dualcomp.Auth.WebApi.Controllers;
 using Dualcomp.Auth.Application.SocialMediaTypes.GetSocialMediaTypes;
+using Dualcomp.Auth.Application.SocialMediaTypes.CreateSocialMediaType;
+using Dualcomp.Auth.Application.SocialMediaTypes.UpdateSocialMediaType;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Moq;
 
@@ -12,7 +14,10 @@ public class SocialMediaTypesControllerTests
 	public async Task GetSocialMediaTypes_Should_Return_Ok_With_SocialMediaTypes()
 	{
 		// Arrange
-		var mockHandler = new Mock<IQueryHandler<GetSocialMediaTypesQuery, GetSocialMediaTypesResult>>();
+		var mockQueryHandler = new Mock<IQueryHandler<GetSocialMediaTypesQuery, GetSocialMediaTypesResult>>();
+		var mockCreateHandler = new Mock<ICommandHandler<CreateSocialMediaTypeCommand, CreateSocialMediaTypeResult>>();
+		var mockUpdateHandler = new Mock<ICommandHandler<UpdateSocialMediaTypeCommand, UpdateSocialMediaTypeResult>>();
+		
 		var expectedResult = new GetSocialMediaTypesResult(new List<SocialMediaTypeItem>
 		{
 			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "Facebook"),
@@ -22,10 +27,13 @@ public class SocialMediaTypesControllerTests
 			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "YouTube")
 		});
 		
-		mockHandler.Setup(h => h.Handle(It.IsAny<GetSocialMediaTypesQuery>(), It.IsAny<CancellationToken>()))
+		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetSocialMediaTypesQuery>(), It.IsAny<CancellationToken>()))
 			.ReturnsAsync(expectedResult);
 
-		var controller = new SocialMediaTypesController(mockHandler.Object);
+		var controller = new SocialMediaTypesController(
+			mockQueryHandler.Object, 
+			mockCreateHandler.Object, 
+			mockUpdateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -40,11 +48,17 @@ public class SocialMediaTypesControllerTests
 	public async Task GetSocialMediaTypes_Should_Return_BadRequest_On_Exception()
 	{
 		// Arrange
-		var mockHandler = new Mock<IQueryHandler<GetSocialMediaTypesQuery, GetSocialMediaTypesResult>>();
-		mockHandler.Setup(h => h.Handle(It.IsAny<GetSocialMediaTypesQuery>(), It.IsAny<CancellationToken>()))
+		var mockQueryHandler = new Mock<IQueryHandler<GetSocialMediaTypesQuery, GetSocialMediaTypesResult>>();
+		var mockCreateHandler = new Mock<ICommandHandler<CreateSocialMediaTypeCommand, CreateSocialMediaTypeResult>>();
+		var mockUpdateHandler = new Mock<ICommandHandler<UpdateSocialMediaTypeCommand, UpdateSocialMediaTypeResult>>();
+		
+		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetSocialMediaTypesQuery>(), It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new Exception("Test exception"));
 
-		var controller = new SocialMediaTypesController(mockHandler.Object);
+		var controller = new SocialMediaTypesController(
+			mockQueryHandler.Object, 
+			mockCreateHandler.Object, 
+			mockUpdateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -56,9 +70,35 @@ public class SocialMediaTypesControllerTests
 	}
 
 	[Fact]
-	public void Constructor_With_Null_Handler_Should_Throw_ArgumentNullException()
+	public void Constructor_With_Null_QueryHandler_Should_Throw_ArgumentNullException()
 	{
+		// Arrange
+		var mockCreateHandler = new Mock<ICommandHandler<CreateSocialMediaTypeCommand, CreateSocialMediaTypeResult>>();
+		var mockUpdateHandler = new Mock<ICommandHandler<UpdateSocialMediaTypeCommand, UpdateSocialMediaTypeResult>>();
+
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new SocialMediaTypesController(null!));
+		Assert.Throws<ArgumentNullException>(() => new SocialMediaTypesController(null!, mockCreateHandler.Object, mockUpdateHandler.Object));
+	}
+
+	[Fact]
+	public void Constructor_With_Null_CreateHandler_Should_Throw_ArgumentNullException()
+	{
+		// Arrange
+		var mockQueryHandler = new Mock<IQueryHandler<GetSocialMediaTypesQuery, GetSocialMediaTypesResult>>();
+		var mockUpdateHandler = new Mock<ICommandHandler<UpdateSocialMediaTypeCommand, UpdateSocialMediaTypeResult>>();
+
+		// Act & Assert
+		Assert.Throws<ArgumentNullException>(() => new SocialMediaTypesController(mockQueryHandler.Object, null!, mockUpdateHandler.Object));
+	}
+
+	[Fact]
+	public void Constructor_With_Null_UpdateHandler_Should_Throw_ArgumentNullException()
+	{
+		// Arrange
+		var mockQueryHandler = new Mock<IQueryHandler<GetSocialMediaTypesQuery, GetSocialMediaTypesResult>>();
+		var mockCreateHandler = new Mock<ICommandHandler<CreateSocialMediaTypeCommand, CreateSocialMediaTypeResult>>();
+
+		// Act & Assert
+		Assert.Throws<ArgumentNullException>(() => new SocialMediaTypesController(mockQueryHandler.Object, mockCreateHandler.Object, null!));
 	}
 }

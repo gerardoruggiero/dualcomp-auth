@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Dualcomp.Auth.WebApi.Controllers;
 using Dualcomp.Auth.Application.AddressTypes.GetAddressTypes;
+using Dualcomp.Auth.Application.AddressTypes.CreateAddressType;
+using Dualcomp.Auth.Application.AddressTypes.UpdateAddressType;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Moq;
 
@@ -12,7 +14,10 @@ public class AddressTypesControllerTests
 	public async Task GetAddressTypes_Should_Return_Ok_With_AddressTypes()
 	{
 		// Arrange
-		var mockHandler = new Mock<IQueryHandler<GetAddressTypesQuery, GetAddressTypesResult>>();
+		var mockQueryHandler = new Mock<IQueryHandler<GetAddressTypesQuery, GetAddressTypesResult>>();
+		var mockCreateHandler = new Mock<ICommandHandler<CreateAddressTypeCommand, CreateAddressTypeResult>>();
+		var mockUpdateHandler = new Mock<ICommandHandler<UpdateAddressTypeCommand, UpdateAddressTypeResult>>();
+		
 		var expectedResult = new GetAddressTypesResult(new List<AddressTypeItem>
 		{
 			new AddressTypeItem(Guid.NewGuid().ToString(), "Principal"),
@@ -21,10 +26,13 @@ public class AddressTypesControllerTests
 			new AddressTypeItem(Guid.NewGuid().ToString(), "Envío")
 		});
 		
-		mockHandler.Setup(h => h.Handle(It.IsAny<GetAddressTypesQuery>(), It.IsAny<CancellationToken>()))
+		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetAddressTypesQuery>(), It.IsAny<CancellationToken>()))
 			.ReturnsAsync(expectedResult);
 
-		var controller = new AddressTypesController(mockHandler.Object);
+		var controller = new AddressTypesController(
+			mockQueryHandler.Object, 
+			mockCreateHandler.Object, 
+			mockUpdateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -39,11 +47,17 @@ public class AddressTypesControllerTests
 	public async Task GetAddressTypes_Should_Return_BadRequest_On_Exception()
 	{
 		// Arrange
-		var mockHandler = new Mock<IQueryHandler<GetAddressTypesQuery, GetAddressTypesResult>>();
-		mockHandler.Setup(h => h.Handle(It.IsAny<GetAddressTypesQuery>(), It.IsAny<CancellationToken>()))
+		var mockQueryHandler = new Mock<IQueryHandler<GetAddressTypesQuery, GetAddressTypesResult>>();
+		var mockCreateHandler = new Mock<ICommandHandler<CreateAddressTypeCommand, CreateAddressTypeResult>>();
+		var mockUpdateHandler = new Mock<ICommandHandler<UpdateAddressTypeCommand, UpdateAddressTypeResult>>();
+		
+		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetAddressTypesQuery>(), It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new Exception("Test exception"));
 
-		var controller = new AddressTypesController(mockHandler.Object);
+		var controller = new AddressTypesController(
+			mockQueryHandler.Object, 
+			mockCreateHandler.Object, 
+			mockUpdateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -55,9 +69,35 @@ public class AddressTypesControllerTests
 	}
 
 	[Fact]
-	public void Constructor_With_Null_Handler_Should_Throw_ArgumentNullException()
+	public void Constructor_With_Null_QueryHandler_Should_Throw_ArgumentNullException()
 	{
+		// Arrange
+		var mockCreateHandler = new Mock<ICommandHandler<CreateAddressTypeCommand, CreateAddressTypeResult>>();
+		var mockUpdateHandler = new Mock<ICommandHandler<UpdateAddressTypeCommand, UpdateAddressTypeResult>>();
+
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new AddressTypesController(null!));
+		Assert.Throws<ArgumentNullException>(() => new AddressTypesController(null!, mockCreateHandler.Object, mockUpdateHandler.Object));
+	}
+
+	[Fact]
+	public void Constructor_With_Null_CreateHandler_Should_Throw_ArgumentNullException()
+	{
+		// Arrange
+		var mockQueryHandler = new Mock<IQueryHandler<GetAddressTypesQuery, GetAddressTypesResult>>();
+		var mockUpdateHandler = new Mock<ICommandHandler<UpdateAddressTypeCommand, UpdateAddressTypeResult>>();
+
+		// Act & Assert
+		Assert.Throws<ArgumentNullException>(() => new AddressTypesController(mockQueryHandler.Object, null!, mockUpdateHandler.Object));
+	}
+
+	[Fact]
+	public void Constructor_With_Null_UpdateHandler_Should_Throw_ArgumentNullException()
+	{
+		// Arrange
+		var mockQueryHandler = new Mock<IQueryHandler<GetAddressTypesQuery, GetAddressTypesResult>>();
+		var mockCreateHandler = new Mock<ICommandHandler<CreateAddressTypeCommand, CreateAddressTypeResult>>();
+
+		// Act & Assert
+		Assert.Throws<ArgumentNullException>(() => new AddressTypesController(mockQueryHandler.Object, mockCreateHandler.Object, null!));
 	}
 }

@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
 using Dualcomp.Auth.WebApi.Controllers;
 using Dualcomp.Auth.Application.EmailTypes.GetEmailTypes;
+using Dualcomp.Auth.Application.EmailTypes.CreateEmailType;
+using Dualcomp.Auth.Application.EmailTypes.UpdateEmailType;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Moq;
 
@@ -12,7 +14,10 @@ public class EmailTypesControllerTests
 	public async Task GetEmailTypes_Should_Return_Ok_With_EmailTypes()
 	{
 		// Arrange
-		var mockHandler = new Mock<IQueryHandler<GetEmailTypesQuery, GetEmailTypesResult>>();
+		var mockQueryHandler = new Mock<IQueryHandler<GetEmailTypesQuery, GetEmailTypesResult>>();
+		var mockCreateHandler = new Mock<ICommandHandler<CreateEmailTypeCommand, CreateEmailTypeResult>>();
+		var mockUpdateHandler = new Mock<ICommandHandler<UpdateEmailTypeCommand, UpdateEmailTypeResult>>();
+		
 		var expectedResult = new GetEmailTypesResult(new List<EmailTypeItem>
 		{
 			new EmailTypeItem(Guid.NewGuid().ToString(), "Principal"),
@@ -21,10 +26,13 @@ public class EmailTypesControllerTests
 			new EmailTypeItem(Guid.NewGuid().ToString(), "Comercial")
 		});
 		
-		mockHandler.Setup(h => h.Handle(It.IsAny<GetEmailTypesQuery>(), It.IsAny<CancellationToken>()))
+		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetEmailTypesQuery>(), It.IsAny<CancellationToken>()))
 			.ReturnsAsync(expectedResult);
 
-		var controller = new EmailTypesController(mockHandler.Object);
+		var controller = new EmailTypesController(
+			mockQueryHandler.Object, 
+			mockCreateHandler.Object, 
+			mockUpdateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -39,11 +47,17 @@ public class EmailTypesControllerTests
 	public async Task GetEmailTypes_Should_Return_BadRequest_On_Exception()
 	{
 		// Arrange
-		var mockHandler = new Mock<IQueryHandler<GetEmailTypesQuery, GetEmailTypesResult>>();
-		mockHandler.Setup(h => h.Handle(It.IsAny<GetEmailTypesQuery>(), It.IsAny<CancellationToken>()))
+		var mockQueryHandler = new Mock<IQueryHandler<GetEmailTypesQuery, GetEmailTypesResult>>();
+		var mockCreateHandler = new Mock<ICommandHandler<CreateEmailTypeCommand, CreateEmailTypeResult>>();
+		var mockUpdateHandler = new Mock<ICommandHandler<UpdateEmailTypeCommand, UpdateEmailTypeResult>>();
+		
+		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetEmailTypesQuery>(), It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new Exception("Test exception"));
 
-		var controller = new EmailTypesController(mockHandler.Object);
+		var controller = new EmailTypesController(
+			mockQueryHandler.Object, 
+			mockCreateHandler.Object, 
+			mockUpdateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -55,9 +69,35 @@ public class EmailTypesControllerTests
 	}
 
 	[Fact]
-	public void Constructor_With_Null_Handler_Should_Throw_ArgumentNullException()
+	public void Constructor_With_Null_QueryHandler_Should_Throw_ArgumentNullException()
 	{
+		// Arrange
+		var mockCreateHandler = new Mock<ICommandHandler<CreateEmailTypeCommand, CreateEmailTypeResult>>();
+		var mockUpdateHandler = new Mock<ICommandHandler<UpdateEmailTypeCommand, UpdateEmailTypeResult>>();
+
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new EmailTypesController(null!));
+		Assert.Throws<ArgumentNullException>(() => new EmailTypesController(null!, mockCreateHandler.Object, mockUpdateHandler.Object));
+	}
+
+	[Fact]
+	public void Constructor_With_Null_CreateHandler_Should_Throw_ArgumentNullException()
+	{
+		// Arrange
+		var mockQueryHandler = new Mock<IQueryHandler<GetEmailTypesQuery, GetEmailTypesResult>>();
+		var mockUpdateHandler = new Mock<ICommandHandler<UpdateEmailTypeCommand, UpdateEmailTypeResult>>();
+
+		// Act & Assert
+		Assert.Throws<ArgumentNullException>(() => new EmailTypesController(mockQueryHandler.Object, null!, mockUpdateHandler.Object));
+	}
+
+	[Fact]
+	public void Constructor_With_Null_UpdateHandler_Should_Throw_ArgumentNullException()
+	{
+		// Arrange
+		var mockQueryHandler = new Mock<IQueryHandler<GetEmailTypesQuery, GetEmailTypesResult>>();
+		var mockCreateHandler = new Mock<ICommandHandler<CreateEmailTypeCommand, CreateEmailTypeResult>>();
+
+		// Act & Assert
+		Assert.Throws<ArgumentNullException>(() => new EmailTypesController(mockQueryHandler.Object, mockCreateHandler.Object, null!));
 	}
 }
