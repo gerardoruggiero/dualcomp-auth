@@ -38,6 +38,8 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Configurations
 			services.AddScoped<IEmailTypeRepository, EmailTypeRepository>();
 			services.AddScoped<IPhoneTypeRepository, PhoneTypeRepository>();
 			services.AddScoped<ISocialMediaTypeRepository, SocialMediaTypeRepository>();
+			services.AddScoped<ITitleRepository, TitleRepository>();
+			services.AddScoped<IDocumentTypeRepository, DocumentTypeRepository>();
 			services.AddScoped<IEmailValidationRepository, EmailValidationRepository>();
 			services.AddScoped<ICompanySettingsRepository, CompanySettingsRepository>();
 			services.AddScoped<IUnitOfWork, EfUnitOfWork>();

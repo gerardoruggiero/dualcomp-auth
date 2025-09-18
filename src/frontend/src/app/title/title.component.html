@@ -1,0 +1,64 @@
+<div class="row">
+  <div class="col-12">
+    <div class="content-header">
+      <div class="container-fluid">
+        <div class="row mb-2">
+          <div class="col-sm-6">
+            <h1>Títulos</h1>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="content">
+      <div class="container-fluid">
+        <!-- Mensajes de estado -->
+        <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible" role="alert">
+          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+          <i class="fas fa-exclamation-triangle"></i>
+          {{ errorMessage() }}
+        </div>
+
+        <!-- Loading inicial -->
+        <div *ngIf="isLoading() && !isSearching()" class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="sr-only">Cargando...</span>
+          </div>
+          <p class="mt-2">Cargando títulos...</p>
+        </div>
+
+        <!-- Data Table -->
+        <app-data-table
+          *ngIf="!isLoading() || isSearching()"
+          title="Títulos"
+          titleIcon="fas fa-graduation-cap"
+          [columns]="columns"
+          [data]="items()"
+          [actions]="actions"
+          [config]="tableConfig"
+          [currentPage]="currentPage()"
+          [totalPages]="totalPages()"
+          [totalCount]="totalCount()"
+          [pageSize]="pageSize()"
+          [searchValue]="searchTerm()"
+          (onAdd)="onAddType()"
+          (onSearch)="onSearch($event)"
+          (onSort)="onSort($event)"
+          (onPageChange)="onPageChange($event)"
+          (onPageSizeChange)="onPageSizeChange($event)">
+        </app-data-table>
+      </div>
+    </section>
+  </div>
+</div>
+
+<!-- Modal para crear/editar -->
+<app-type-modal
+  [isVisible]="showModal"
+  [config]="modalConfig"
+  [isLoading]="modalLoading"
+  [initialData]="selectedItem()"
+  (onSaveEvent)="onModalSave($event)"
+  (onCancelEvent)="onModalCancel()">
+</app-type-modal>
+

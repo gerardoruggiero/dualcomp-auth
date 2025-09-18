@@ -31,10 +31,10 @@ public class GetPhoneTypesQueryHandlerTests
 		// Assert
 		Assert.NotNull(result);
 		Assert.Equal(4, result.PhoneTypes.Count());
-		Assert.Contains(result.PhoneTypes, t => t.Value == "Principal" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.PhoneTypes, t => t.Value == "Móvil" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.PhoneTypes, t => t.Value == "Fax" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.PhoneTypes, t => t.Value == "WhatsApp" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.PhoneTypes, t => t.Name == "Principal" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.PhoneTypes, t => t.Name == "Móvil" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.PhoneTypes, t => t.Name == "Fax" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.PhoneTypes, t => t.Name == "WhatsApp" && !string.IsNullOrEmpty(t.Id));
 	}
 
 	[Fact]

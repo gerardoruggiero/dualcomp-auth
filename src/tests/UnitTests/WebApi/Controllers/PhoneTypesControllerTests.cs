@@ -20,10 +20,10 @@ public class PhoneTypesControllerTests
 		
 		var expectedResult = new GetPhoneTypesResult(new List<PhoneTypeItem>
 		{
-			new PhoneTypeItem(Guid.NewGuid().ToString(), "Principal"),
-			new PhoneTypeItem(Guid.NewGuid().ToString(), "Móvil"),
-			new PhoneTypeItem(Guid.NewGuid().ToString(), "Fax"),
-			new PhoneTypeItem(Guid.NewGuid().ToString(), "WhatsApp")
+			new PhoneTypeItem(Guid.NewGuid().ToString(), "Principal", "Teléfono principal", true),
+			new PhoneTypeItem(Guid.NewGuid().ToString(), "Móvil", "Teléfono móvil", true),
+			new PhoneTypeItem(Guid.NewGuid().ToString(), "Fax", "Número de fax", true),
+			new PhoneTypeItem(Guid.NewGuid().ToString(), "WhatsApp", "Número de WhatsApp", true)
 		});
 		
 		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetPhoneTypesQuery>(), It.IsAny<CancellationToken>()))

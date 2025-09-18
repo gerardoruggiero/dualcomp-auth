@@ -31,10 +31,10 @@ public class GetEmailTypesQueryHandlerTests
 		// Assert
 		Assert.NotNull(result);
 		Assert.Equal(4, result.EmailTypes.Count());
-		Assert.Contains(result.EmailTypes, t => t.Value == "Principal" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.EmailTypes, t => t.Value == "Facturación" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.EmailTypes, t => t.Value == "Soporte" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.EmailTypes, t => t.Value == "Comercial" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.EmailTypes, t => t.Name == "Principal" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.EmailTypes, t => t.Name == "Facturación" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.EmailTypes, t => t.Name == "Soporte" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.EmailTypes, t => t.Name == "Comercial" && !string.IsNullOrEmpty(t.Id));
 	}
 
 	[Fact]

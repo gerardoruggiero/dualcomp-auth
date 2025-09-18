@@ -12,6 +12,8 @@ import { CompanyListComponent } from './company/list/company-list.component';
 import { SocialMediaComponent } from './social-media/social-media.component';
 import { EmailTypeComponent } from './email-type/email-type.component';
 import { PhoneTypeComponent } from './phone-type/phone-type.component';
+import { TitleComponent } from './title/title.component';
+import { DocumentTypeComponent } from './document-type/document-type.component';
 
 export const routes: Routes = [
   // Siempre redirigir a login inicialmente
@@ -33,6 +35,8 @@ export const routes: Routes = [
       { path: 'emailtype', component: EmailTypeComponent, canActivate: [authGuard]},
       { path: 'addresstype', component: AddressTypeComponent, canActivate: [authGuard]},
       { path: 'socialmedia', component: SocialMediaComponent, canActivate: [authGuard]},
+      { path: 'title', component: TitleComponent, canActivate: [authGuard] },
+      { path: 'documenttype', component: DocumentTypeComponent, canActivate: [authGuard] },
       { path: 'company/register', component: CompanyRegisterComponent },
       { path: 'company/list', component: CompanyListComponent, canActivate: [authGuard] },
       { path: 'company/edit/:id', component: CompanyEditComponent, canActivate: [authGuard] }

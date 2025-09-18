@@ -20,10 +20,10 @@ public class EmailTypesControllerTests
 		
 		var expectedResult = new GetEmailTypesResult(new List<EmailTypeItem>
 		{
-			new EmailTypeItem(Guid.NewGuid().ToString(), "Principal"),
-			new EmailTypeItem(Guid.NewGuid().ToString(), "Facturación"),
-			new EmailTypeItem(Guid.NewGuid().ToString(), "Soporte"),
-			new EmailTypeItem(Guid.NewGuid().ToString(), "Comercial")
+			new EmailTypeItem(Guid.NewGuid().ToString(), "Principal", "Email principal", true),
+			new EmailTypeItem(Guid.NewGuid().ToString(), "Facturación", "Email de facturación", true),
+			new EmailTypeItem(Guid.NewGuid().ToString(), "Soporte", "Email de soporte", true),
+			new EmailTypeItem(Guid.NewGuid().ToString(), "Comercial", "Email comercial", true)
 		});
 		
 		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetEmailTypesQuery>(), It.IsAny<CancellationToken>()))

@@ -31,10 +31,10 @@ public class GetAddressTypesQueryHandlerTests
 		// Assert
 		Assert.NotNull(result);
 		Assert.Equal(4, result.AddressTypes.Count());
-		Assert.Contains(result.AddressTypes, t => t.Value == "Principal" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.AddressTypes, t => t.Value == "Sucursal" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.AddressTypes, t => t.Value == "Facturación" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.AddressTypes, t => t.Value == "Envío" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.AddressTypes, t => t.Name == "Principal" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.AddressTypes, t => t.Name == "Sucursal" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.AddressTypes, t => t.Name == "Facturación" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.AddressTypes, t => t.Name == "Envío" && !string.IsNullOrEmpty(t.Id));
 	}
 
 	[Fact]

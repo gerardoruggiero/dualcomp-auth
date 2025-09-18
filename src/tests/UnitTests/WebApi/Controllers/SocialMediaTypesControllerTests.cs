@@ -20,11 +20,11 @@ public class SocialMediaTypesControllerTests
 		
 		var expectedResult = new GetSocialMediaTypesResult(new List<SocialMediaTypeItem>
 		{
-			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "Facebook"),
-			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "Instagram"),
-			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "LinkedIn"),
-			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "Twitter"),
-			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "YouTube")
+			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "Facebook", "Página de Facebook", true),
+			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "Instagram", "Perfil de Instagram", true),
+			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "LinkedIn", "Página de LinkedIn", true),
+			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "Twitter", "Perfil de Twitter", true),
+			new SocialMediaTypeItem(Guid.NewGuid().ToString(), "YouTube", "Canal de YouTube", true)
 		});
 		
 		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetSocialMediaTypesQuery>(), It.IsAny<CancellationToken>()))

@@ -32,11 +32,11 @@ public class GetSocialMediaTypesQueryHandlerTests
 		// Assert
 		Assert.NotNull(result);
 		Assert.Equal(5, result.SocialMediaTypes.Count());
-		Assert.Contains(result.SocialMediaTypes, t => t.Value == "Facebook" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.SocialMediaTypes, t => t.Value == "Instagram" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.SocialMediaTypes, t => t.Value == "LinkedIn" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.SocialMediaTypes, t => t.Value == "Twitter" && !string.IsNullOrEmpty(t.Id));
-		Assert.Contains(result.SocialMediaTypes, t => t.Value == "YouTube" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.SocialMediaTypes, t => t.Name == "Facebook" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.SocialMediaTypes, t => t.Name == "Instagram" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.SocialMediaTypes, t => t.Name == "LinkedIn" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.SocialMediaTypes, t => t.Name == "Twitter" && !string.IsNullOrEmpty(t.Id));
+		Assert.Contains(result.SocialMediaTypes, t => t.Name == "YouTube" && !string.IsNullOrEmpty(t.Id));
 	}
 
 	[Fact]

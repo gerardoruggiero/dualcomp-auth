@@ -20,10 +20,10 @@ public class AddressTypesControllerTests
 		
 		var expectedResult = new GetAddressTypesResult(new List<AddressTypeItem>
 		{
-			new AddressTypeItem(Guid.NewGuid().ToString(), "Principal"),
-			new AddressTypeItem(Guid.NewGuid().ToString(), "Sucursal"),
-			new AddressTypeItem(Guid.NewGuid().ToString(), "Facturación"),
-			new AddressTypeItem(Guid.NewGuid().ToString(), "Envío")
+			new AddressTypeItem(Guid.NewGuid().ToString(), "Principal", "Dirección principal", true),
+			new AddressTypeItem(Guid.NewGuid().ToString(), "Sucursal", "Dirección de sucursal", true),
+			new AddressTypeItem(Guid.NewGuid().ToString(), "Facturación", "Dirección de facturación", true),
+			new AddressTypeItem(Guid.NewGuid().ToString(), "Envío", "Dirección de envío", true)
 		});
 		
 		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetAddressTypesQuery>(), It.IsAny<CancellationToken>()))
