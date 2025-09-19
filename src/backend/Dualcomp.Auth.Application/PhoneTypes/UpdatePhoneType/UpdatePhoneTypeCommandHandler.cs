@@ -1,6 +1,4 @@
-using Dualcomp.Auth.Application.Abstractions.Commands;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
-using Dualcomp.Auth.Domain.Companies;
 using Dualcomp.Auth.Domain.Companies.Repositories;
 using DualComp.Infraestructure.Data.Persistence;
 
