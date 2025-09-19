@@ -17,6 +17,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework
 		public DbSet<SocialMediaTypeEntity> SocialMediaTypes => Set<SocialMediaTypeEntity>();
 		public DbSet<TitleEntity> Titles => Set<TitleEntity>();
 		public DbSet<DocumentTypeEntity> DocumentTypes => Set<DocumentTypeEntity>();
+		public DbSet<ModuloEntity> Modulos => Set<ModuloEntity>();
 		public DbSet<CompanyAddress> CompanyAddresses => Set<CompanyAddress>();
 		public DbSet<CompanyEmail> CompanyEmails => Set<CompanyEmail>();
 		public DbSet<CompanyPhone> CompanyPhones => Set<CompanyPhone>();
@@ -42,6 +43,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework
 			modelBuilder.ApplyConfiguration(new SocialMediaTypeConfiguration());
 			modelBuilder.ApplyConfiguration(new TitleConfiguration());
 			modelBuilder.ApplyConfiguration(new DocumentTypeConfiguration());
+			modelBuilder.ApplyConfiguration(new ModuloConfiguration());
 			modelBuilder.ApplyConfiguration(new CompanyAddressConfiguration());
 			modelBuilder.ApplyConfiguration(new CompanyEmailConfiguration());
 			modelBuilder.ApplyConfiguration(new CompanyPhoneConfiguration());

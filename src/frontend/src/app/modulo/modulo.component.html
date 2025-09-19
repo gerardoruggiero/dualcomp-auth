@@ -1,0 +1,48 @@
+<div class="row">
+    <div class="col-12">
+      <div class="content-header">
+        <div class="container-fluid">
+          <div class="row mb-2">
+            <div class="col-sm-6">
+              <h1>Modulos de la empresa</h1>
+            </div>
+          </div>
+        </div>
+      </div>
+
+  <section class="content">
+    <div class="container-fluid">
+      <div class="row">
+        <div class="col-12">
+          <app-data-table
+            title="Gestión de Módulos"
+            titleIcon="fas fa-puzzle-piece"
+            [columns]="columns"
+            [data]="items()"
+            [actions]="actions"
+            [config]="tableConfig"
+            [currentPage]="currentPage()"
+            [totalPages]="totalPages()"
+            [totalCount]="totalCount()"
+            [pageSize]="pageSize()"
+            [searchValue]="searchTerm()"
+            (onAdd)="onAddType()"
+            (onSearch)="onSearch($event)"
+            (onSort)="onSort($event)"
+            (onPageChange)="onPageChange($event)"
+            (onPageSizeChange)="onPageSizeChange($event)">
+          </app-data-table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <app-type-modal
+    [isVisible]="showModal"
+    [config]="modalConfig"
+    [isLoading]="modalLoading"
+    [initialData]="selectedItem()"
+    (onSaveEvent)="onModalSave($event)"
+    (onCancelEvent)="onModalCancel()">
+  </app-type-modal>
+</div>
