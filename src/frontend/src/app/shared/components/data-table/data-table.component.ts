@@ -108,7 +108,7 @@ export interface DataTableConfig {
                     <button 
                       *ngFor="let action of actions" 
                       type="button"
-                      class="btn btn-sm" 
+                      class="btn btn-sm mr-1" 
                       [class]="action.class"
                       (click)="action.action(row)"
                       [style.display]="action.show && !action.show(row) ? 'none' : 'inline-block'"
@@ -209,10 +209,10 @@ export class DataTableComponent implements OnInit, OnDestroy, OnChanges {
   Math = Math; // Para usar Math en el template
   isSearching = false;
   isTransitioning = false;
-  
+
   private searchSubject = new Subject<string>();
 
-  constructor(private cdr: ChangeDetectorRef) {}
+  constructor(private cdr: ChangeDetectorRef) { }
 
   ngOnInit() {
     // Configurar debounce para la búsqueda
@@ -225,7 +225,7 @@ export class DataTableComponent implements OnInit, OnDestroy, OnChanges {
         this.isSearching = false;
         this.isTransitioning = true;
         this.onSearch.emit(searchTerm);
-        
+
         // Pequeño delay para suavizar la transición
         setTimeout(() => {
           this.isTransitioning = false;
@@ -260,15 +260,15 @@ export class DataTableComponent implements OnInit, OnDestroy, OnChanges {
     const maxVisible = 5;
     let start = Math.max(1, this.currentPage - Math.floor(maxVisible / 2));
     let end = Math.min(this.totalPages, start + maxVisible - 1);
-    
+
     if (end - start + 1 < maxVisible) {
       start = Math.max(1, end - maxVisible + 1);
     }
-    
+
     for (let i = start; i <= end; i++) {
       pages.push(i);
     }
-    
+
     return pages;
   }
 }
