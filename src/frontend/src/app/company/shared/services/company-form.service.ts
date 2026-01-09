@@ -1,7 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 import { forkJoin } from 'rxjs';
-import { 
-  CompanyRegisterForm, 
+import { map } from 'rxjs/operators';
+import {
+  CompanyRegisterForm,
   CompanyAddressForm,
   CompanyEmailForm,
   CompanyPhoneForm,
@@ -12,6 +13,8 @@ import { AddressTypeService } from '../../services/AddressTypeService';
 import { EmailTypeService } from '../../services/EmailTypeService';
 import { PhoneTypeService } from '../../services/PhoneTypeService';
 import { SocialMediaTypeService } from '../../services/SocialMediaTypeService';
+import { ModuloService } from '../../../shared/services/modulo.service';
+import { BaseTypeClass } from '../../../shared/models/BaseType';
 
 @Injectable({
   providedIn: 'root'
@@ -21,8 +24,9 @@ export class CompanyFormService {
     private addressTypeService: AddressTypeService,
     private emailTypeService: EmailTypeService,
     private phoneTypeService: PhoneTypeService,
-    private socialMediaTypeService: SocialMediaTypeService
-  ) {}
+    private socialMediaTypeService: SocialMediaTypeService,
+    private moduloService: ModuloService
+  ) { }
 
   // Estado de secciones colapsables
   sectionsCollapsed = signal<{
@@ -32,13 +36,15 @@ export class CompanyFormService {
     phones: boolean;
     socialMedias: boolean;
     employees: boolean;
+    modules: boolean;
   }>({
     basicInfo: false,
     addresses: true,
     emails: true,
     phones: true,
     socialMedias: true,
-    employees: true
+    employees: true,
+    modules: true
   });
 
   // Cargar todas las opciones de tipos
@@ -47,7 +53,8 @@ export class CompanyFormService {
       addressTypes: this.addressTypeService.getAll(),
       emailTypes: this.emailTypeService.getAll(),
       phoneTypes: this.phoneTypeService.getAll(),
-      socialMediaTypes: this.socialMediaTypeService.getAll()
+      socialMediaTypes: this.socialMediaTypeService.getAll(),
+      modules: this.moduloService.getTypes().pipe(map(r => r.items))
     });
   }
 
@@ -100,7 +107,9 @@ export class CompanyFormService {
       addressTypeOptions: typeOptions.addressTypes || [],
       emailTypeOptions: typeOptions.emailTypes || [],
       phoneTypeOptions: typeOptions.phoneTypes || [],
-      socialMediaTypeOptions: typeOptions.socialMediaTypes || []
+      socialMediaTypeOptions: typeOptions.socialMediaTypes || [],
+      moduleOptions: typeOptions.modules || [],
+      selectedModuleIds: []
     };
   }
 
@@ -188,7 +197,7 @@ export class CompanyFormService {
   }
 
   // Toggle de secciones
-  toggleSection(section: 'basicInfo' | 'addresses' | 'emails' | 'phones' | 'socialMedias' | 'employees') {
+  toggleSection(section: 'basicInfo' | 'addresses' | 'emails' | 'phones' | 'socialMedias' | 'employees' | 'modules') {
     this.sectionsCollapsed.update(current => ({
       ...current,
       [section]: !current[section]
@@ -222,6 +231,9 @@ export class CompanyFormService {
     }
     if (form.employees.length === 0) {
       errors.push('Debe agregar al menos un empleado');
+    }
+    if (form.selectedModuleIds.length === 0) {
+      errors.push('Debe asignar al menos un módulo a la empresa');
     }
 
     // Validar que todos los elementos tengan los campos requeridos

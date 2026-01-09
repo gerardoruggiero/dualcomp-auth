@@ -71,7 +71,8 @@ namespace Dualcomp.Auth.WebApi.Controllers
 					request.Emails.Select(e => new UpdateCompanyEmailDto(e.Id, Guid.Parse(e.EmailTypeId), e.Email, e.IsPrimary)).ToList(),
 					request.Phones.Select(p => new UpdateCompanyPhoneDto(p.Id, Guid.Parse(p.PhoneTypeId), p.Phone, p.IsPrimary)).ToList(),
 					request.SocialMedias.Select(sm => new UpdateCompanySocialMediaDto(sm.Id, Guid.Parse(sm.SocialMediaTypeId), sm.Url, sm.IsPrimary)).ToList(),
-					request.Employees.Select(e => new UpdateCompanyEmployeeDto(e.Id, e.FullName, e.Email, e.Phone, e.Position, e.HireDate)).ToList());
+					request.Employees.Select(e => new UpdateCompanyEmployeeDto(e.Id, e.FullName, e.Email, e.Phone, e.Position, e.HireDate)).ToList(),
+					request.ModuleIds);
 
 				var result = await _updateCompanyHandler.Handle(command, cancellationToken);
 
@@ -138,7 +139,8 @@ namespace Dualcomp.Auth.WebApi.Controllers
 		List<UpdateCompanyEmailRequest> Emails,
 		List<UpdateCompanyPhoneRequest> Phones,
 		List<UpdateCompanySocialMediaRequest> SocialMedias,
-		List<UpdateCompanyEmployeeRequest> Employees
+		List<UpdateCompanyEmployeeRequest> Employees,
+		List<Guid> ModuleIds
 	);
 
 	public record UpdateCompanyAddressRequest(

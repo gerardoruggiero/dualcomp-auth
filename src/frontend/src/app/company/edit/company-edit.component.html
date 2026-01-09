@@ -1,132 +1,99 @@
 <!-- Company Edit Form -->
 <div class="row">
   <div class="col-12">
-    <app-content-header 
-      [title]="headerTitle" 
-      [actions]="headerActions">
+    <app-content-header [title]="headerTitle" [actions]="headerActions">
     </app-content-header>
 
-  <section class="content">
-    <div class="container-fluid">
-      
-      <!-- Loading inicial -->
-      <div *ngIf="isInitialLoading()" class="text-center">
-        <div class="spinner-border" role="status">
-          <span class="sr-only">Cargando...</span>
+    <section class="content">
+      <div class="container-fluid">
+
+        <!-- Loading inicial -->
+        <div *ngIf="isInitialLoading()" class="text-center">
+          <div class="spinner-border" role="status">
+            <span class="sr-only">Cargando...</span>
+          </div>
+          <p class="mt-2">Cargando datos de la empresa...</p>
         </div>
-        <p class="mt-2">Cargando datos de la empresa...</p>
+
+        <!-- Formulario -->
+        <div *ngIf="!isInitialLoading()">
+          <!-- Mensajes de estado -->
+          <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <i class="fas fa-exclamation-triangle"></i>
+            {{ errorMessage() }}
+          </div>
+
+          <div *ngIf="successMessage()" class="alert alert-success alert-dismissible" role="alert">
+            <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
+            <i class="fas fa-check-circle"></i>
+            {{ successMessage() }}
+          </div>
+
+          <form id="editForm" (ngSubmit)="onSubmit()" #editForm="ngForm">
+
+            <!-- Sección: Datos Básicos -->
+            <app-basic-info-section [companyName]="form().name" [taxId]="form().taxId"
+              [isCollapsed]="sectionsCollapsed().basicInfo" (companyNameChange)="updateCompanyName($event)"
+              (taxIdChange)="updateTaxId($event)" (toggleSectionEvent)="toggleSection('basicInfo')">
+            </app-basic-info-section>
+
+            <!-- Sección: Direcciones -->
+            <app-accordion-section title="Direcciones" icon="fas fa-map-marker-alt" [count]="form().addresses.length"
+              [isCollapsed]="sectionsCollapsed().addresses" addButtonText="Agregar Dirección"
+              (toggleSection)="toggleSection('addresses')" (addItem)="addAddress()">
+
+              <app-address-section [addresses]="form().addresses" (removeAddressEvent)="removeAddress($event)">
+              </app-address-section>
+            </app-accordion-section>
+
+            <!-- Sección: Emails -->
+            <app-accordion-section title="Emails" icon="fas fa-envelope" [count]="form().emails.length"
+              [isCollapsed]="sectionsCollapsed().emails" addButtonText="Agregar Email"
+              (toggleSection)="toggleSection('emails')" (addItem)="addEmail()">
+
+              <app-email-section [emails]="form().emails" (removeEmailEvent)="removeEmail($event)">
+              </app-email-section>
+            </app-accordion-section>
+
+            <!-- Sección: Teléfonos -->
+            <app-accordion-section title="Teléfonos" icon="fas fa-phone" [count]="form().phones.length"
+              [isCollapsed]="sectionsCollapsed().phones" addButtonText="Agregar Teléfono"
+              (toggleSection)="toggleSection('phones')" (addItem)="addPhone()">
+
+              <app-phone-section [phones]="form().phones" (removePhoneEvent)="removePhone($event)">
+              </app-phone-section>
+            </app-accordion-section>
+
+            <!-- Sección: Redes Sociales -->
+            <app-accordion-section title="Redes Sociales" icon="fas fa-share-alt" [count]="form().socialMedias.length"
+              [isCollapsed]="sectionsCollapsed().socialMedias" addButtonText="Agregar Red Social"
+              (toggleSection)="toggleSection('socialMedias')" (addItem)="addSocialMedia()">
+
+              <app-social-media-section [socialMedias]="form().socialMedias"
+                (removeSocialMediaEvent)="removeSocialMedia($event)">
+              </app-social-media-section>
+            </app-accordion-section>
+
+            <app-accordion-section title="Módulos Asignados" icon="fas fa-cubes"
+              [isCollapsed]="sectionsCollapsed().modules" (toggleSection)="toggleSection('modules')">
+              <app-module-section [moduleOptions]="form().moduleOptions" [selectedModuleIds]="form().selectedModuleIds"
+                (selectedModuleIdsChange)="updateModuleIds($event)">
+              </app-module-section>
+            </app-accordion-section>
+
+            <!-- Sección: Empleados -->
+            <app-accordion-section title="Empleados" icon="fas fa-users" [count]="form().employees.length"
+              [isCollapsed]="sectionsCollapsed().employees" addButtonText="Agregar Empleado"
+              (toggleSection)="toggleSection('employees')" (addItem)="addEmployee()">
+
+              <app-employee-section [employees]="form().employees" (removeEmployeeEvent)="removeEmployee($event)">
+              </app-employee-section>
+            </app-accordion-section>
+
+          </form>
+        </div>
       </div>
-
-      <!-- Formulario -->
-      <div *ngIf="!isInitialLoading()">
-        <!-- Mensajes de estado -->
-        <div *ngIf="errorMessage()" class="alert alert-danger alert-dismissible" role="alert">
-          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-          <i class="fas fa-exclamation-triangle"></i>
-          {{ errorMessage() }}
-        </div>
-        
-        <div *ngIf="successMessage()" class="alert alert-success alert-dismissible" role="alert">
-          <button type="button" class="close" data-dismiss="alert" aria-hidden="true">&times;</button>
-          <i class="fas fa-check-circle"></i>
-          {{ successMessage() }}
-        </div>
-
-        <form id="editForm" (ngSubmit)="onSubmit()" #editForm="ngForm">
-      
-          <!-- Sección: Datos Básicos -->
-          <app-basic-info-section
-            [companyName]="form().name"
-            [taxId]="form().taxId"
-            [isCollapsed]="sectionsCollapsed().basicInfo"
-            (companyNameChange)="updateCompanyName($event)"
-            (taxIdChange)="updateTaxId($event)"
-            (toggleSectionEvent)="toggleSection('basicInfo')">
-          </app-basic-info-section>
-
-          <!-- Sección: Direcciones -->
-          <app-accordion-section
-            title="Direcciones"
-            icon="fas fa-map-marker-alt"
-            [count]="form().addresses.length"
-            [isCollapsed]="sectionsCollapsed().addresses"
-            addButtonText="Agregar Dirección"
-            (toggleSection)="toggleSection('addresses')"
-            (addItem)="addAddress()">
-            
-            <app-address-section
-              [addresses]="form().addresses"
-              (removeAddressEvent)="removeAddress($event)">
-            </app-address-section>
-          </app-accordion-section>
-
-          <!-- Sección: Emails -->
-          <app-accordion-section
-            title="Emails"
-            icon="fas fa-envelope"
-            [count]="form().emails.length"
-            [isCollapsed]="sectionsCollapsed().emails"
-            addButtonText="Agregar Email"
-            (toggleSection)="toggleSection('emails')"
-            (addItem)="addEmail()">
-            
-            <app-email-section
-              [emails]="form().emails"
-              (removeEmailEvent)="removeEmail($event)">
-            </app-email-section>
-          </app-accordion-section>
-
-          <!-- Sección: Teléfonos -->
-          <app-accordion-section
-            title="Teléfonos"
-            icon="fas fa-phone"
-            [count]="form().phones.length"
-            [isCollapsed]="sectionsCollapsed().phones"
-            addButtonText="Agregar Teléfono"
-            (toggleSection)="toggleSection('phones')"
-            (addItem)="addPhone()">
-            
-            <app-phone-section
-              [phones]="form().phones"
-              (removePhoneEvent)="removePhone($event)">
-            </app-phone-section>
-          </app-accordion-section>
-
-          <!-- Sección: Redes Sociales -->
-          <app-accordion-section
-            title="Redes Sociales"
-            icon="fas fa-share-alt"
-            [count]="form().socialMedias.length"
-            [isCollapsed]="sectionsCollapsed().socialMedias"
-            addButtonText="Agregar Red Social"
-            (toggleSection)="toggleSection('socialMedias')"
-            (addItem)="addSocialMedia()">
-            
-            <app-social-media-section
-              [socialMedias]="form().socialMedias"
-              (removeSocialMediaEvent)="removeSocialMedia($event)">
-            </app-social-media-section>
-          </app-accordion-section>
-
-          <!-- Sección: Empleados -->
-          <app-accordion-section
-            title="Empleados"
-            icon="fas fa-users"
-            [count]="form().employees.length"
-            [isCollapsed]="sectionsCollapsed().employees"
-            addButtonText="Agregar Empleado"
-            (toggleSection)="toggleSection('employees')"
-            (addItem)="addEmployee()">
-            
-            <app-employee-section
-              [employees]="form().employees"
-              (removeEmployeeEvent)="removeEmployee($event)">
-            </app-employee-section>
-          </app-accordion-section>
-
-        </form>
-      </div>
-    </div>
-  </section>
-</div>
+    </section>
+  </div>
 </div>

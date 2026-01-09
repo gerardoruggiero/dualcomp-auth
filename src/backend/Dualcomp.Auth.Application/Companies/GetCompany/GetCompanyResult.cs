@@ -10,7 +10,8 @@ namespace Dualcomp.Auth.Application.Companies.GetCompany
         [property: JsonPropertyName("emails")] List<CompanyEmailResult> Emails,
         [property: JsonPropertyName("phones")] List<CompanyPhoneResult> Phones,
         [property: JsonPropertyName("socialMedias")] List<CompanySocialMediaResult> SocialMedias,
-        [property: JsonPropertyName("employees")] List<CompanyEmployeeResult> Employees
+        [property: JsonPropertyName("employees")] List<CompanyEmployeeResult> Employees,
+        [property: JsonPropertyName("moduleIds")] List<Guid> ModuleIds
     );
 
     public record CompanyAddressResult(

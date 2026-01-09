@@ -11,6 +11,7 @@ namespace Dualcomp.Auth.Application.Companies.RegisterCompany
 		public List<RegisterCompanyPhoneDto> Phones { get; init; } = [];
 		public List<RegisterCompanySocialMediaDto> SocialMedias { get; init; } = [];
 		public List<RegisterCompanyEmployeeDto> Employees { get; init; } = [];
+		public List<Guid> ModuleIds { get; init; } = [];
 	}
 
 	public class RegisterCompanyAddressDto

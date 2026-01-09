@@ -4,8 +4,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { forkJoin } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { 
-  CompanyRegisterForm, 
+import {
+  CompanyRegisterForm,
   UpdateCompanyCommand,
   GetCompanyResult,
   CompanyAddressForm,
@@ -24,20 +24,22 @@ import { EmailSectionComponent } from '../shared/components/email-section/email-
 import { PhoneSectionComponent } from '../shared/components/phone-section/phone-section.component';
 import { SocialMediaSectionComponent } from '../shared/components/social-media-section/social-media-section.component';
 import { EmployeeSectionComponent } from '../shared/components/employee-section/employee-section.component';
+import { ModuleSectionComponent } from '../shared/components/module-section/module-section.component';
 
 @Component({
   selector: 'app-company-edit',
   imports: [
-    CommonModule, 
-    FormsModule, 
-    AccordionSectionComponent, 
+    CommonModule,
+    FormsModule,
+    AccordionSectionComponent,
     ContentHeaderComponent,
     BasicInfoSectionComponent,
     AddressSectionComponent,
     EmailSectionComponent,
     PhoneSectionComponent,
     SocialMediaSectionComponent,
-    EmployeeSectionComponent
+    EmployeeSectionComponent,
+    ModuleSectionComponent
   ],
   templateUrl: './company-edit.component.html',
   styleUrls: ['./company-edit.component.scss'],
@@ -68,7 +70,9 @@ export class CompanyEditComponent implements OnInit {
     addressTypeOptions: [],
     emailTypeOptions: [],
     phoneTypeOptions: [],
-    socialMediaTypeOptions: []
+    socialMediaTypeOptions: [],
+    moduleOptions: [],
+    selectedModuleIds: []
   });
 
   // Estado de secciones colapsables (usando el servicio compartido)
@@ -117,7 +121,7 @@ export class CompanyEditComponent implements OnInit {
   private updateHeaderActions() {
     const isLoading = this.isLoading();
     const isInitialLoading = this.isInitialLoading();
-    
+
     this.headerActions = [
       {
         label: 'Volver al listado',
@@ -150,7 +154,7 @@ export class CompanyEditComponent implements OnInit {
         console.log('Company object specifically:', results.company);
         console.log('Company type:', typeof results.company);
         console.log('Company keys:', Object.keys(results.company));
-        
+
         // Verificar si el objeto company tiene datos
         if (results.company && Object.keys(results.company).length > 0) {
           // Mapear los datos de la empresa al formulario
@@ -165,7 +169,7 @@ export class CompanyEditComponent implements OnInit {
       error: (error) => {
         console.error('Error loading company data:', error);
         console.log('Attempting to load types only and create empty form');
-        
+
         // Si falla la carga de la empresa, al menos cargar los tipos
         this.companyFormService.loadTypeOptions().subscribe({
           next: (typeResults) => {
@@ -185,7 +189,7 @@ export class CompanyEditComponent implements OnInit {
 
   private createEmptyForm(typeOptions: any) {
     console.log('Creating empty form with types:', typeOptions);
-    
+
     // Usar el servicio compartido para crear formulario vacío
     const emptyForm = this.companyFormService.createEmptyForm(typeOptions);
     this.form.set(emptyForm);
@@ -193,7 +197,7 @@ export class CompanyEditComponent implements OnInit {
 
   private mapCompanyToForm(company: GetCompanyResult, typeOptions: any) {
     console.log('Mapping company to form:', company);
-    
+
     // Mapear direcciones (con validación)
     const addresses: CompanyAddressForm[] = (company.addresses || []).map(addr => ({
       id: addr.id, // Incluir el ID del elemento existente
@@ -239,6 +243,9 @@ export class CompanyEditComponent implements OnInit {
       position: employee.position,
       hireDate: employee.hireDate ? new Date(employee.hireDate) : undefined
     }));
+
+    // Mapear módulos
+    const selectedModuleIds = company.moduleIds || [];
 
     // Si no hay elementos, agregar al menos uno de cada tipo
     if (addresses.length === 0) {
@@ -299,7 +306,9 @@ export class CompanyEditComponent implements OnInit {
       addressTypeOptions: typeOptions.addressTypes,
       emailTypeOptions: typeOptions.emailTypes,
       phoneTypeOptions: typeOptions.phoneTypes,
-      socialMediaTypeOptions: typeOptions.socialMediaTypes
+      socialMediaTypeOptions: typeOptions.socialMediaTypes,
+      moduleOptions: typeOptions.modules,
+      selectedModuleIds: selectedModuleIds
     });
   }
 
@@ -395,8 +404,15 @@ export class CompanyEditComponent implements OnInit {
   }
 
   // Métodos para toggle de secciones (usando el servicio compartido)
-  toggleSection(section: 'basicInfo' | 'addresses' | 'emails' | 'phones' | 'socialMedias' | 'employees') {
+  toggleSection(section: 'basicInfo' | 'addresses' | 'emails' | 'phones' | 'socialMedias' | 'employees' | 'modules') {
     this.companyFormService.toggleSection(section);
+  }
+
+  updateModuleIds(ids: string[]) {
+    this.form.update(current => ({
+      ...current,
+      selectedModuleIds: ids
+    }));
   }
 
   // Validaciones (usando el servicio compartido)
@@ -428,7 +444,7 @@ export class CompanyEditComponent implements OnInit {
     try {
       const currentForm = this.form();
       const companyId = this.companyId();
-      
+
       const command: UpdateCompanyCommand = {
         id: companyId,
         name: currentForm.name.trim(),
@@ -464,14 +480,15 @@ export class CompanyEditComponent implements OnInit {
           phone: employee.phone?.trim(),
           position: employee.position?.trim(),
           hireDate: employee.hireDate
-        }))
+        })),
+        moduleIds: currentForm.selectedModuleIds
       };
 
       this.companyService.updateCompany(companyId, command).subscribe({
         next: (result) => {
           this.isLoading.set(false);
           this.successMessage.set('Empresa actualizada exitosamente.');
-          
+
           // Redirigir al listado después de 2 segundos
           setTimeout(() => {
             this.router.navigate(['/company/list']);

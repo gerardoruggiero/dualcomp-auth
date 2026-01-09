@@ -81,6 +81,9 @@ namespace Dualcomp.Auth.Application.Companies.RegisterCompany
 
 			// Procesar empleados usando el servicio unificado
 			await _contactService.ProcessEmployeesForRegistrationAsync(company, command.Employees, cancellationToken);
+            
+			// Procesar módulos
+			company.AddModules(command.ModuleIds);
 
 			// Validar que la empresa esté completa para registro
 			if (!company.IsValidForRegistration())

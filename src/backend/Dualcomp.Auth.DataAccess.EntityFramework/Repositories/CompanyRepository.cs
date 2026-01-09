@@ -34,6 +34,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Repositories
 				.Include(c => c.Emails)
 				.Include(c => c.Phones)
 				.Include(c => c.SocialMedias)
+				.Include(c => c.Modules)
 				.FirstOrDefaultAsync(c => c.TaxId.Value == taxId.Value, cancellationToken);
 		}
 
@@ -45,6 +46,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Repositories
 				.Include(c => c.Emails)
 				.Include(c => c.Phones)
 				.Include(c => c.SocialMedias)
+				.Include(c => c.Modules)
 				.FirstOrDefaultAsync(c => c.Id == id, cancellationToken);
         }
 
@@ -56,6 +58,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Repositories
 				.Include(c => c.Emails)
 				.Include(c => c.Phones)
 				.Include(c => c.SocialMedias)
+				.Include(c => c.Modules)
 				.ToListAsync(cancellationToken);
 		}
 
@@ -67,6 +70,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Repositories
 				.Include(c => c.Emails)
 				.Include(c => c.Phones)
 				.Include(c => c.SocialMedias)
+				.Include(c => c.Modules)
 				.ToListAsync(cancellationToken);
 		}
 	}

@@ -11,7 +11,8 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
         List<UpdateCompanyEmailDto> Emails,
         List<UpdateCompanyPhoneDto> Phones,
         List<UpdateCompanySocialMediaDto> SocialMedias,
-        List<UpdateCompanyEmployeeDto> Employees
+        List<UpdateCompanyEmployeeDto> Employees,
+        List<Guid> ModuleIds
     ) : ICommand<UpdateCompanyResult>;
 
     public record UpdateCompanyAddressDto(

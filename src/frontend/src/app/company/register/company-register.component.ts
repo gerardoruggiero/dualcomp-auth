@@ -2,8 +2,8 @@ import { ChangeDetectionStrategy, Component, inject, signal, OnInit, effect } fr
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { 
-  CompanyRegisterForm, 
+import {
+  CompanyRegisterForm,
   RegisterCompanyCommand
 } from '../models/company-register.models';
 import { CompanyService } from '../services/CompanyService';
@@ -16,20 +16,22 @@ import { EmailSectionComponent } from '../shared/components/email-section/email-
 import { PhoneSectionComponent } from '../shared/components/phone-section/phone-section.component';
 import { SocialMediaSectionComponent } from '../shared/components/social-media-section/social-media-section.component';
 import { EmployeeSectionComponent } from '../shared/components/employee-section/employee-section.component';
+import { ModuleSectionComponent } from '../shared/components/module-section/module-section.component';
 
 @Component({
   selector: 'app-company-register',
   imports: [
-    CommonModule, 
-    FormsModule, 
-    AccordionSectionComponent, 
+    CommonModule,
+    FormsModule,
+    AccordionSectionComponent,
     ContentHeaderComponent,
     BasicInfoSectionComponent,
     AddressSectionComponent,
     EmailSectionComponent,
     PhoneSectionComponent,
     SocialMediaSectionComponent,
-    EmployeeSectionComponent
+    EmployeeSectionComponent,
+    ModuleSectionComponent
   ],
   templateUrl: './company-register.component.html',
   styleUrls: ['./company-register.component.scss'],
@@ -57,7 +59,9 @@ export class CompanyRegisterComponent implements OnInit {
     addressTypeOptions: [],
     emailTypeOptions: [],
     phoneTypeOptions: [],
-    socialMediaTypeOptions: []
+    socialMediaTypeOptions: [],
+    moduleOptions: [],
+    selectedModuleIds: []
   });
 
   // Estado de secciones colapsables (usando el servicio compartido)
@@ -85,7 +89,7 @@ export class CompanyRegisterComponent implements OnInit {
 
   ngOnInit() {
     this.loadTypeOptions();
-    
+
     // Actualizar el estado de los botones cuando cambie el loading
     effect(() => {
       this.isLoading(); // Leer el signal para que el effect se ejecute cuando cambie
@@ -95,7 +99,7 @@ export class CompanyRegisterComponent implements OnInit {
 
   private updateHeaderActions() {
     const isLoading = this.isLoading();
-    
+
     this.headerActions = [
       {
         label: 'Volver al listado',
@@ -119,7 +123,7 @@ export class CompanyRegisterComponent implements OnInit {
     this.companyFormService.loadTypeOptions().subscribe({
       next: (results) => {
         console.log('All types loaded:', results);
-        
+
         // Crear formulario vacío con los tipos cargados
         const emptyForm = this.companyFormService.createEmptyForm(results);
         this.form.set(emptyForm);
@@ -223,8 +227,15 @@ export class CompanyRegisterComponent implements OnInit {
   }
 
   // Métodos para toggle de secciones (usando el servicio compartido)
-  toggleSection(section: 'basicInfo' | 'addresses' | 'emails' | 'phones' | 'socialMedias' | 'employees') {
+  toggleSection(section: 'basicInfo' | 'addresses' | 'emails' | 'phones' | 'socialMedias' | 'employees' | 'modules') {
     this.companyFormService.toggleSection(section);
+  }
+
+  updateModuleIds(ids: string[]) {
+    this.form.update(current => ({
+      ...current,
+      selectedModuleIds: ids
+    }));
   }
 
   // Validaciones (usando el servicio compartido)
@@ -247,7 +258,7 @@ export class CompanyRegisterComponent implements OnInit {
 
     try {
       const currentForm = this.form();
-      
+
       const command: RegisterCompanyCommand = {
         name: currentForm.name.trim(),
         taxId: currentForm.taxId.trim(),
@@ -277,14 +288,15 @@ export class CompanyRegisterComponent implements OnInit {
           phone: employee.phone?.trim(),
           position: employee.position?.trim(),
           hireDate: employee.hireDate
-        }))
+        })),
+        moduleIds: currentForm.selectedModuleIds
       };
 
       this.companyService.registerCompany(command).subscribe({
         next: (result) => {
           this.isLoading.set(false);
           this.successMessage.set('Empresa registrada exitosamente. Será redirigido al login.');
-          
+
           // Redirigir al login después de 3 segundos
           setTimeout(() => {
             this.router.navigate(['/login']);

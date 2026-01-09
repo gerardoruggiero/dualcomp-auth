@@ -52,7 +52,8 @@ namespace Dualcomp.Auth.Application.Companies.GetCompany
                         e.Email, 
                         e.Phone, 
                         e.Position, 
-                        e.HireDate)).ToList());
+                        e.HireDate)).ToList(),
+                company.Modules.Select(m => m.ModuleId).ToList());
 
             return result;
         }

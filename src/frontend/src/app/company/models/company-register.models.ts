@@ -41,6 +41,7 @@ export interface RegisterCompanyCommand {
   phones: RegisterCompanyPhoneDto[];
   socialMedias: RegisterCompanySocialMediaDto[];
   employees: RegisterCompanyEmployeeDto[];
+  moduleIds: string[];
 }
 
 // Resultados del registro
@@ -90,6 +91,7 @@ export interface RegisterCompanyResult {
   phones: CompanyPhoneResult[];
   socialMedias: CompanySocialMediaResult[];
   employees: CompanyEmployeeResult[];
+  moduleIds: string[];
 }
 
 // Modelos para el formulario (con tipos completos)
@@ -138,19 +140,21 @@ export interface CompanyRegisterForm {
   // Datos básicos
   name: string;
   taxId: string;
-  
+
   // Colecciones
   addresses: CompanyAddressForm[];
   emails: CompanyEmailForm[];
   phones: CompanyPhoneForm[];
   socialMedias: CompanySocialMediaForm[];
   employees: CompanyEmployeeForm[];
-  
+  selectedModuleIds: string[];
+
   // Opciones para los selects
   addressTypeOptions: BaseTypeClass[];
   emailTypeOptions: BaseTypeClass[];
   phoneTypeOptions: BaseTypeClass[];
   socialMediaTypeOptions: BaseTypeClass[];
+  moduleOptions: BaseTypeClass[];
 }
 
 // ===== INTERFACES PARA EDICIÓN =====
@@ -202,6 +206,7 @@ export interface UpdateCompanyCommand {
   phones: UpdateCompanyPhoneDto[];
   socialMedias: UpdateCompanySocialMediaDto[];
   employees: UpdateCompanyEmployeeDto[];
+  moduleIds: string[];
 }
 
 // Resultados de actualización
@@ -226,6 +231,7 @@ export interface GetCompanyResult {
   phones: CompanyPhoneResult[];
   socialMedias: CompanySocialMediaResult[];
   employees: CompanyEmployeeResult[];
+  moduleIds: string[];
 }
 
 // Resultados de listado de empresas

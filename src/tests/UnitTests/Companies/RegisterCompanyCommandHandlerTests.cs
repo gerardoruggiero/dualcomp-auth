@@ -375,7 +375,9 @@ public class RegisterCompanyCommandHandlerTests
 			Employees = new List<RegisterCompanyEmployeeDto>
 			{
 				new RegisterCompanyEmployeeDto { FullName = "Alice", Email = "alice@acme.com" }
-			}
+			},
+			SocialMedias = new List<RegisterCompanySocialMediaDto>(),
+			ModuleIds = new List<Guid> { Guid.NewGuid(), Guid.NewGuid() }
 		};
 
 		await Assert.ThrowsAsync<InvalidOperationException>(() => handler.Handle(cmd, CancellationToken.None));

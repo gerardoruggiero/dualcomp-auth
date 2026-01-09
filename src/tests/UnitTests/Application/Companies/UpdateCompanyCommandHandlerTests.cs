@@ -82,7 +82,8 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                  new List<UpdateCompanyEmployeeDto>
                  {
                      new(Guid.NewGuid(), "Jane Doe", "jane@test.com", "+56987654321", "Manager", null)
-                 } // Lista con un empleado diferente - el empleado original fue eliminado
+                 }, // Lista con un empleado diferente - el empleado original fue eliminado
+                 new List<Guid>()
              );
 
             _companyRepositoryMock.Setup(x => x.GetByIdAsync(companyId, It.IsAny<CancellationToken>()))
@@ -172,7 +173,8 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                  new List<UpdateCompanyEmployeeDto>
                  {
                      new(Guid.NewGuid(), "John Doe", "john@test.com", "+56912345678", "Developer", null)
-                 }
+                 },
+                 new List<Guid>()
              );
 
             _companyRepositoryMock.Setup(x => x.GetByIdAsync(companyId, It.IsAny<CancellationToken>()))

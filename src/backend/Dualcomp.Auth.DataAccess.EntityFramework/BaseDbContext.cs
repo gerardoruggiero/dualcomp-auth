@@ -25,6 +25,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework
 		public DbSet<EmailValidation> EmailValidations => Set<EmailValidation>();
 		public DbSet<CompanySettings> CompanySettings => Set<CompanySettings>();
 		public DbSet<EmailLog> EmailLogs => Set<EmailLog>();
+		public DbSet<CompanyModule> CompanyModules => Set<CompanyModule>();
 		
 		public BaseDbContext(DbContextOptions<BaseDbContext> options) : base(options)
 		{
@@ -51,6 +52,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework
 			modelBuilder.ApplyConfiguration(new EmailValidationConfiguration());
 			modelBuilder.ApplyConfiguration(new CompanySettingsConfiguration());
 			modelBuilder.ApplyConfiguration(new EmailLogConfiguration());
+			modelBuilder.ApplyConfiguration(new CompanyModuleConfiguration());
 		}
 	}
 }

@@ -69,6 +69,10 @@ namespace Dualcomp.Auth.Application.Companies.UpdateCompany
             // Procesar empleados usando el servicio unificado
             await _contactService.ProcessEmployeesForUpdateAsync(company, request.Employees, cancellationToken);
 
+            // Actualizar módulos
+            company.ClearModules();
+            company.AddModules(request.ModuleIds);
+
             // Validar que la empresa esté completa
             if (!company.IsValidForRegistration())
             {

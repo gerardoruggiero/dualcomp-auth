@@ -10,6 +10,7 @@ namespace Dualcomp.Auth.Domain.Companies
 		private readonly List<CompanyEmail> _emails = [];
 		private readonly List<CompanyPhone> _phones = [];
 		private readonly List<CompanySocialMedia> _socialMedias = [];
+		private readonly List<CompanyModule> _modules = [];
 		
 		public string Name { get; private set; } = string.Empty;
 		public TaxId TaxId { get; private set; } = null!;
@@ -18,6 +19,7 @@ namespace Dualcomp.Auth.Domain.Companies
 		public IReadOnlyCollection<CompanyEmail> Emails => _emails.AsReadOnly();
 		public IReadOnlyCollection<CompanyPhone> Phones => _phones.AsReadOnly();
 		public IReadOnlyCollection<CompanySocialMedia> SocialMedias => _socialMedias.AsReadOnly();
+		public IReadOnlyCollection<CompanyModule> Modules => _modules.AsReadOnly();
 
 		private Company() { }
 
@@ -97,6 +99,29 @@ namespace Dualcomp.Auth.Domain.Companies
 		{
 			if (socialMedia is null) throw new ArgumentNullException(nameof(socialMedia));
 			_socialMedias.Remove(socialMedia);
+		}
+
+		public void ClearModules()
+		{
+			_modules.Clear();
+		}
+
+		public void AddModule(Guid moduleId)
+		{
+			if (moduleId == Guid.Empty) throw new ArgumentException("ModuleId is required", nameof(moduleId));
+			if (!_modules.Any(m => m.ModuleId == moduleId))
+			{
+				_modules.Add(CompanyModule.Create(Id, moduleId));
+			}
+		}
+
+		public void AddModules(IEnumerable<Guid> moduleIds)
+		{
+			if (moduleIds is null) return;
+			foreach (var moduleId in moduleIds)
+			{
+				AddModule(moduleId);
+			}
 		}
 
 		// Validaciones de negocio

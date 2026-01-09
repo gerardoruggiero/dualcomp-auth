@@ -11,9 +11,9 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework.Repositories
 		{
 		}
 
-		public async Task<IEnumerable<ModuloEntity>> GetAllAsync(CancellationToken cancellationToken = default)
+		public override async Task<IEnumerable<ModuloEntity>> GetAllAsync(CancellationToken cancellationToken = default)
 		{
-			return await ListAsync(cancellationToken);
+			return await ListAsync(w=> w.IsActive == true, cancellationToken);
 		}
 	}
 }
