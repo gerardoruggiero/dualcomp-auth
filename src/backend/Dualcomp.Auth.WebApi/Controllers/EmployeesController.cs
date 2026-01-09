@@ -6,6 +6,7 @@ using Dualcomp.Auth.Application.Employees.GetEmployee;
 using Dualcomp.Auth.Application.Employees.GetEmployees;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
+using Dualcomp.Auth.WebApi.Extensions;
 
 namespace Dualcomp.Auth.WebApi.Controllers
 {
@@ -120,7 +121,8 @@ namespace Dualcomp.Auth.WebApi.Controllers
         {
             try
             {
-                var query = new GetEmployeesQuery(companyId, page, pageSize, searchTerm);
+                var companyIdToUse = companyId ?? User.GetCompanyIdOrThrow();
+                var query = new GetEmployeesQuery(companyIdToUse, page, pageSize, searchTerm);
                 var result = await _getEmployeesHandler.Handle(query, HttpContext.RequestAborted);
 
                 return Ok(result);

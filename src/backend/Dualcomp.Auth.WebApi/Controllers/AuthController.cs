@@ -7,6 +7,7 @@ using Dualcomp.Auth.Application.Users.ForcePasswordChange;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Dualcomp.Auth.Domain.Companies.ValueObjects;
 using System.Security.Claims;
+using Dualcomp.Auth.WebApi.Extensions;
 
 namespace Dualcomp.Auth.WebApi.Controllers
 {
@@ -122,7 +123,7 @@ namespace Dualcomp.Auth.WebApi.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var userId = GetCurrentUserId();
+            var userId = User.GetUserId();
             if (userId == null)
                 return Unauthorized(new { message = "Usuario no autenticado" });
 
@@ -237,12 +238,6 @@ namespace Dualcomp.Auth.WebApi.Controllers
                 return authHeader.Substring("Bearer ".Length).Trim();
             }
             return null;
-        }
-
-        private Guid? GetCurrentUserId()
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? User.FindFirst("sub")?.Value;
-            return Guid.TryParse(userIdClaim, out var userId) ? userId : null;
         }
     }
 

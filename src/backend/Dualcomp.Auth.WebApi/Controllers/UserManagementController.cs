@@ -9,6 +9,7 @@ using Dualcomp.Auth.Application.Users.ResetUserPassword;
 using Dualcomp.Auth.Application.Users.SetTemporaryPassword;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using System.Security.Claims;
+using Dualcomp.Auth.WebApi.Extensions;
 
 namespace Dualcomp.Auth.WebApi.Controllers
 {
@@ -61,7 +62,7 @@ namespace Dualcomp.Auth.WebApi.Controllers
                 else
                 {
                     // Si no se especifica companyId, usar el de la empresa del usuario autenticado
-                    var userCompanyId = companyId ?? GetCurrentUserCompanyId();
+                    var userCompanyId = companyId ?? User.GetCompanyIdOrThrow();
                     query = new GetUsersQuery(userCompanyId, page, pageSize, searchTerm);
                 }
                 var result = await _getUsersHandler.Handle(query, HttpContext.RequestAborted);
@@ -87,8 +88,8 @@ namespace Dualcomp.Auth.WebApi.Controllers
 
             try
             {
-                var currentUserId = GetCurrentUserId();
-                var currentUserCompanyId = GetCurrentUserCompanyId();
+                var currentUserId = User.GetUserIdOrThrow();
+                var currentUserCompanyId = User.GetCompanyIdOrThrow();
 
                 var command = new CreateUserCommand(
                     request.FirstName,
@@ -125,7 +126,7 @@ namespace Dualcomp.Auth.WebApi.Controllers
 
             try
             {
-                var currentUserId = GetCurrentUserId();
+                var currentUserId = User.GetUserIdOrThrow();
 
                 var command = new UpdateUserCommand(
                     userId,
@@ -163,7 +164,7 @@ namespace Dualcomp.Auth.WebApi.Controllers
         {
             try
             {
-                var currentUserId = GetCurrentUserId();
+                var currentUserId = User.GetUserIdOrThrow();
 
                 var command = new DeactivateUserCommand(userId, currentUserId);
                 var result = await _deactivateUserHandler.Handle(command, HttpContext.RequestAborted);
@@ -186,7 +187,7 @@ namespace Dualcomp.Auth.WebApi.Controllers
         {
             try
             {
-                var currentUserId = GetCurrentUserId();
+                var currentUserId = User.GetUserIdOrThrow();
 
                 var command = new ActivateUserCommand(userId, currentUserId);
                 var result = await _activateUserHandler.Handle(command, HttpContext.RequestAborted);
@@ -209,7 +210,7 @@ namespace Dualcomp.Auth.WebApi.Controllers
         {
             try
             {
-                var currentUserId = GetCurrentUserId();
+                var currentUserId = User.GetUserIdOrThrow();
 
                 var command = new ResetUserPasswordCommand(userId, currentUserId);
                 var result = await _resetUserPasswordHandler.Handle(command, HttpContext.RequestAborted);
@@ -245,7 +246,7 @@ namespace Dualcomp.Auth.WebApi.Controllers
 
             try
             {
-                var currentUserId = GetCurrentUserId();
+                var currentUserId = User.GetUserIdOrThrow();
 
                 var command = new SetTemporaryPasswordCommand(
                     userId,
@@ -281,26 +282,6 @@ namespace Dualcomp.Auth.WebApi.Controllers
             {
                 return BadRequest(new { message = "Error interno del servidor" });
             }
-        }
-
-        private Guid GetCurrentUserId()
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
-            {
-                throw new UnauthorizedAccessException("Usuario no autenticado");
-            }
-            return userId;
-        }
-
-        private Guid GetCurrentUserCompanyId()
-        {
-            var companyIdClaim = User.FindFirst("CompanyId")?.Value;
-            if (string.IsNullOrEmpty(companyIdClaim) || !Guid.TryParse(companyIdClaim, out var companyId))
-            {
-                throw new UnauthorizedAccessException("Empresa no identificada");
-            }
-            return companyId;
         }
     }
 
