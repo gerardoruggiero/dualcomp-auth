@@ -1,6 +1,8 @@
 using Dualcomp.Auth.Application.DocumentTypes.GetDocumentTypes;
 using Dualcomp.Auth.Application.DocumentTypes.CreateDocumentType;
 using Dualcomp.Auth.Application.DocumentTypes.UpdateDocumentType;
+using Dualcomp.Auth.Application.DocumentTypes.ActivateDocumentType;
+using Dualcomp.Auth.Application.DocumentTypes.DeactivateDocumentType;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,13 +16,17 @@ namespace Dualcomp.Auth.WebApi.Controllers
 		CreateDocumentTypeCommand,
 		CreateDocumentTypeResult,
 		UpdateDocumentTypeCommand,
-		UpdateDocumentTypeResult>
+		UpdateDocumentTypeResult,
+		ActivateDocumentTypeCommand,
+		DeactivateDocumentTypeCommand>
 	{
         public DocumentTypesController(
 			IQueryHandler<GetDocumentTypesQuery, GetDocumentTypesResult> getDocumentTypesHandler,
 			ICommandHandler<CreateDocumentTypeCommand, CreateDocumentTypeResult> createDocumentTypeHandler,
-			ICommandHandler<UpdateDocumentTypeCommand, UpdateDocumentTypeResult> updateDocumentTypeHandler) 
-            : base(getDocumentTypesHandler, createDocumentTypeHandler, updateDocumentTypeHandler)
+			ICommandHandler<UpdateDocumentTypeCommand, UpdateDocumentTypeResult> updateDocumentTypeHandler,
+			ICommandHandler<ActivateDocumentTypeCommand> activateDocumentTypeHandler,
+			ICommandHandler<DeactivateDocumentTypeCommand> deactivateDocumentTypeHandler) 
+            : base(getDocumentTypesHandler, createDocumentTypeHandler, updateDocumentTypeHandler, activateDocumentTypeHandler, deactivateDocumentTypeHandler)
         {
         }
 	}

@@ -2,17 +2,17 @@ import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { TypeModalComponent, TypeModalConfig } from '../shared/components/type-modal/type-modal.component';
 import { SocialMediaTypeService } from '../shared/services/social-media-type.service';
-import { 
-  SocialMediaTypeEntity, 
-  CreateSocialMediaTypeCommand, 
+import {
+  SocialMediaTypeEntity,
+  CreateSocialMediaTypeCommand,
   UpdateSocialMediaTypeCommand,
-  SocialMediaTypeListResult 
+  SocialMediaTypeListResult
 } from '../shared/models/social-media-type.models';
-import { 
+import {
   DataTableComponent,
-  DataTableColumn, 
+  DataTableColumn,
   DataTableAction,
-  DataTableConfig 
+  DataTableConfig
 } from '../shared/components/data-table/data-table.component';
 
 @Component({
@@ -77,7 +77,7 @@ export class SocialMediaComponent implements OnInit {
     console.log('SocialMediaComponent - Cargando datos del servidor...');
     this.isLoading.set(true);
     this.errorMessage.set('');
-    
+
     this.socialMediaTypeService.getTypes(
       this.currentPage(),
       this.pageSize(),
@@ -159,6 +159,28 @@ export class SocialMediaComponent implements OnInit {
   }
 
 
+  onToggleStatus(item: SocialMediaTypeEntity) {
+    if (!confirm(`¿Estás seguro de que deseas ${item.isActive ? 'desactivar' : 'activar'} este tipo de red social?`)) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    const observable = item.isActive
+      ? this.socialMediaTypeService.deactivateType(item.id)
+      : this.socialMediaTypeService.activateType(item.id);
+
+    observable.subscribe({
+      next: () => {
+        this.loadDataFromServer();
+      },
+      error: (error) => {
+        console.error('Error changing social media type status:', error);
+        this.errorMessage.set('Error al cambiar el estado del tipo de red social');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
   // Manejar eventos del modal
   onModalSave(command: CreateSocialMediaTypeCommand | UpdateSocialMediaTypeCommand) {
     this.modalLoading.set(true);
@@ -207,7 +229,7 @@ export class SocialMediaComponent implements OnInit {
         title: 'Estado',
         sortable: true,
         width: '15%',
-        render: (value: boolean) => 
+        render: (value: boolean) =>
           `<span class="badge ${value ? 'badge-success' : 'badge-secondary'}">${value ? 'Activo' : 'Inactivo'}</span>`
       }
     ];
@@ -222,6 +244,20 @@ export class SocialMediaComponent implements OnInit {
         class: 'btn-primary',
         action: (item: SocialMediaTypeEntity) => this.onEditType(item),
         show: (item: SocialMediaTypeEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-ban',
+        class: 'btn-danger',
+        action: (item: SocialMediaTypeEntity) => this.onToggleStatus(item),
+        show: (item: SocialMediaTypeEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-check',
+        class: 'btn-success',
+        action: (item: SocialMediaTypeEntity) => this.onToggleStatus(item),
+        show: (item: SocialMediaTypeEntity) => !item.isActive
       }
     ];
   }

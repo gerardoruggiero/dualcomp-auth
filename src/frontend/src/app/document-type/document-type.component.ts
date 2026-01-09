@@ -2,17 +2,17 @@ import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { TypeModalComponent, TypeModalConfig } from '../shared/components/type-modal/type-modal.component';
 import { DocumentTypeService } from '../shared/services/document-type.service';
-import { 
-  DocumentTypeEntity, 
-  CreateDocumentTypeCommand, 
+import {
+  DocumentTypeEntity,
+  CreateDocumentTypeCommand,
   UpdateDocumentTypeCommand,
-  DocumentTypeListResult 
+  DocumentTypeListResult
 } from '../shared/models/document-type.models';
-import { 
+import {
   DataTableComponent,
-  DataTableColumn, 
+  DataTableColumn,
   DataTableAction,
-  DataTableConfig 
+  DataTableConfig
 } from '../shared/components/data-table/data-table.component';
 
 @Component({
@@ -77,7 +77,7 @@ export class DocumentTypeComponent implements OnInit {
     console.log('DocumentTypeComponent - Cargando datos del servidor...');
     this.isLoading.set(true);
     this.errorMessage.set('');
-    
+
     this.documentTypeService.getTypes(
       this.currentPage(),
       this.pageSize(),
@@ -159,6 +159,28 @@ export class DocumentTypeComponent implements OnInit {
   }
 
 
+  onToggleStatus(item: DocumentTypeEntity) {
+    if (!confirm(`¿Estás seguro de que deseas ${item.isActive ? 'desactivar' : 'activar'} este tipo de documento?`)) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    const observable = item.isActive
+      ? this.documentTypeService.deactivateType(item.id)
+      : this.documentTypeService.activateType(item.id);
+
+    observable.subscribe({
+      next: () => {
+        this.loadDataFromServer();
+      },
+      error: (error) => {
+        console.error('Error changing document type status:', error);
+        this.errorMessage.set('Error al cambiar el estado del tipo de documento');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
   // Manejar eventos del modal
   onModalSave(command: CreateDocumentTypeCommand | UpdateDocumentTypeCommand) {
     this.modalLoading.set(true);
@@ -207,7 +229,7 @@ export class DocumentTypeComponent implements OnInit {
         title: 'Estado',
         sortable: true,
         width: '15%',
-        render: (value: boolean) => 
+        render: (value: boolean) =>
           `<span class="badge ${value ? 'badge-success' : 'badge-secondary'}">${value ? 'Activo' : 'Inactivo'}</span>`
       }
     ];
@@ -222,6 +244,20 @@ export class DocumentTypeComponent implements OnInit {
         class: 'btn-primary',
         action: (item: DocumentTypeEntity) => this.onEditType(item),
         show: (item: DocumentTypeEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-ban',
+        class: 'btn-danger',
+        action: (item: DocumentTypeEntity) => this.onToggleStatus(item),
+        show: (item: DocumentTypeEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-check',
+        class: 'btn-success',
+        action: (item: DocumentTypeEntity) => this.onToggleStatus(item),
+        show: (item: DocumentTypeEntity) => !item.isActive
       }
     ];
   }

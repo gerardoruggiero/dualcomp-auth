@@ -3,6 +3,8 @@ using Dualcomp.Auth.WebApi.Controllers;
 using Dualcomp.Auth.Application.DocumentTypes.GetDocumentTypes;
 using Dualcomp.Auth.Application.DocumentTypes.CreateDocumentType;
 using Dualcomp.Auth.Application.DocumentTypes.UpdateDocumentType;
+using Dualcomp.Auth.Application.DocumentTypes.ActivateDocumentType;
+using Dualcomp.Auth.Application.DocumentTypes.DeactivateDocumentType;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Moq;
 
@@ -17,6 +19,8 @@ public class DocumentTypesControllerTests
 		var mockQueryHandler = new Mock<IQueryHandler<GetDocumentTypesQuery, GetDocumentTypesResult>>();
 		var mockCreateHandler = new Mock<ICommandHandler<CreateDocumentTypeCommand, CreateDocumentTypeResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateDocumentTypeCommand, UpdateDocumentTypeResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateDocumentTypeCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateDocumentTypeCommand>>();
 		
 		var expectedResult = new GetDocumentTypesResult(new List<DocumentTypeItem>
 		{
@@ -32,7 +36,9 @@ public class DocumentTypesControllerTests
 		var controller = new DocumentTypesController(
 			mockQueryHandler.Object, 
 			mockCreateHandler.Object, 
-			mockUpdateHandler.Object);
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -50,6 +56,8 @@ public class DocumentTypesControllerTests
 		var mockQueryHandler = new Mock<IQueryHandler<GetDocumentTypesQuery, GetDocumentTypesResult>>();
 		var mockCreateHandler = new Mock<ICommandHandler<CreateDocumentTypeCommand, CreateDocumentTypeResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateDocumentTypeCommand, UpdateDocumentTypeResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateDocumentTypeCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateDocumentTypeCommand>>();
 		
 		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetDocumentTypesQuery>(), It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new Exception("Test exception"));
@@ -57,7 +65,9 @@ public class DocumentTypesControllerTests
 		var controller = new DocumentTypesController(
 			mockQueryHandler.Object, 
 			mockCreateHandler.Object, 
-			mockUpdateHandler.Object);
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -74,9 +84,16 @@ public class DocumentTypesControllerTests
 		// Arrange
 		var mockCreateHandler = new Mock<ICommandHandler<CreateDocumentTypeCommand, CreateDocumentTypeResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateDocumentTypeCommand, UpdateDocumentTypeResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateDocumentTypeCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateDocumentTypeCommand>>();
 
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new DocumentTypesController(null!, mockCreateHandler.Object, mockUpdateHandler.Object));
+		Assert.Throws<ArgumentNullException>(() => new DocumentTypesController(
+			null!, 
+			mockCreateHandler.Object, 
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object));
 	}
 
 	[Fact]
@@ -85,9 +102,16 @@ public class DocumentTypesControllerTests
 		// Arrange
 		var mockQueryHandler = new Mock<IQueryHandler<GetDocumentTypesQuery, GetDocumentTypesResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateDocumentTypeCommand, UpdateDocumentTypeResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateDocumentTypeCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateDocumentTypeCommand>>();
 
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new DocumentTypesController(mockQueryHandler.Object, null!, mockUpdateHandler.Object));
+		Assert.Throws<ArgumentNullException>(() => new DocumentTypesController(
+			mockQueryHandler.Object, 
+			null!, 
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object));
 	}
 
 	[Fact]
@@ -96,9 +120,16 @@ public class DocumentTypesControllerTests
 		// Arrange
 		var mockQueryHandler = new Mock<IQueryHandler<GetDocumentTypesQuery, GetDocumentTypesResult>>();
 		var mockCreateHandler = new Mock<ICommandHandler<CreateDocumentTypeCommand, CreateDocumentTypeResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateDocumentTypeCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateDocumentTypeCommand>>();
 
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new DocumentTypesController(mockQueryHandler.Object, mockCreateHandler.Object, null!));
+		Assert.Throws<ArgumentNullException>(() => new DocumentTypesController(
+			mockQueryHandler.Object, 
+			mockCreateHandler.Object, 
+			null!,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object));
 	}
 }
 

@@ -2,17 +2,17 @@ import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { TypeModalComponent, TypeModalConfig } from '../shared/components/type-modal/type-modal.component';
 import { TitleService } from '../shared/services/title.service';
-import { 
-  TitleEntity, 
-  CreateTitleCommand, 
+import {
+  TitleEntity,
+  CreateTitleCommand,
   UpdateTitleCommand,
-  TitleListResult 
+  TitleListResult
 } from '../shared/models/title.models';
-import { 
+import {
   DataTableComponent,
-  DataTableColumn, 
+  DataTableColumn,
   DataTableAction,
-  DataTableConfig 
+  DataTableConfig
 } from '../shared/components/data-table/data-table.component';
 
 @Component({
@@ -77,7 +77,7 @@ export class TitleComponent implements OnInit {
     console.log('TitleComponent - Cargando datos del servidor...');
     this.isLoading.set(true);
     this.errorMessage.set('');
-    
+
     this.titleService.getTypes(
       this.currentPage(),
       this.pageSize(),
@@ -159,6 +159,28 @@ export class TitleComponent implements OnInit {
   }
 
 
+  onToggleStatus(item: TitleEntity) {
+    if (!confirm(`¿Estás seguro de que deseas ${item.isActive ? 'desactivar' : 'activar'} este título?`)) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    const observable = item.isActive
+      ? this.titleService.deactivateType(item.id)
+      : this.titleService.activateType(item.id);
+
+    observable.subscribe({
+      next: () => {
+        this.loadDataFromServer();
+      },
+      error: (error) => {
+        console.error('Error changing title status:', error);
+        this.errorMessage.set('Error al cambiar el estado del título');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
   // Manejar eventos del modal
   onModalSave(command: CreateTitleCommand | UpdateTitleCommand) {
     this.modalLoading.set(true);
@@ -207,7 +229,7 @@ export class TitleComponent implements OnInit {
         title: 'Estado',
         sortable: true,
         width: '15%',
-        render: (value: boolean) => 
+        render: (value: boolean) =>
           `<span class="badge ${value ? 'badge-success' : 'badge-secondary'}">${value ? 'Activo' : 'Inactivo'}</span>`
       }
     ];
@@ -222,6 +244,20 @@ export class TitleComponent implements OnInit {
         class: 'btn-primary',
         action: (item: TitleEntity) => this.onEditType(item),
         show: (item: TitleEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-ban',
+        class: 'btn-danger',
+        action: (item: TitleEntity) => this.onToggleStatus(item),
+        show: (item: TitleEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-check',
+        class: 'btn-success',
+        action: (item: TitleEntity) => this.onToggleStatus(item),
+        show: (item: TitleEntity) => !item.isActive
       }
     ];
   }

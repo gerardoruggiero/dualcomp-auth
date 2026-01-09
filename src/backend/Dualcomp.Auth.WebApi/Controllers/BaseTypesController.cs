@@ -14,26 +14,34 @@ namespace Dualcomp.Auth.WebApi.Controllers
     /// <typeparam name="TCreateResult">Tipo de resultado de creación</typeparam>
     /// <typeparam name="TUpdateCommand">Tipo de comando de actualización</typeparam>
     /// <typeparam name="TUpdateResult">Tipo de resultado de actualización</typeparam>
-    public abstract class BaseTypesController<TQuery, TResult, TCreateCommand, TCreateResult, TUpdateCommand, TUpdateResult> : ControllerBase
+    public abstract class BaseTypesController<TQuery, TResult, TCreateCommand, TCreateResult, TUpdateCommand, TUpdateResult, TActivateCommand, TDeactivateCommand> : ControllerBase
         where TQuery : IQuery<TResult>, new()
         where TResult : class
         where TCreateCommand : ICommand<TCreateResult>
         where TCreateResult : class
         where TUpdateCommand : ICommand<TUpdateResult>
         where TUpdateResult : class
+        where TActivateCommand : ICommand, new()
+        where TDeactivateCommand : ICommand, new()
     {
         private readonly IQueryHandler<TQuery, TResult> _queryHandler;
         private readonly ICommandHandler<TCreateCommand, TCreateResult> _createCommandHandler;
         private readonly ICommandHandler<TUpdateCommand, TUpdateResult> _updateCommandHandler;
+        private readonly ICommandHandler<TActivateCommand> _activateCommandHandler;
+        private readonly ICommandHandler<TDeactivateCommand> _deactivateCommandHandler;
 
         protected BaseTypesController(
             IQueryHandler<TQuery, TResult> queryHandler,
             ICommandHandler<TCreateCommand, TCreateResult> createCommandHandler,
-            ICommandHandler<TUpdateCommand, TUpdateResult> updateCommandHandler)
+            ICommandHandler<TUpdateCommand, TUpdateResult> updateCommandHandler,
+            ICommandHandler<TActivateCommand> activateCommandHandler,
+            ICommandHandler<TDeactivateCommand> deactivateCommandHandler)
         {
             _queryHandler = queryHandler ?? throw new ArgumentNullException(nameof(queryHandler));
             _createCommandHandler = createCommandHandler ?? throw new ArgumentNullException(nameof(createCommandHandler));
             _updateCommandHandler = updateCommandHandler ?? throw new ArgumentNullException(nameof(updateCommandHandler));
+            _activateCommandHandler = activateCommandHandler ?? throw new ArgumentNullException(nameof(activateCommandHandler));
+            _deactivateCommandHandler = deactivateCommandHandler ?? throw new ArgumentNullException(nameof(deactivateCommandHandler));
         }
 
         /// <summary>
@@ -126,6 +134,54 @@ namespace Dualcomp.Auth.WebApi.Controllers
         }
 
         /// <summary>
+        /// Activa un tipo de entidad
+        /// </summary>
+        [HttpPatch("{id}/activate")]
+        public async Task<IActionResult> Activate(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new TActivateCommand();
+            SetCommandId(command, id);
+
+            try
+            {
+                await _activateCommandHandler.Handle(command, cancellationToken);
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return BadRequest(new { message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
+        /// Desactiva un tipo de entidad
+        /// </summary>
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> Deactivate(Guid id, CancellationToken cancellationToken)
+        {
+            var command = new TDeactivateCommand();
+            SetCommandId(command, id);
+
+            try
+            {
+                await _deactivateCommandHandler.Handle(command, cancellationToken);
+                return Ok();
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(new { message = ex.Message });
+            }
+            catch (Exception)
+            {
+                return BadRequest(new { message = "Error interno del servidor" });
+            }
+        }
+
+        /// <summary>
         /// Obtiene el ID del comando usando reflexión
         /// </summary>
         private static Guid GetCommandId(TUpdateCommand command)
@@ -136,6 +192,24 @@ namespace Dualcomp.Auth.WebApi.Controllers
                 return id;
             }
             throw new InvalidOperationException("Command does not have an Id property");
+        }
+
+        /// <summary>
+        /// Establece el ID del comando usando reflexión
+        /// </summary>
+        private static void SetCommandId<T>(T command, Guid id)
+        {
+            var idProperty = typeof(T).GetProperty("Id");
+            if (idProperty != null && idProperty.CanWrite)
+            {
+                idProperty.SetValue(command, id);
+            }
+            else
+            {
+                // Alternativa para records que suelen tener 'Id' como propiedad init/readonly
+                // En commands genéricos sin constructor con parámetros, necesitamos que la propiedad sea seteable o el comando soporte el ID.
+                throw new InvalidOperationException($"Command {typeof(T).Name} must have a settable Id property for generic activation/deactivation");
+            }
         }
     }
 }

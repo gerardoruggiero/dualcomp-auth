@@ -3,6 +3,8 @@ using Dualcomp.Auth.WebApi.Controllers;
 using Dualcomp.Auth.Application.Titles.GetTitles;
 using Dualcomp.Auth.Application.Titles.CreateTitle;
 using Dualcomp.Auth.Application.Titles.UpdateTitle;
+using Dualcomp.Auth.Application.Titles.ActivateTitle;
+using Dualcomp.Auth.Application.Titles.DeactivateTitle;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Moq;
 
@@ -17,6 +19,8 @@ public class TitlesControllerTests
 		var mockQueryHandler = new Mock<IQueryHandler<GetTitlesQuery, GetTitlesResult>>();
 		var mockCreateHandler = new Mock<ICommandHandler<CreateTitleCommand, CreateTitleResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateTitleCommand, UpdateTitleResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateTitleCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateTitleCommand>>();
 		
 		var expectedResult = new GetTitlesResult(new List<TitleItem>
 		{
@@ -32,7 +36,9 @@ public class TitlesControllerTests
 		var controller = new TitlesController(
 			mockQueryHandler.Object, 
 			mockCreateHandler.Object, 
-			mockUpdateHandler.Object);
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -50,6 +56,8 @@ public class TitlesControllerTests
 		var mockQueryHandler = new Mock<IQueryHandler<GetTitlesQuery, GetTitlesResult>>();
 		var mockCreateHandler = new Mock<ICommandHandler<CreateTitleCommand, CreateTitleResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateTitleCommand, UpdateTitleResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateTitleCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateTitleCommand>>();
 		
 		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetTitlesQuery>(), It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new Exception("Test exception"));
@@ -57,7 +65,9 @@ public class TitlesControllerTests
 		var controller = new TitlesController(
 			mockQueryHandler.Object, 
 			mockCreateHandler.Object, 
-			mockUpdateHandler.Object);
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -74,9 +84,16 @@ public class TitlesControllerTests
 		// Arrange
 		var mockCreateHandler = new Mock<ICommandHandler<CreateTitleCommand, CreateTitleResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateTitleCommand, UpdateTitleResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateTitleCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateTitleCommand>>();
 
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new TitlesController(null!, mockCreateHandler.Object, mockUpdateHandler.Object));
+		Assert.Throws<ArgumentNullException>(() => new TitlesController(
+			null!, 
+			mockCreateHandler.Object, 
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object));
 	}
 
 	[Fact]
@@ -85,9 +102,16 @@ public class TitlesControllerTests
 		// Arrange
 		var mockQueryHandler = new Mock<IQueryHandler<GetTitlesQuery, GetTitlesResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateTitleCommand, UpdateTitleResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateTitleCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateTitleCommand>>();
 
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new TitlesController(mockQueryHandler.Object, null!, mockUpdateHandler.Object));
+		Assert.Throws<ArgumentNullException>(() => new TitlesController(
+			mockQueryHandler.Object, 
+			null!, 
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object));
 	}
 
 	[Fact]
@@ -96,9 +120,16 @@ public class TitlesControllerTests
 		// Arrange
 		var mockQueryHandler = new Mock<IQueryHandler<GetTitlesQuery, GetTitlesResult>>();
 		var mockCreateHandler = new Mock<ICommandHandler<CreateTitleCommand, CreateTitleResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateTitleCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateTitleCommand>>();
 
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new TitlesController(mockQueryHandler.Object, mockCreateHandler.Object, null!));
+		Assert.Throws<ArgumentNullException>(() => new TitlesController(
+			mockQueryHandler.Object, 
+			mockCreateHandler.Object, 
+			null!,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object));
 	}
 }
 

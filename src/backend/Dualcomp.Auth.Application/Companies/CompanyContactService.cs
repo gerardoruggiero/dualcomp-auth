@@ -327,19 +327,17 @@ namespace Dualcomp.Auth.Application.Companies
             IEnumerable<RegisterCompanySocialMediaDto> socialMedias, 
             CancellationToken cancellationToken)
         {
-            // Procesar todos los contactos en paralelo para mejor performance
-            var addressTask = ProcessAddressesForRegistrationAsync(company, addresses, cancellationToken);
-            var emailTask = ProcessEmailsForRegistrationAsync(company, emails, cancellationToken);
-            var phoneTask = ProcessPhonesForRegistrationAsync(company, phones, cancellationToken);
-            var socialMediaTask = ProcessSocialMediasForRegistrationAsync(company, socialMedias, cancellationToken);
-
-            await Task.WhenAll(addressTask, emailTask, phoneTask, socialMediaTask);
+            // Procesar contactos secuencialmente para evitar problemas de concurrencia con DbContext
+            var addressTypeNames = await ProcessAddressesForRegistrationAsync(company, addresses, cancellationToken);
+            var emailTypeNames = await ProcessEmailsForRegistrationAsync(company, emails, cancellationToken);
+            var phoneTypeNames = await ProcessPhonesForRegistrationAsync(company, phones, cancellationToken);
+            var socialMediaTypeNames = await ProcessSocialMediasForRegistrationAsync(company, socialMedias, cancellationToken);
 
             return new ContactTypeNames(
-                await addressTask,
-                await emailTask,
-                await phoneTask,
-                await socialMediaTask
+                addressTypeNames,
+                emailTypeNames,
+                phoneTypeNames,
+                socialMediaTypeNames
             );
         }
 
@@ -354,19 +352,17 @@ namespace Dualcomp.Auth.Application.Companies
             IEnumerable<UpdateCompanySocialMediaDto> socialMedias, 
             CancellationToken cancellationToken)
         {
-            // Procesar todos los contactos en paralelo para mejor performance
-            var addressTask = ProcessAddressesForUpdateAsync(company, addresses, cancellationToken);
-            var emailTask = ProcessEmailsForUpdateAsync(company, emails, cancellationToken);
-            var phoneTask = ProcessPhonesForUpdateAsync(company, phones, cancellationToken);
-            var socialMediaTask = ProcessSocialMediasForUpdateAsync(company, socialMedias, cancellationToken);
-
-            await Task.WhenAll(addressTask, emailTask, phoneTask, socialMediaTask);
+            // Procesar contactos secuencialmente para evitar problemas de concurrencia con DbContext
+            var addressTypeNames = await ProcessAddressesForUpdateAsync(company, addresses, cancellationToken);
+            var emailTypeNames = await ProcessEmailsForUpdateAsync(company, emails, cancellationToken);
+            var phoneTypeNames = await ProcessPhonesForUpdateAsync(company, phones, cancellationToken);
+            var socialMediaTypeNames = await ProcessSocialMediasForUpdateAsync(company, socialMedias, cancellationToken);
 
             return new ContactTypeNames(
-                await addressTask,
-                await emailTask,
-                await phoneTask,
-                await socialMediaTask
+                addressTypeNames,
+                emailTypeNames,
+                phoneTypeNames,
+                socialMediaTypeNames
             );
         }
 
@@ -495,18 +491,11 @@ namespace Dualcomp.Auth.Application.Companies
             var phoneTypeIds = company.Phones.Select(p => p.PhoneTypeId).Distinct().ToList();
             var socialMediaTypeIds = company.SocialMedias.Select(sm => sm.SocialMediaTypeId).Distinct().ToList();
 
-            // Obtener todos los tipos en paralelo
-            var addressTypesTask = GetAddressTypesByIdsAsync(addressTypeIds, cancellationToken);
-            var emailTypesTask = GetEmailTypesByIdsAsync(emailTypeIds, cancellationToken);
-            var phoneTypesTask = GetPhoneTypesByIdsAsync(phoneTypeIds, cancellationToken);
-            var socialMediaTypesTask = GetSocialMediaTypesByIdsAsync(socialMediaTypeIds, cancellationToken);
-
-            await Task.WhenAll(addressTypesTask, emailTypesTask, phoneTypesTask, socialMediaTypesTask);
-
-            var addressTypes = await addressTypesTask;
-            var emailTypes = await emailTypesTask;
-            var phoneTypes = await phoneTypesTask;
-            var socialMediaTypes = await socialMediaTypesTask;
+            // Obtener tipos secuencialmente para evitar problemas de concurrencia con DbContext
+            var addressTypes = await GetAddressTypesByIdsAsync(addressTypeIds, cancellationToken);
+            var emailTypes = await GetEmailTypesByIdsAsync(emailTypeIds, cancellationToken);
+            var phoneTypes = await GetPhoneTypesByIdsAsync(phoneTypeIds, cancellationToken);
+            var socialMediaTypes = await GetSocialMediaTypesByIdsAsync(socialMediaTypeIds, cancellationToken);
 
             // Construir los resultados
             var addressResults = company.Addresses.Select(a => 

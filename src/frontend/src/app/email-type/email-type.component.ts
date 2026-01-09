@@ -2,17 +2,17 @@ import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { TypeModalComponent, TypeModalConfig } from '../shared/components/type-modal/type-modal.component';
 import { EmailTypeService } from '../shared/services/email-type.service';
-import { 
-  EmailTypeEntity, 
-  CreateEmailTypeCommand, 
+import {
+  EmailTypeEntity,
+  CreateEmailTypeCommand,
   UpdateEmailTypeCommand,
-  EmailTypeListResult 
+  EmailTypeListResult
 } from '../shared/models/email-type.models';
-import { 
+import {
   DataTableComponent,
-  DataTableColumn, 
+  DataTableColumn,
   DataTableAction,
-  DataTableConfig 
+  DataTableConfig
 } from '../shared/components/data-table/data-table.component';
 
 @Component({
@@ -77,7 +77,7 @@ export class EmailTypeComponent implements OnInit {
     console.log('EmailTypeComponent - Cargando datos del servidor...');
     this.isLoading.set(true);
     this.errorMessage.set('');
-    
+
     this.emailTypeService.getTypes(
       this.currentPage(),
       this.pageSize(),
@@ -159,6 +159,28 @@ export class EmailTypeComponent implements OnInit {
   }
 
 
+  onToggleStatus(item: EmailTypeEntity) {
+    if (!confirm(`¿Estás seguro de que deseas ${item.isActive ? 'desactivar' : 'activar'} este tipo de email?`)) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    const observable = item.isActive
+      ? this.emailTypeService.deactivateType(item.id)
+      : this.emailTypeService.activateType(item.id);
+
+    observable.subscribe({
+      next: () => {
+        this.loadDataFromServer();
+      },
+      error: (error) => {
+        console.error('Error changing email type status:', error);
+        this.errorMessage.set('Error al cambiar el estado del tipo de email');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
   // Manejar eventos del modal
   onModalSave(command: CreateEmailTypeCommand | UpdateEmailTypeCommand) {
     this.modalLoading.set(true);
@@ -207,7 +229,7 @@ export class EmailTypeComponent implements OnInit {
         title: 'Estado',
         sortable: true,
         width: '15%',
-        render: (value: boolean) => 
+        render: (value: boolean) =>
           `<span class="badge ${value ? 'badge-success' : 'badge-secondary'}">${value ? 'Activo' : 'Inactivo'}</span>`
       }
     ];
@@ -222,6 +244,20 @@ export class EmailTypeComponent implements OnInit {
         class: 'btn-primary',
         action: (item: EmailTypeEntity) => this.onEditType(item),
         show: (item: EmailTypeEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-ban',
+        class: 'btn-danger',
+        action: (item: EmailTypeEntity) => this.onToggleStatus(item),
+        show: (item: EmailTypeEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-check',
+        class: 'btn-success',
+        action: (item: EmailTypeEntity) => this.onToggleStatus(item),
+        show: (item: EmailTypeEntity) => !item.isActive
       }
     ];
   }

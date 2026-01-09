@@ -2,17 +2,17 @@ import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { TypeModalComponent, TypeModalConfig } from '../shared/components/type-modal/type-modal.component';
 import { ModuloService } from '../shared/services/modulo.service';
-import { 
-  ModuloEntity, 
-  CreateModuloCommand, 
+import {
+  ModuloEntity,
+  CreateModuloCommand,
   UpdateModuloCommand,
-  ModuloListResult 
+  ModuloListResult
 } from '../shared/models/modulo.models';
-import { 
+import {
   DataTableComponent,
-  DataTableColumn, 
+  DataTableColumn,
   DataTableAction,
-  DataTableConfig 
+  DataTableConfig
 } from '../shared/components/data-table/data-table.component';
 
 @Component({
@@ -77,7 +77,7 @@ export class ModuloComponent implements OnInit {
     console.log('ModuloComponent - Cargando datos del servidor...');
     this.isLoading.set(true);
     this.errorMessage.set('');
-    
+
     this.moduloService.getTypes(
       this.currentPage(),
       this.pageSize(),
@@ -158,6 +158,28 @@ export class ModuloComponent implements OnInit {
     });
   }
 
+  onToggleStatus(item: ModuloEntity) {
+    if (!confirm(`¿Estás seguro de que deseas ${item.isActive ? 'desactivar' : 'activar'} este módulo?`)) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    const observable = item.isActive
+      ? this.moduloService.deactivateType(item.id)
+      : this.moduloService.activateType(item.id);
+
+    observable.subscribe({
+      next: () => {
+        this.loadDataFromServer();
+      },
+      error: (error) => {
+        console.error('Error changing modulo status:', error);
+        this.errorMessage.set('Error al cambiar el estado del módulo');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
   // Manejar eventos del modal
   onModalSave(command: CreateModuloCommand | UpdateModuloCommand) {
     this.modalLoading.set(true);
@@ -177,6 +199,7 @@ export class ModuloComponent implements OnInit {
       error: (error) => {
         console.error('Error saving modulo:', error);
         this.modalLoading.set(false);
+        this.errorMessage.set('Error al guardar el módulo');
       }
     });
   }
@@ -206,7 +229,7 @@ export class ModuloComponent implements OnInit {
         title: 'Estado',
         sortable: true,
         width: '15%',
-        render: (value: boolean) => 
+        render: (value: boolean) =>
           `<span class="badge ${value ? 'badge-success' : 'badge-secondary'}">${value ? 'Activo' : 'Inactivo'}</span>`
       }
     ];
@@ -221,6 +244,20 @@ export class ModuloComponent implements OnInit {
         class: 'btn-primary',
         action: (item: ModuloEntity) => this.onEditType(item),
         show: (item: ModuloEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-ban',
+        class: 'btn-danger',
+        action: (item: ModuloEntity) => this.onToggleStatus(item),
+        show: (item: ModuloEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-check',
+        class: 'btn-success',
+        action: (item: ModuloEntity) => this.onToggleStatus(item),
+        show: (item: ModuloEntity) => !item.isActive
       }
     ];
   }

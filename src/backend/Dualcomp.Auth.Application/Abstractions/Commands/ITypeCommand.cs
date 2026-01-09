@@ -21,4 +21,20 @@ namespace Dualcomp.Auth.Application.Abstractions.Commands
         string? Description { get; }
         bool IsActive { get; }
     }
+
+    /// <summary>
+    /// Interfaz base para comandos de activación de tipos
+    /// </summary>
+    public interface IActivateTypeCommand : ICommand
+    {
+        Guid Id { get; set; }
+    }
+
+    /// <summary>
+    /// Interfaz base para comandos de desactivación de tipos
+    /// </summary>
+    public interface IDeactivateTypeCommand : ICommand
+    {
+        Guid Id { get; set; }
+    }
 }

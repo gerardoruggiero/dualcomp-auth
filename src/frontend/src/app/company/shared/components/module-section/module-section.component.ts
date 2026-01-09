@@ -4,10 +4,10 @@ import { FormsModule } from '@angular/forms';
 import { BaseTypeClass } from '../../../../shared/models/BaseType';
 
 @Component({
-    selector: 'app-module-section',
-    standalone: true,
-    imports: [CommonModule, FormsModule],
-    template: `
+  selector: 'app-module-section',
+  standalone: true,
+  imports: [CommonModule, FormsModule],
+  template: `
     <div class="row">
       <div class="col-12">
         <label class="form-label d-block">Módulos Asignados <span class="text-danger">*</span></label>
@@ -26,13 +26,10 @@ import { BaseTypeClass } from '../../../../shared/models/BaseType';
             </div>
           </div>
         </div>
-        <small class="text-muted d-block mt-2">
-          Seleccione los módulos a los que la empresa tendrá acceso.
-        </small>
       </div>
     </div>
   `,
-    styles: [`
+  styles: [`
     .module-grid {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
@@ -50,27 +47,27 @@ import { BaseTypeClass } from '../../../../shared/models/BaseType';
         border-color: var(--primary-color, #0d6efd);
     }
   `],
-    changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class ModuleSectionComponent {
-    @Input() moduleOptions: BaseTypeClass[] = [];
-    @Input() selectedModuleIds: string[] = [];
-    @Output() selectedModuleIdsChange = new EventEmitter<string[]>();
+  @Input() moduleOptions: BaseTypeClass[] = [];
+  @Input() selectedModuleIds: string[] = [];
+  @Output() selectedModuleIdsChange = new EventEmitter<string[]>();
 
-    isModuleSelected(moduleId: string): boolean {
-        return this.selectedModuleIds.includes(moduleId);
+  isModuleSelected(moduleId: string): boolean {
+    return this.selectedModuleIds.includes(moduleId);
+  }
+
+  toggleModule(moduleId: string): void {
+    const updatedIds = [...this.selectedModuleIds];
+    const index = updatedIds.indexOf(moduleId);
+
+    if (index === -1) {
+      updatedIds.push(moduleId);
+    } else {
+      updatedIds.splice(index, 1);
     }
 
-    toggleModule(moduleId: string): void {
-        const updatedIds = [...this.selectedModuleIds];
-        const index = updatedIds.indexOf(moduleId);
-
-        if (index === -1) {
-            updatedIds.push(moduleId);
-        } else {
-            updatedIds.splice(index, 1);
-        }
-
-        this.selectedModuleIdsChange.emit(updatedIds);
-    }
+    this.selectedModuleIdsChange.emit(updatedIds);
+  }
 }

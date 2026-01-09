@@ -3,6 +3,8 @@ using Dualcomp.Auth.WebApi.Controllers;
 using Dualcomp.Auth.Application.EmailTypes.GetEmailTypes;
 using Dualcomp.Auth.Application.EmailTypes.CreateEmailType;
 using Dualcomp.Auth.Application.EmailTypes.UpdateEmailType;
+using Dualcomp.Auth.Application.EmailTypes.ActivateEmailType;
+using Dualcomp.Auth.Application.EmailTypes.DeactivateEmailType;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Moq;
 
@@ -17,6 +19,8 @@ public class EmailTypesControllerTests
 		var mockQueryHandler = new Mock<IQueryHandler<GetEmailTypesQuery, GetEmailTypesResult>>();
 		var mockCreateHandler = new Mock<ICommandHandler<CreateEmailTypeCommand, CreateEmailTypeResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateEmailTypeCommand, UpdateEmailTypeResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateEmailTypeCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateEmailTypeCommand>>();
 		
 		var expectedResult = new GetEmailTypesResult(new List<EmailTypeItem>
 		{
@@ -32,7 +36,9 @@ public class EmailTypesControllerTests
 		var controller = new EmailTypesController(
 			mockQueryHandler.Object, 
 			mockCreateHandler.Object, 
-			mockUpdateHandler.Object);
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -50,6 +56,8 @@ public class EmailTypesControllerTests
 		var mockQueryHandler = new Mock<IQueryHandler<GetEmailTypesQuery, GetEmailTypesResult>>();
 		var mockCreateHandler = new Mock<ICommandHandler<CreateEmailTypeCommand, CreateEmailTypeResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateEmailTypeCommand, UpdateEmailTypeResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateEmailTypeCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateEmailTypeCommand>>();
 		
 		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetEmailTypesQuery>(), It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new Exception("Test exception"));
@@ -57,7 +65,9 @@ public class EmailTypesControllerTests
 		var controller = new EmailTypesController(
 			mockQueryHandler.Object, 
 			mockCreateHandler.Object, 
-			mockUpdateHandler.Object);
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -74,9 +84,16 @@ public class EmailTypesControllerTests
 		// Arrange
 		var mockCreateHandler = new Mock<ICommandHandler<CreateEmailTypeCommand, CreateEmailTypeResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateEmailTypeCommand, UpdateEmailTypeResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateEmailTypeCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateEmailTypeCommand>>();
 
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new EmailTypesController(null!, mockCreateHandler.Object, mockUpdateHandler.Object));
+		Assert.Throws<ArgumentNullException>(() => new EmailTypesController(
+			null!, 
+			mockCreateHandler.Object, 
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object));
 	}
 
 	[Fact]
@@ -85,9 +102,16 @@ public class EmailTypesControllerTests
 		// Arrange
 		var mockQueryHandler = new Mock<IQueryHandler<GetEmailTypesQuery, GetEmailTypesResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateEmailTypeCommand, UpdateEmailTypeResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateEmailTypeCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateEmailTypeCommand>>();
 
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new EmailTypesController(mockQueryHandler.Object, null!, mockUpdateHandler.Object));
+		Assert.Throws<ArgumentNullException>(() => new EmailTypesController(
+			mockQueryHandler.Object, 
+			null!, 
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object));
 	}
 
 	[Fact]
@@ -96,8 +120,15 @@ public class EmailTypesControllerTests
 		// Arrange
 		var mockQueryHandler = new Mock<IQueryHandler<GetEmailTypesQuery, GetEmailTypesResult>>();
 		var mockCreateHandler = new Mock<ICommandHandler<CreateEmailTypeCommand, CreateEmailTypeResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateEmailTypeCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateEmailTypeCommand>>();
 
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new EmailTypesController(mockQueryHandler.Object, mockCreateHandler.Object, null!));
+		Assert.Throws<ArgumentNullException>(() => new EmailTypesController(
+			mockQueryHandler.Object, 
+			mockCreateHandler.Object, 
+			null!,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object));
 	}
 }

@@ -1,6 +1,8 @@
 using Dualcomp.Auth.Application.AddressTypes.GetAddressTypes;
 using Dualcomp.Auth.Application.AddressTypes.CreateAddressType;
 using Dualcomp.Auth.Application.AddressTypes.UpdateAddressType;
+using Dualcomp.Auth.Application.AddressTypes.ActivateAddressType;
+using Dualcomp.Auth.Application.AddressTypes.DeactivateAddressType;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,13 +16,17 @@ namespace Dualcomp.Auth.WebApi.Controllers
 		CreateAddressTypeCommand,
 		CreateAddressTypeResult,
 		UpdateAddressTypeCommand,
-		UpdateAddressTypeResult>
+		UpdateAddressTypeResult,
+		ActivateAddressTypeCommand,
+		DeactivateAddressTypeCommand>
 	{
         public AddressTypesController(
 			IQueryHandler<GetAddressTypesQuery, GetAddressTypesResult> getAddressTypesHandler,
 			ICommandHandler<CreateAddressTypeCommand, CreateAddressTypeResult> createAddressTypeHandler,
-			ICommandHandler<UpdateAddressTypeCommand, UpdateAddressTypeResult> updateAddressTypeHandler) 
-            : base(getAddressTypesHandler, createAddressTypeHandler, updateAddressTypeHandler)
+			ICommandHandler<UpdateAddressTypeCommand, UpdateAddressTypeResult> updateAddressTypeHandler,
+			ICommandHandler<ActivateAddressTypeCommand> activateAddressTypeHandler,
+			ICommandHandler<DeactivateAddressTypeCommand> deactivateAddressTypeHandler) 
+            : base(getAddressTypesHandler, createAddressTypeHandler, updateAddressTypeHandler, activateAddressTypeHandler, deactivateAddressTypeHandler)
         {
         }
 	}

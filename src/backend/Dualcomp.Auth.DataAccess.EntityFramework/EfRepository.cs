@@ -29,8 +29,7 @@ namespace Dualcomp.Auth.DataAccess.EntityFramework
 
 		public virtual async Task<TAggregate?> GetByIdAsync(object id, CancellationToken cancellationToken = default)
 		{
-			using var context = CreateContext();
-			return await context.Set<TAggregate>().FindAsync([id], cancellationToken);
+			return await DbContext.Set<TAggregate>().FindAsync([id], cancellationToken);
 		}
 
 		public virtual async Task<IReadOnlyList<TAggregate>> ListAsync(CancellationToken cancellationToken = default)

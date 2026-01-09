@@ -3,12 +3,12 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
-import { 
-  BaseTypeEntity, 
-  CreateBaseTypeCommand, 
-  UpdateBaseTypeCommand, 
-  BaseTypeResult, 
-  BaseTypeListResult 
+import {
+  BaseTypeEntity,
+  CreateBaseTypeCommand,
+  UpdateBaseTypeCommand,
+  BaseTypeResult,
+  BaseTypeListResult
 } from '../models/base-type.models';
 
 @Injectable({
@@ -30,22 +30,22 @@ export abstract class BaseTypeService<
       map(response => {
         // Mapear la respuesta del backend a la estructura esperada
         const items = this.mapBackendResponse(response);
-        
+
         // Aplicar filtro de búsqueda si existe
         let filteredItems = items;
         if (searchTerm && searchTerm.trim()) {
           const term = searchTerm.trim().toLowerCase();
-          filteredItems = items.filter(item => 
+          filteredItems = items.filter(item =>
             item.name.toLowerCase().includes(term) ||
             (item.description && item.description.toLowerCase().includes(term))
           );
         }
-        
+
         // Aplicar paginación manual
         const startIndex = (page - 1) * pageSize;
         const endIndex = startIndex + pageSize;
         const paginatedItems = filteredItems.slice(startIndex, endIndex);
-        
+
         return {
           items: paginatedItems,
           totalCount: filteredItems.length,
@@ -83,5 +83,10 @@ export abstract class BaseTypeService<
   // Desactivar tipo (soft delete)
   deactivateType(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  // Activar tipo
+  activateType(id: string): Observable<void> {
+    return this.http.patch<void>(`${this.apiUrl}/${id}/activate`, {});
   }
 }

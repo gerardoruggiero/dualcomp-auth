@@ -2,17 +2,17 @@ import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { TypeModalComponent, TypeModalConfig } from '../shared/components/type-modal/type-modal.component';
 import { PhoneTypeService } from '../shared/services/phone-type.service';
-import { 
-  PhoneTypeEntity, 
-  CreatePhoneTypeCommand, 
+import {
+  PhoneTypeEntity,
+  CreatePhoneTypeCommand,
   UpdatePhoneTypeCommand,
-  PhoneTypeListResult 
+  PhoneTypeListResult
 } from '../shared/models/phone-type.models';
-import { 
+import {
   DataTableComponent,
-  DataTableColumn, 
+  DataTableColumn,
   DataTableAction,
-  DataTableConfig 
+  DataTableConfig
 } from '../shared/components/data-table/data-table.component';
 
 @Component({
@@ -77,7 +77,7 @@ export class PhoneTypeComponent implements OnInit {
     console.log('PhoneTypeComponent - Cargando datos del servidor...');
     this.isLoading.set(true);
     this.errorMessage.set('');
-    
+
     this.phoneTypeService.getTypes(
       this.currentPage(),
       this.pageSize(),
@@ -159,6 +159,28 @@ export class PhoneTypeComponent implements OnInit {
   }
 
 
+  onToggleStatus(item: PhoneTypeEntity) {
+    if (!confirm(`¿Estás seguro de que deseas ${item.isActive ? 'desactivar' : 'activar'} este tipo de teléfono?`)) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    const observable = item.isActive
+      ? this.phoneTypeService.deactivateType(item.id)
+      : this.phoneTypeService.activateType(item.id);
+
+    observable.subscribe({
+      next: () => {
+        this.loadDataFromServer();
+      },
+      error: (error) => {
+        console.error('Error changing phone type status:', error);
+        this.errorMessage.set('Error al cambiar el estado del tipo de teléfono');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
   // Manejar eventos del modal
   onModalSave(command: CreatePhoneTypeCommand | UpdatePhoneTypeCommand) {
     this.modalLoading.set(true);
@@ -207,7 +229,7 @@ export class PhoneTypeComponent implements OnInit {
         title: 'Estado',
         sortable: true,
         width: '15%',
-        render: (value: boolean) => 
+        render: (value: boolean) =>
           `<span class="badge ${value ? 'badge-success' : 'badge-secondary'}">${value ? 'Activo' : 'Inactivo'}</span>`
       }
     ];
@@ -222,6 +244,20 @@ export class PhoneTypeComponent implements OnInit {
         class: 'btn-primary',
         action: (item: PhoneTypeEntity) => this.onEditType(item),
         show: (item: PhoneTypeEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-ban',
+        class: 'btn-danger',
+        action: (item: PhoneTypeEntity) => this.onToggleStatus(item),
+        show: (item: PhoneTypeEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-check',
+        class: 'btn-success',
+        action: (item: PhoneTypeEntity) => this.onToggleStatus(item),
+        show: (item: PhoneTypeEntity) => !item.isActive
       }
     ];
   }

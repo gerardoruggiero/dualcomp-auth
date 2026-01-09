@@ -7,17 +7,16 @@ namespace Dualcomp.Auth.WebApi.Extensions
     {
         public static IServiceCollection AddApplicationHandlers(this IServiceCollection services)
         {
-            var assembly = Assembly.GetExecutingAssembly();
-            var applicationAssembly = typeof(ICommandHandler<,>).Assembly;
+            var applicationAssembly = typeof(ICommandHandler<>).Assembly;
 
-            // Auto-register command handlers (exclude generic types)
-            var commandHandlerTypes = applicationAssembly.GetTypes()
-                .Where(t => !t.IsGenericTypeDefinition && // Exclude generic type definitions
+            // Auto-register command handlers with result (exclude generic types)
+            var commandWithResultHandlerTypes = applicationAssembly.GetTypes()
+                .Where(t => !t.IsGenericTypeDefinition && !t.IsAbstract &&
                            t.GetInterfaces()
                             .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<,>)))
                 .ToList();
 
-            foreach (var handlerType in commandHandlerTypes)
+            foreach (var handlerType in commandWithResultHandlerTypes)
             {
                 var interfaceType = handlerType.GetInterfaces()
                     .First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<,>));
@@ -25,9 +24,24 @@ namespace Dualcomp.Auth.WebApi.Extensions
                 services.AddScoped(interfaceType, handlerType);
             }
 
+            // Auto-register command handlers without result (exclude generic types)
+            var commandWithoutResultHandlerTypes = applicationAssembly.GetTypes()
+                .Where(t => !t.IsGenericTypeDefinition && !t.IsAbstract &&
+                           t.GetInterfaces()
+                            .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<>)))
+                .ToList();
+
+            foreach (var handlerType in commandWithoutResultHandlerTypes)
+            {
+                var interfaceType = handlerType.GetInterfaces()
+                    .First(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(ICommandHandler<>));
+                
+                services.AddScoped(interfaceType, handlerType);
+            }
+
             // Auto-register query handlers (exclude generic types)
             var queryHandlerTypes = applicationAssembly.GetTypes()
-                .Where(t => !t.IsGenericTypeDefinition && // Exclude generic type definitions
+                .Where(t => !t.IsGenericTypeDefinition && !t.IsAbstract &&
                            t.GetInterfaces()
                             .Any(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IQueryHandler<,>)))
                 .ToList();

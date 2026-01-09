@@ -3,6 +3,8 @@ using Dualcomp.Auth.WebApi.Controllers;
 using Dualcomp.Auth.Application.Modulos.GetModulos;
 using Dualcomp.Auth.Application.Modulos.CreateModulo;
 using Dualcomp.Auth.Application.Modulos.UpdateModulo;
+using Dualcomp.Auth.Application.Modulos.ActivateModulo;
+using Dualcomp.Auth.Application.Modulos.DeactivateModulo;
 using Dualcomp.Auth.Application.Abstractions.Messaging;
 using Moq;
 
@@ -17,6 +19,8 @@ public class ModulosControllerTests
 		var mockQueryHandler = new Mock<IQueryHandler<GetModulosQuery, GetModulosResult>>();
 		var mockCreateHandler = new Mock<ICommandHandler<CreateModuloCommand, CreateModuloResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateModuloCommand, UpdateModuloResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateModuloCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateModuloCommand>>();
 		
 		var expectedResult = new GetModulosResult(new List<ModuloItem>
 		{
@@ -32,7 +36,9 @@ public class ModulosControllerTests
 		var controller = new ModulosController(
 			mockQueryHandler.Object, 
 			mockCreateHandler.Object, 
-			mockUpdateHandler.Object);
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -50,6 +56,8 @@ public class ModulosControllerTests
 		var mockQueryHandler = new Mock<IQueryHandler<GetModulosQuery, GetModulosResult>>();
 		var mockCreateHandler = new Mock<ICommandHandler<CreateModuloCommand, CreateModuloResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateModuloCommand, UpdateModuloResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateModuloCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateModuloCommand>>();
 		
 		mockQueryHandler.Setup(h => h.Handle(It.IsAny<GetModulosQuery>(), It.IsAny<CancellationToken>()))
 			.ThrowsAsync(new Exception("Test exception"));
@@ -57,7 +65,9 @@ public class ModulosControllerTests
 		var controller = new ModulosController(
 			mockQueryHandler.Object, 
 			mockCreateHandler.Object, 
-			mockUpdateHandler.Object);
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object);
 
 		// Act
 		var result = await controller.GetTypes(CancellationToken.None);
@@ -74,9 +84,16 @@ public class ModulosControllerTests
 		// Arrange
 		var mockCreateHandler = new Mock<ICommandHandler<CreateModuloCommand, CreateModuloResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateModuloCommand, UpdateModuloResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateModuloCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateModuloCommand>>();
 
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new ModulosController(null!, mockCreateHandler.Object, mockUpdateHandler.Object));
+		Assert.Throws<ArgumentNullException>(() => new ModulosController(
+			null!, 
+			mockCreateHandler.Object, 
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object));
 	}
 
 	[Fact]
@@ -85,9 +102,16 @@ public class ModulosControllerTests
 		// Arrange
 		var mockQueryHandler = new Mock<IQueryHandler<GetModulosQuery, GetModulosResult>>();
 		var mockUpdateHandler = new Mock<ICommandHandler<UpdateModuloCommand, UpdateModuloResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateModuloCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateModuloCommand>>();
 
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new ModulosController(mockQueryHandler.Object, null!, mockUpdateHandler.Object));
+		Assert.Throws<ArgumentNullException>(() => new ModulosController(
+			mockQueryHandler.Object, 
+			null!, 
+			mockUpdateHandler.Object,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object));
 	}
 
 	[Fact]
@@ -96,8 +120,15 @@ public class ModulosControllerTests
 		// Arrange
 		var mockQueryHandler = new Mock<IQueryHandler<GetModulosQuery, GetModulosResult>>();
 		var mockCreateHandler = new Mock<ICommandHandler<CreateModuloCommand, CreateModuloResult>>();
+		var mockActivateHandler = new Mock<ICommandHandler<ActivateModuloCommand>>();
+		var mockDeactivateHandler = new Mock<ICommandHandler<DeactivateModuloCommand>>();
 
 		// Act & Assert
-		Assert.Throws<ArgumentNullException>(() => new ModulosController(mockQueryHandler.Object, mockCreateHandler.Object, null!));
+		Assert.Throws<ArgumentNullException>(() => new ModulosController(
+			mockQueryHandler.Object, 
+			mockCreateHandler.Object, 
+			null!,
+			mockActivateHandler.Object,
+			mockDeactivateHandler.Object));
 	}
 }

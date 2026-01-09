@@ -2,17 +2,17 @@ import { ChangeDetectionStrategy, Component, inject, signal, OnInit } from '@ang
 import { CommonModule } from '@angular/common';
 import { TypeModalComponent, TypeModalConfig } from '../shared/components/type-modal/type-modal.component';
 import { AddressTypeService } from '../shared/services/address-type.service';
-import { 
-  AddressTypeEntity, 
-  CreateAddressTypeCommand, 
+import {
+  AddressTypeEntity,
+  CreateAddressTypeCommand,
   UpdateAddressTypeCommand,
-  AddressTypeListResult 
+  AddressTypeListResult
 } from '../shared/models/address-type.models';
-import { 
+import {
   DataTableComponent,
-  DataTableColumn, 
+  DataTableColumn,
   DataTableAction,
-  DataTableConfig 
+  DataTableConfig
 } from '../shared/components/data-table/data-table.component';
 
 @Component({
@@ -77,7 +77,7 @@ export class AddressTypeComponent implements OnInit {
     console.log('AddressTypeComponent - Cargando datos del servidor...');
     this.isLoading.set(true);
     this.errorMessage.set('');
-    
+
     this.addressTypeService.getTypes(
       this.currentPage(),
       this.pageSize(),
@@ -159,6 +159,28 @@ export class AddressTypeComponent implements OnInit {
   }
 
 
+  onToggleStatus(item: AddressTypeEntity) {
+    if (!confirm(`¿Estás seguro de que deseas ${item.isActive ? 'desactivar' : 'activar'} este tipo de dirección?`)) {
+      return;
+    }
+
+    this.isLoading.set(true);
+    const observable = item.isActive
+      ? this.addressTypeService.deactivateType(item.id)
+      : this.addressTypeService.activateType(item.id);
+
+    observable.subscribe({
+      next: () => {
+        this.loadDataFromServer();
+      },
+      error: (error) => {
+        console.error('Error changing address type status:', error);
+        this.errorMessage.set('Error al cambiar el estado del tipo de dirección');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
   // Manejar eventos del modal
   onModalSave(command: CreateAddressTypeCommand | UpdateAddressTypeCommand) {
     this.modalLoading.set(true);
@@ -207,7 +229,7 @@ export class AddressTypeComponent implements OnInit {
         title: 'Estado',
         sortable: true,
         width: '15%',
-        render: (value: boolean) => 
+        render: (value: boolean) =>
           `<span class="badge ${value ? 'badge-success' : 'badge-secondary'}">${value ? 'Activo' : 'Inactivo'}</span>`
       }
     ];
@@ -222,6 +244,20 @@ export class AddressTypeComponent implements OnInit {
         class: 'btn-primary',
         action: (item: AddressTypeEntity) => this.onEditType(item),
         show: (item: AddressTypeEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-ban',
+        class: 'btn-danger',
+        action: (item: AddressTypeEntity) => this.onToggleStatus(item),
+        show: (item: AddressTypeEntity) => item.isActive
+      },
+      {
+        label: '',
+        icon: 'fas fa-check',
+        class: 'btn-success',
+        action: (item: AddressTypeEntity) => this.onToggleStatus(item),
+        show: (item: AddressTypeEntity) => !item.isActive
       }
     ];
   }

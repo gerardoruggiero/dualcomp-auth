@@ -76,7 +76,8 @@
             </app-accordion-section>
 
             <app-accordion-section title="Módulos Asignados" icon="fas fa-cubes"
-              [isCollapsed]="sectionsCollapsed().modules" (toggleSection)="toggleSection('modules')">
+              [isCollapsed]="sectionsCollapsed().modules" [showAddButton]="false"
+              (toggleSection)="toggleSection('modules')">
               <app-module-section [moduleOptions]="form().moduleOptions" [selectedModuleIds]="form().selectedModuleIds"
                 (selectedModuleIdsChange)="updateModuleIds($event)">
               </app-module-section>
