@@ -28,7 +28,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var userId = Guid.NewGuid();
             var command = new DeactivateUserCommand(userId, Guid.NewGuid());
 
-            var user = User.Create("John", "Doe", Email.Create("john@example.com"), HashedPassword.Create("hashed"));
+            var user = User.Create("John", "Doe", Email.Create("john@example.com"), HashedPassword.Create("hashed"), Guid.NewGuid());
             // User is active by default
             typeof(User).GetProperty("Id")!.SetValue(user, userId);
 

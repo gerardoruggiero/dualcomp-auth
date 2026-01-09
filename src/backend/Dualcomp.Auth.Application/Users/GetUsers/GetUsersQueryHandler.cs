@@ -38,7 +38,7 @@ namespace Dualcomp.Auth.Application.Users.GetUsers
                 user.FirstName,
                 user.LastName,
                 user.Email.Value,
-                user.CompanyId ?? Guid.Empty, // Handle nullable CompanyId
+                user.CompanyId,
                 user.IsActive,
                 user.IsEmailValidated,
                 user.MustChangePassword,

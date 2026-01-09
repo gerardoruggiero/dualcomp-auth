@@ -434,12 +434,12 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
                         new Dictionary<Guid, string>());
                 });
             _contactServiceMock.Setup(x => x.CreateUserForEmployee(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-                .ReturnsAsync(User.Create("John", "Doe", Email.Create("john@company.com"), HashedPassword.Create("hashedPassword")));
+                .ReturnsAsync(User.Create("John", "Doe", Email.Create("john@company.com"), HashedPassword.Create("hashedPassword"), Guid.NewGuid()));
             _contactServiceMock.Setup(x => x.ProcessEmployeesForRegistrationAsync(It.IsAny<Company>(), It.IsAny<IEnumerable<RegisterCompanyEmployeeDto>>(), It.IsAny<CancellationToken>()))
                 .Returns((Company company, IEnumerable<RegisterCompanyEmployeeDto> employees, CancellationToken ct) =>
                 {
                     // Simular el procesamiento real agregando empleados a la empresa
-                    var user = User.Create("John", "Doe", Email.Create("john@company.com"), HashedPassword.Create("hashedPassword"));
+                    var user = User.Create("John", "Doe", Email.Create("john@company.com"), HashedPassword.Create("hashedPassword"), company.Id);
                     foreach (var employeeDto in employees)
                     {
                         var employee = Employee.Create(employeeDto.FullName, employeeDto.Email, employeeDto.Phone, company.Id, employeeDto.Position, employeeDto.HireDate, user);

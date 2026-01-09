@@ -47,7 +47,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             // Arrange
             var email = Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             user.ValidateEmail(); // Validate email first
             
             var command = new LoginCommand(email, "password123", "UserAgent", "127.0.0.1");
@@ -109,7 +109,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             // Arrange
             var email = Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             user.ValidateEmail(); // Validate email first
             
             var command = new LoginCommand(email, "wrongpassword", "UserAgent", "127.0.0.1");
@@ -132,7 +132,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             // Arrange
             var email = Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             user.Deactivate();
             
             var command = new LoginCommand(email, "password123", "UserAgent", "127.0.0.1");
@@ -153,7 +153,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             // Arrange
             var email = Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             // Email is not validated by default (IsEmailValidated = false)
             
             var command = new LoginCommand(email, "password123", "UserAgent", "127.0.0.1");
@@ -176,7 +176,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             // Arrange
             var email = Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             user.ValidateEmail(); // Validate email first
             user.SetTemporaryPassword("temp123"); // This sets MustChangePassword = true
             
@@ -214,7 +214,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             // Arrange
             var email = Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             user.ValidateEmail(); // Validate email
             
             var command = new LoginCommand(email, "password123", "UserAgent", "127.0.0.1");

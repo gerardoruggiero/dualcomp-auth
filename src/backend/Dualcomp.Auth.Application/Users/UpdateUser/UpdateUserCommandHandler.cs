@@ -38,6 +38,7 @@ namespace Dualcomp.Auth.Application.Users.UpdateUser
 
             user.UpdateProfile(request.FirstName, request.LastName, email);
             user.SetCompanyAdmin(request.IsCompanyAdmin);
+            user.UpdateCompany(request.CompanyId);
 
             await _unitOfWork.SaveChangesAsync(cancellationToken);
 

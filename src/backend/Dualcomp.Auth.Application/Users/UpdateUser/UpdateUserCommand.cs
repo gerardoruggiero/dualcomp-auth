@@ -7,6 +7,7 @@ namespace Dualcomp.Auth.Application.Users.UpdateUser
         string FirstName,
         string LastName,
         string Email,
+        Guid CompanyId,
         bool IsCompanyAdmin,
         Guid UpdatedBy
     ) : ICommand<UpdateUserResult>;

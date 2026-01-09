@@ -31,10 +31,11 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
                 "Jane",
                 "Doe",
                 "jane@example.com",
+                Guid.NewGuid(), // CompanyId
                 true, // IsCompanyAdmin
                 Guid.NewGuid());
 
-            var user = User.Create("John", "Doe", Email.Create("john@example.com"), HashedPassword.Create("hashed"));
+            var user = User.Create("John", "Doe", Email.Create("john@example.com"), HashedPassword.Create("hashed"), Guid.NewGuid());
             
             // Simular que el repositorio devuelve el usuario (hack: User.Create genera un ID nuevo, necesitamos asignar el ID esperado o mockear el repositorio para que devuelva este usuario cuando se busque por el ID del comando)
             // Como User.Id es private set y generado en constructor, no podemos setearlo fácilmente sin reflexión o usar un repositorio fake que ignore el ID o mapear el ID del user creado al mock.
@@ -73,7 +74,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
         public async Task Handle_WhenUserNotFound_ShouldThrowException()
         {
             // Arrange
-            var command = new UpdateUserCommand(Guid.NewGuid(), "Jane", "Doe", "jane@example.com", false, Guid.NewGuid());
+            var command = new UpdateUserCommand(Guid.NewGuid(), "Jane", "Doe", "jane@example.com", Guid.NewGuid(), false, Guid.NewGuid());
             
             _userRepositoryMock.Setup(x => x.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync((User?)null);
@@ -89,12 +90,12 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var userId = Guid.NewGuid();
             var otherUserId = Guid.NewGuid();
             var email = "taken@example.com";
-            var command = new UpdateUserCommand(userId, "Jane", "Doe", email, false, Guid.NewGuid());
+            var command = new UpdateUserCommand(userId, "Jane", "Doe", email, Guid.NewGuid(), false, Guid.NewGuid());
 
-            var user = User.Create("John", "Doe", Email.Create("john@example.com"), HashedPassword.Create("hashed"));
+            var user = User.Create("John", "Doe", Email.Create("john@example.com"), HashedPassword.Create("hashed"), Guid.NewGuid());
             typeof(User).GetProperty("Id")!.SetValue(user, userId);
 
-            var otherUser = User.Create("Other", "User", Email.Create(email), HashedPassword.Create("hashed"));
+            var otherUser = User.Create("Other", "User", Email.Create(email), HashedPassword.Create("hashed"), Guid.NewGuid());
             typeof(User).GetProperty("Id")!.SetValue(otherUser, otherUserId);
 
             _userRepositoryMock.Setup(x => x.GetByIdAsync(userId, It.IsAny<CancellationToken>()))

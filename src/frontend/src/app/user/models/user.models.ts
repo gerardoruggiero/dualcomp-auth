@@ -18,6 +18,7 @@ export interface CreateUserCommand {
     firstName: string;
     lastName: string;
     email: string;
+    companyId?: string;
     isCompanyAdmin: boolean;
 }
 
@@ -26,6 +27,7 @@ export interface UpdateUserCommand {
     firstName: string;
     lastName: string;
     email: string;
+    companyId?: string;
     isCompanyAdmin: boolean;
 }
 

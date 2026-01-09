@@ -41,7 +41,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var userId = Guid.NewGuid();
             var email = Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("currentHashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             
             var command = new ChangePasswordCommand(userId, "currentPassword", "newPassword123!");
 
@@ -86,7 +86,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var userId = Guid.NewGuid();
             var email = Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("currentHashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             
             var command = new ChangePasswordCommand(userId, "wrongPassword", "newPassword123!");
 
@@ -109,7 +109,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var userId = Guid.NewGuid();
             var email = Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("currentHashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             
             var command = new ChangePasswordCommand(userId, "currentPassword", "weak");
 
@@ -135,7 +135,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var userId = Guid.NewGuid();
             var email = Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("currentHashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             
             var command = new ChangePasswordCommand(userId, "currentPassword", "currentPassword");
 

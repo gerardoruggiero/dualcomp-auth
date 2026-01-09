@@ -117,7 +117,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
                 "existing@example.com",
                 Guid.NewGuid());
 
-            var existingUser = User.Create("Existing", "User", Email.Create("existing@example.com"), HashedPassword.Create("hashedPassword"));
+            var existingUser = User.Create("Existing", "User", Email.Create("existing@example.com"), HashedPassword.Create("hashedPassword"), Guid.NewGuid());
             _userRepositoryMock.Setup(x => x.GetByEmailAsync(It.IsAny<Email>(), It.IsAny<CancellationToken>()))
                 .ReturnsAsync(existingUser);
 

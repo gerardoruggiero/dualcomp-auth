@@ -52,7 +52,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
             
             // Crear empresa con un empleado
             var company = Company.Create("Test Company", TaxId.Create("12345678-9"));
-            var user = User.Create("John", "Doe", Email.Create("john@test.com"), HashedPassword.Create("hashedpassword"));
+            var user = User.Create("John", "Doe", Email.Create("john@test.com"), HashedPassword.Create("hashedpassword"), companyId);
             var employee = Employee.Create("John Doe", "john@test.com", "+56912345678", company.Id, "Developer", DateTime.UtcNow, user);
             
             // Agregar empleado a la empresa
@@ -88,7 +88,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
             
             // Crear empresa con un empleado
             var company = Company.Create("Test Company", TaxId.Create("12345678-9"));
-            var user = User.Create("John", "Doe", Email.Create("john@test.com"), HashedPassword.Create("hashedpassword"));
+            var user = User.Create("John", "Doe", Email.Create("john@test.com"), HashedPassword.Create("hashedpassword"), companyId);
             var employee = Employee.Create("John Doe", "john@test.com", "+56912345678", company.Id, "Developer", DateTime.UtcNow, user);
             
             // Agregar empleado a la empresa
@@ -127,8 +127,8 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
             // Crear empresa con dos empleados
             var company = Company.Create("Test Company", TaxId.Create("12345678-9"));
             
-            var user1 = User.Create("John", "Doe", Email.Create("john@test.com"), HashedPassword.Create("hashedpassword"));
-            var user2 = User.Create("Jane", "Smith", Email.Create("jane@test.com"), HashedPassword.Create("hashedpassword"));
+            var user1 = User.Create("John", "Doe", Email.Create("john@test.com"), HashedPassword.Create("hashedpassword"), companyId);
+            var user2 = User.Create("Jane", "Smith", Email.Create("jane@test.com"), HashedPassword.Create("hashedpassword"), companyId);
             
             var employee1 = Employee.Create("John Doe", "john@test.com", "+56912345678", company.Id, "Developer", DateTime.UtcNow, user1);
             var employee2 = Employee.Create("Jane Smith", "jane@test.com", "+56987654321", company.Id, "Designer", DateTime.UtcNow, user2);

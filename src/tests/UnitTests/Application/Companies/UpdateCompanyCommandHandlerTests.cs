@@ -42,7 +42,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
             var company = Company.Create("Test Company", TaxId.Create("12345678-9"));
             // Asignar el ID específico para el test
             company.GetType().GetProperty("Id")?.SetValue(company, companyId);
-            var user = User.Create("John", "Doe", Email.Create("john@test.com"), HashedPassword.Create("hashedpassword"));
+            var user = User.Create("John", "Doe", Email.Create("john@test.com"), HashedPassword.Create("hashedpassword"), companyId);
             var employee = Employee.Create("John Doe", "john@test.com", "+56912345678", company.Id, "Developer", DateTime.UtcNow, user);
             
             // Agregar empleado a la empresa
@@ -145,7 +145,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Companies
             company.AddSocialMedia(socialMedia);
             
             // Agregar un empleado para que la empresa sea válida
-            var user = User.Create("John", "Doe", Email.Create("john@test.com"), HashedPassword.Create("hashedpassword"));
+            var user = User.Create("John", "Doe", Email.Create("john@test.com"), HashedPassword.Create("hashedpassword"), company.Id);
             var employee = Employee.Create("John Doe", "john@test.com", "+56912345678", company.Id, "Developer", DateTime.UtcNow, user);
             company.AddEmployee(employee);
             

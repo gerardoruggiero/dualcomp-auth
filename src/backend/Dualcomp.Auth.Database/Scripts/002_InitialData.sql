@@ -39,11 +39,13 @@ VALUES (
 
 -- Insertar usuario de prueba sin empresa
 -- Contraseña: Test123! (hasheada con BCrypt)
-INSERT INTO Users (Id, FirstName, LastName, Email, Password) 
+INSERT INTO Users (Id, FirstName, LastName, Email, Password, CompanyId, IsCompanyAdmin) 
 VALUES (
     '44444444-4444-4444-4444-444444444444',
     'Usuario',
     'Prueba',
     'test@dualcomp.com',
-    '$2a$11$2XCP2SmZZRXQKKR2At6cvesPSkEx6nxYHXrs92S.hz25luS/AOLBO' -- Test123!
+    '$2a$11$2XCP2SmZZRXQKKR2At6cvesPSkEx6nxYHXrs92S.hz25luS/AOLBO', -- Test123!,
+    '11111111-1111-1111-1111-111111111111',
+    1
 );

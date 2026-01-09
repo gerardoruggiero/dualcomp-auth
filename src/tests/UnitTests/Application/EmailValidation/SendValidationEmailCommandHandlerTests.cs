@@ -54,7 +54,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             var userId = Guid.NewGuid();
             var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             
             var command = new SendValidationEmailCommand(userId);
             var emailMessage = new EmailMessage
@@ -121,7 +121,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             var userId = Guid.NewGuid();
             var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             user.ValidateEmail(); // Already validated
             
             var command = new SendValidationEmailCommand(userId);
@@ -145,7 +145,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             var userId = Guid.NewGuid();
             var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             
             var command = new SendValidationEmailCommand(userId);
 
@@ -170,7 +170,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             var userId = Guid.NewGuid();
             var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             
             var command = new SendValidationEmailCommand(userId);
             var emailMessage = new EmailMessage

@@ -29,7 +29,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             var token = "valid-token-123";
             var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             
             var emailValidation = Domain.Users.EmailValidation.CreateWithDefaultExpiration(userId, token);
             var command = new ValidateEmailCommand(token);
@@ -158,7 +158,7 @@ namespace Dualcomp.Auth.UnitTests.Application.EmailValidation
             var token = "valid-token-123";
             var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             user.ValidateEmail(); // Already validated
             
             var emailValidation = Domain.Users.EmailValidation.CreateWithDefaultExpiration(userId, token);

@@ -44,7 +44,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             // Arrange
             var email = Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             var userId = user.Id;
             
             var session = UserSession.Create(
@@ -190,7 +190,7 @@ namespace Dualcomp.Auth.UnitTests.Users
             var userId = Guid.NewGuid();
             var email = Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             user.Deactivate(); // Usuario inactivo
 
             var session = UserSession.Create(

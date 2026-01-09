@@ -17,12 +17,12 @@ namespace Dualcomp.Auth.Domain.Users
         public DateTime CreatedAt { get; private set; }
         public DateTime? LastLoginAt { get; private set; }
         public DateTime? EmailValidatedAt { get; private set; }
-        public Guid? CompanyId { get; private set; }
+        public Guid CompanyId { get; private set; }
         public bool IsCompanyAdmin { get; private set; }
 
         private User() { }
 
-        private User(string firstName, string lastName, Email email, HashedPassword password, Guid? companyId = null, bool isCompanyAdmin = false)
+        private User(string firstName, string lastName, Email email, HashedPassword password, Guid companyId, bool isCompanyAdmin = false)
         {
             Id = Guid.NewGuid();
             FirstName = string.IsNullOrWhiteSpace(firstName) ? throw new ArgumentException("FirstName is required", nameof(firstName)) : firstName.Trim();
@@ -34,11 +34,11 @@ namespace Dualcomp.Auth.Domain.Users
             MustChangePassword = false;
             TemporaryPassword = null;
             CreatedAt = DateTime.UtcNow;
-            CompanyId = companyId;
+            CompanyId = companyId == Guid.Empty ? throw new ArgumentException("CompanyId is required", nameof(companyId)) : companyId;
             IsCompanyAdmin = isCompanyAdmin;
         }
 
-        public static User Create(string firstName, string lastName, Email email, HashedPassword password, Guid? companyId = null, bool isCompanyAdmin = false)
+        public static User Create(string firstName, string lastName, Email email, HashedPassword password, Guid companyId, bool isCompanyAdmin = false)
             => new User(firstName, lastName, email, password, companyId, isCompanyAdmin);
 
         public void UpdatePassword(HashedPassword newPassword)
@@ -123,6 +123,11 @@ namespace Dualcomp.Auth.Domain.Users
         public void SetCompanyAdmin(bool isAdmin = true)
         {
             IsCompanyAdmin = isAdmin;
+        }
+
+        public void UpdateCompany(Guid companyId)
+        {
+            CompanyId = companyId == Guid.Empty ? throw new ArgumentException("CompanyId is required", nameof(companyId)) : companyId;
         }
     }
 }

@@ -354,7 +354,7 @@ public class RegisterCompanyCommandHandlerUserCreationTests
 		mockCompanyRepo.Setup(r => r.ExistsByTaxIdAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()))
 			.ReturnsAsync(false);
 		
-		var existingUser = User.Create("Existing", "User", Email.Create("john@test.com"), HashedPassword.Create("hash"), null, false);
+		var existingUser = User.Create("Existing", "User", Email.Create("john@test.com"), HashedPassword.Create("hash"), Guid.NewGuid(), false);
 		mockUserRepo.Setup(r => r.GetByEmailAsync(It.IsAny<Email>(), It.IsAny<CancellationToken>()))
 			.ReturnsAsync(existingUser);
 

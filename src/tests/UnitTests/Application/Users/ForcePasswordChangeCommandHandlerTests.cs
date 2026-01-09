@@ -73,7 +73,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var userId = Guid.NewGuid();
             var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             user.SetTemporaryPassword("temp123");
             
             var command = new ForcePasswordChangeCommand(userId, "temp123", "newPassword123");
@@ -154,7 +154,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var userId = Guid.NewGuid();
             var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             // User doesn't require password change
             
             var command = new ForcePasswordChangeCommand(userId, "temp123", "newPassword123");
@@ -178,7 +178,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var userId = Guid.NewGuid();
             var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             user.SetTemporaryPassword("correctTemp123");
             
             var command = new ForcePasswordChangeCommand(userId, "wrongTemp123", "newPassword123");
@@ -202,7 +202,7 @@ namespace Dualcomp.Auth.UnitTests.Application.Users
             var userId = Guid.NewGuid();
             var email = Domain.Companies.ValueObjects.Email.Create("test@example.com");
             var hashedPassword = HashedPassword.Create("hashedPassword");
-            var user = User.Create("John", "Doe", email, hashedPassword);
+            var user = User.Create("John", "Doe", email, hashedPassword, Guid.NewGuid());
             user.SetTemporaryPassword("temp123");
             
             var command = new ForcePasswordChangeCommand(userId, "temp123", "newPassword123");

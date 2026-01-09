@@ -106,7 +106,7 @@ namespace Dualcomp.Auth.Application.Users.CreateUser
             try
             {
                 // Obtener configuración SMTP de la empresa
-                var companySettings = await _companySettingsService.GetOrCreateDefaultSmtpSettingsAsync(user.CompanyId ?? Guid.Empty, null, cancellationToken);
+                var companySettings = await _companySettingsService.GetOrCreateDefaultSmtpSettingsAsync(user.CompanyId, null, cancellationToken);
                 var smtpConfig = new SmtpConfiguration
                 {
                     Server = companySettings.SmtpServer,
